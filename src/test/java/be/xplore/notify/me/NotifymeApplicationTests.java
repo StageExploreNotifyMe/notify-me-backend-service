@@ -8,6 +8,7 @@ class NotifymeApplicationTests {
 
     @Test
     void contextLoads() {
+        NotifymeApplication.main(new String[]{});
     }
 
 }
