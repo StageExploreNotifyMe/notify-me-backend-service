@@ -1,5 +1,6 @@
-package be.xplore.notify.me.domain;
+package be.xplore.notify.me.domain.user;
 
+import be.xplore.notify.me.domain.Organization;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +18,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class UserOrganisation {
+public class UserOrganization {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private String id;

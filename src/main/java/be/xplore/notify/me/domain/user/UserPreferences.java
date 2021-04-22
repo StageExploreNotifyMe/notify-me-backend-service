@@ -1,5 +1,6 @@
-package be.xplore.notify.me.domain;
+package be.xplore.notify.me.domain.user;
 
+import be.xplore.notify.me.domain.notification.NotificationChannel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,8 +16,11 @@ import javax.persistence.Id;
 @AllArgsConstructor
 @Getter
 @Setter
-public class User {
+public class UserPreferences {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
+
+    private NotificationChannel normalChannel;
+    private NotificationChannel urgentChannel;
 }
