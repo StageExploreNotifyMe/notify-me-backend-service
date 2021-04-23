@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Optional;
 
 @RestController
-@RequestMapping(value = "/userorganisation", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/userorganization", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 public class UserOrganizationController {
 
     private final UserOrganizationService userOrganizationService;
@@ -40,15 +40,15 @@ public class UserOrganizationController {
     }
 
     @PostMapping("/request/join")
-    public ResponseEntity<UserOrganization> userJoinOrganization(@RequestBody UserOrganizationDto dto) {
+    public ResponseEntity<UserOrganizationDto> userJoinOrganization(@RequestBody UserOrganizationDto dto) {
         Optional<User> optionalUser = userService.getById(dto.getUser().getId());
 
         Optional<Organization> optionalOrganization = organizationService.getById(dto.getOrganization().getId());
         if (optionalUser.isEmpty() || optionalOrganization.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(userOrganizationService.userJoinOrganization(optionalUser.get(), optionalOrganization.get()), HttpStatus.CREATED);
-
+        UserOrganization userOrganization = userOrganizationService.userJoinOrganization(optionalUser.get(), optionalOrganization.get());
+        return new ResponseEntity<>(modelMapper.map(userOrganization, UserOrganizationDto.class), HttpStatus.CREATED);
     }
 
     @PostMapping("/request/process")

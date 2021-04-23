@@ -90,7 +90,7 @@ class UserOrganizationControllerTest {
         try {
             mockSaves();
             mockFetchByIds();
-            String result = performJoinRequestWithBody(mapper.writeValueAsString(new UserOrganizationDto(userDto, organizationDto)), HttpStatus.CREATED.value());
+            String result = performJoinRequestWithBody(mapper.writeValueAsString(new UserOrganizationDto(null, null, null, userDto, organizationDto)), HttpStatus.CREATED.value());
             UserOrganization userOrganization = mapper.readValue(result, UserOrganization.class);
 
             Assertions.assertEquals(user.getId(), userOrganization.getUser().getId());
@@ -106,7 +106,7 @@ class UserOrganizationControllerTest {
             mockFetchByIds();
             given(userOrganizationRepo.save(any())).willThrow(new DatabaseException(new Exception()));
             userDto.setId("fsdqfd");
-            performJoinRequestWithBody(mapper.writeValueAsString(new UserOrganizationDto(userDto, organizationDto)), HttpStatus.NOT_FOUND.value());
+            performJoinRequestWithBody(mapper.writeValueAsString(new UserOrganizationDto(null, null, null, userDto, organizationDto)), HttpStatus.NOT_FOUND.value());
         } catch (Exception e) {
             failTest(e);
         }
@@ -118,7 +118,7 @@ class UserOrganizationControllerTest {
             mockFetchByIds();
             given(userOrganizationRepo.save(any())).willThrow(new DatabaseException(new Exception()));
             organizationDto.setId("dfsdf");
-            performJoinRequestWithBody(mapper.writeValueAsString(new UserOrganizationDto(userDto, organizationDto)), HttpStatus.NOT_FOUND.value());
+            performJoinRequestWithBody(mapper.writeValueAsString(new UserOrganizationDto(null, null, null, userDto, organizationDto)), HttpStatus.NOT_FOUND.value());
         } catch (Exception e) {
             failTest(e);
         }
@@ -129,7 +129,7 @@ class UserOrganizationControllerTest {
         try {
             mockFetchByIds();
             given(userOrganizationRepo.save(any())).willThrow(new DatabaseException(new Exception()));
-            performJoinRequestWithBody(mapper.writeValueAsString(new UserOrganizationDto(userDto, organizationDto)), HttpStatus.INTERNAL_SERVER_ERROR.value());
+            performJoinRequestWithBody(mapper.writeValueAsString(new UserOrganizationDto("", null, null, userDto, organizationDto)), HttpStatus.INTERNAL_SERVER_ERROR.value());
         } catch (Exception e) {
             failTest(e);
         }
@@ -141,7 +141,7 @@ class UserOrganizationControllerTest {
             mockFetchByIds();
             mockSaves();
             String requestBody = mapper.writeValueAsString(new UserOrganizationProcessDto(request.getId(), true));
-            ResultActions request = mockMvc.perform(post("/userorganisation/request/process").content(requestBody).contentType(MediaType.APPLICATION_JSON));
+            ResultActions request = mockMvc.perform(post("/userorganization/request/process").content(requestBody).contentType(MediaType.APPLICATION_JSON));
             request.andExpect(status().is(HttpStatus.OK.value()));
         } catch (Exception e) {
             failTest(e);
@@ -154,7 +154,7 @@ class UserOrganizationControllerTest {
             mockFetchByIds();
             mockSaves();
             String requestBody = mapper.writeValueAsString(new UserOrganizationProcessDto(request.getId() + "qksdfj", true));
-            ResultActions request = mockMvc.perform(post("/userorganisation/request/process").content(requestBody).contentType(MediaType.APPLICATION_JSON));
+            ResultActions request = mockMvc.perform(post("/userorganization/request/process").content(requestBody).contentType(MediaType.APPLICATION_JSON));
             request.andExpect(status().is(HttpStatus.NOT_FOUND.value()));
         } catch (Exception e) {
             failTest(e);
@@ -167,7 +167,7 @@ class UserOrganizationControllerTest {
             mockSaves();
             mockFetchByIds();
             mockUserOrganisationByOrganization_IdAndStatus();
-            ResultActions request = mockMvc.perform(get("/userorganisation/requests/1/pending/1").contentType(MediaType.APPLICATION_JSON));
+            ResultActions request = mockMvc.perform(get("/userorganization/requests/1/pending/1").contentType(MediaType.APPLICATION_JSON));
             request.andExpect(status().is(HttpStatus.OK.value()));
         } catch (Exception e) {
             failTest(e);
@@ -180,7 +180,7 @@ class UserOrganizationControllerTest {
     }
 
     private String performJoinRequestWithBody(String requestBody, int status) throws Exception {
-        ResultActions request = mockMvc.perform(post("/userorganisation/request/join").content(requestBody).contentType(MediaType.APPLICATION_JSON));
+        ResultActions request = mockMvc.perform(post("/userorganization/request/join").content(requestBody).contentType(MediaType.APPLICATION_JSON));
         ResultActions expectedRequest = request.andExpect(status().is(status));
         return expectedRequest.andReturn().getResponse().getContentAsString();
     }

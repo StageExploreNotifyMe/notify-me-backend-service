@@ -60,7 +60,7 @@ public class UserOrganizationService {
         try {
             return userOrganizationRepo.findById(id);
         } catch (Exception e) {
-            log.error("Fetching UserOrganisation with id {} failed: {}: {}", id, e.getClass().getSimpleName(), e.getMessage());
+            log.error("Fetching UserOrganization with id {} failed: {}: {}", id, e.getClass().getSimpleName(), e.getMessage());
             throw new DatabaseException(e);
         }
     }
@@ -69,7 +69,7 @@ public class UserOrganizationService {
         try {
             return userOrganizationRepo.save(userOrganization);
         } catch (Exception e) {
-            log.error("Saving UserOrganisation failed: {}: {}", e.getClass().getSimpleName(), e.getMessage());
+            log.error("Saving UserOrganization failed: {}: {}", e.getClass().getSimpleName(), e.getMessage());
             throw new DatabaseException(e);
         }
     }
