@@ -1,6 +1,8 @@
 package be.xplore.notify.me.api;
 
-import be.xplore.notify.me.api.dto.UserOrganizationIdsDto;
+import be.xplore.notify.me.api.dto.OrganizationDto;
+import be.xplore.notify.me.api.dto.UserDto;
+import be.xplore.notify.me.api.dto.UserOrganizationDto;
 import be.xplore.notify.me.api.dto.UserOrganizationProcessDto;
 import be.xplore.notify.me.domain.Organization;
 import be.xplore.notify.me.domain.exceptions.DatabaseException;
@@ -17,20 +19,24 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -44,9 +50,14 @@ class UserOrganizationControllerTest {
     @Autowired
     private ObjectMapper mapper;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
     private User user;
     private Organization organization;
     private UserOrganization request;
+    private UserDto userDto;
+    private OrganizationDto organizationDto;
 
     @MockBean
     private UserOrganizationRepo userOrganizationRepo;
@@ -70,6 +81,8 @@ class UserOrganizationControllerTest {
         user = new User("1", new UserPreferences("1", NotificationChannel.EMAIL, NotificationChannel.SMS), "Test", "User", new ArrayList<>());
         organization = new Organization("1", "Example Organization");
         request = new UserOrganization("1", user, organization, Role.MEMBER, MemberRequestStatus.PENDING);
+        userDto = modelMapper.map(user, UserDto.class);
+        organizationDto = modelMapper.map(organization, OrganizationDto.class);
     }
 
     @Test
@@ -77,7 +90,7 @@ class UserOrganizationControllerTest {
         try {
             mockSaves();
             mockFetchByIds();
-            String result = performJoinRequestWithBody(mapper.writeValueAsString(new UserOrganizationIdsDto(user.getId(), organization.getId())), HttpStatus.CREATED.value());
+            String result = performJoinRequestWithBody(mapper.writeValueAsString(new UserOrganizationDto(userDto, organizationDto)), HttpStatus.CREATED.value());
             UserOrganization userOrganization = mapper.readValue(result, UserOrganization.class);
 
             Assertions.assertEquals(user.getId(), userOrganization.getUser().getId());
@@ -92,7 +105,8 @@ class UserOrganizationControllerTest {
         try {
             mockFetchByIds();
             given(userOrganizationRepo.save(any())).willThrow(new DatabaseException(new Exception()));
-            performJoinRequestWithBody(mapper.writeValueAsString(new UserOrganizationIdsDto("qmdfkljm", organization.getId())), HttpStatus.NOT_FOUND.value());
+            userDto.setId("fsdqfd");
+            performJoinRequestWithBody(mapper.writeValueAsString(new UserOrganizationDto(userDto, organizationDto)), HttpStatus.NOT_FOUND.value());
         } catch (Exception e) {
             failTest(e);
         }
@@ -103,7 +117,8 @@ class UserOrganizationControllerTest {
         try {
             mockFetchByIds();
             given(userOrganizationRepo.save(any())).willThrow(new DatabaseException(new Exception()));
-            performJoinRequestWithBody(mapper.writeValueAsString(new UserOrganizationIdsDto(user.getId(), organization.getId() + "qdsf")), HttpStatus.NOT_FOUND.value());
+            organizationDto.setId("dfsdf");
+            performJoinRequestWithBody(mapper.writeValueAsString(new UserOrganizationDto(userDto, organizationDto)), HttpStatus.NOT_FOUND.value());
         } catch (Exception e) {
             failTest(e);
         }
@@ -114,7 +129,7 @@ class UserOrganizationControllerTest {
         try {
             mockFetchByIds();
             given(userOrganizationRepo.save(any())).willThrow(new DatabaseException(new Exception()));
-            performJoinRequestWithBody(mapper.writeValueAsString(new UserOrganizationIdsDto(user.getId(), organization.getId())), HttpStatus.INTERNAL_SERVER_ERROR.value());
+            performJoinRequestWithBody(mapper.writeValueAsString(new UserOrganizationDto(userDto, organizationDto)), HttpStatus.INTERNAL_SERVER_ERROR.value());
         } catch (Exception e) {
             failTest(e);
         }
@@ -146,6 +161,19 @@ class UserOrganizationControllerTest {
         }
     }
 
+    @Test
+    void getPendingJoinRequests() {
+        try {
+            mockSaves();
+            mockFetchByIds();
+            mockUserOrganisationByOrganization_IdAndStatus();
+            ResultActions request = mockMvc.perform(get("/userorganisation/requests/1/pending/1").contentType(MediaType.APPLICATION_JSON));
+            request.andExpect(status().is(HttpStatus.OK.value()));
+        } catch (Exception e) {
+            failTest(e);
+        }
+    }
+
     private void failTest(Exception e) {
         e.printStackTrace();
         Assertions.fail("Exception was thrown in test.");
@@ -155,5 +183,13 @@ class UserOrganizationControllerTest {
         ResultActions request = mockMvc.perform(post("/userorganisation/request/join").content(requestBody).contentType(MediaType.APPLICATION_JSON));
         ResultActions expectedRequest = request.andExpect(status().is(status));
         return expectedRequest.andReturn().getResponse().getContentAsString();
+    }
+
+    private void mockUserOrganisationByOrganization_IdAndStatus() {
+        given(userOrganizationRepo.getUserOrganisationByOrganization_IdAndStatus(any(), any(), any())).will(i -> {
+            List<UserOrganization> pending = new ArrayList<>();
+            pending.add(request);
+            return new PageImpl<>(pending);
+        });
     }
 }

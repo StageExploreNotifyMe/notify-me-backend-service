@@ -9,7 +9,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserOrganizationIdsDto {
-    private String userId;
-    private String organizationId;
+public class UserOrganizationDto {
+    private UserDto user;
+    private OrganizationDto organization;
+
 }
