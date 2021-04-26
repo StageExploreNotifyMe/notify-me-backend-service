@@ -1,10 +1,12 @@
 package be.xplore.notify.me.api;
 
-import be.xplore.notify.me.api.dto.UserOrganizationDto;
-import be.xplore.notify.me.api.dto.UserOrganizationProcessDto;
 import be.xplore.notify.me.domain.Organization;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.domain.user.UserOrganization;
+import be.xplore.notify.me.dto.mappers.UserOrganizationDtoMapper;
+import be.xplore.notify.me.dto.user.UserOrganizationDto;
+import be.xplore.notify.me.dto.user.UserOrganizationIdsDto;
+import be.xplore.notify.me.dto.user.UserOrganizationProcessDto;
 import be.xplore.notify.me.services.OrganizationService;
 import be.xplore.notify.me.services.user.UserOrganizationService;
 import be.xplore.notify.me.services.user.UserService;
@@ -31,24 +33,31 @@ public class UserOrganizationController {
     private final UserService userService;
     private final OrganizationService organizationService;
     private final ModelMapper modelMapper;
+    private final UserOrganizationDtoMapper userOrganizationDtoMapper;
 
-    public UserOrganizationController(UserOrganizationService userOrganizationService, UserService userService, OrganizationService organizationService, ModelMapper modelMapper) {
+    public UserOrganizationController(
+                UserOrganizationService userOrganizationService, UserService userService,
+                OrganizationService organizationService, ModelMapper modelMapper,
+                UserOrganizationDtoMapper userOrganizationDtoMapper
+    ) {
         this.userOrganizationService = userOrganizationService;
         this.userService = userService;
         this.organizationService = organizationService;
         this.modelMapper = modelMapper;
+        this.userOrganizationDtoMapper = userOrganizationDtoMapper;
     }
 
     @PostMapping("/request/join")
-    public ResponseEntity<UserOrganizationDto> userJoinOrganization(@RequestBody UserOrganizationDto dto) {
-        Optional<User> optionalUser = userService.getById(dto.getUser().getId());
+    public ResponseEntity<UserOrganizationDto> userJoinOrganization(@RequestBody UserOrganizationIdsDto dto) {
+        Optional<User> optionalUser = userService.getById(dto.getUserId());
 
-        Optional<Organization> optionalOrganization = organizationService.getById(dto.getOrganization().getId());
+        Optional<Organization> optionalOrganization = organizationService.getById(dto.getOrganizationId());
         if (optionalUser.isEmpty() || optionalOrganization.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         UserOrganization userOrganization = userOrganizationService.userJoinOrganization(optionalUser.get(), optionalOrganization.get());
-        return new ResponseEntity<>(modelMapper.map(userOrganization, UserOrganizationDto.class), HttpStatus.CREATED);
+        UserOrganizationDto returnDto = userOrganizationDtoMapper.toDto(userOrganization);
+        return new ResponseEntity<>(returnDto, HttpStatus.CREATED);
     }
 
     @PostMapping("/request/process")

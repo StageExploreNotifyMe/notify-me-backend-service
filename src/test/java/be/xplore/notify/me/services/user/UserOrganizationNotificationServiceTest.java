@@ -18,8 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import java.util.ArrayList;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -36,7 +34,7 @@ class UserOrganizationNotificationServiceTest {
 
     private User user;
     private Organization organization;
-
+    private UserOrganization.UserOrganizationBuilder userOrganizationBuilder;
     private Notification sendNotification;
 
     private void setupMocking() {
@@ -48,15 +46,18 @@ class UserOrganizationNotificationServiceTest {
 
     @BeforeEach
     void setUp() {
-        user = new User("1", new UserPreferences("1", NotificationChannel.EMAIL, NotificationChannel.SMS), "John", "Doe", new ArrayList<>());
-        organization = new Organization("1", "Test Organization");
+        UserPreferences userPreferences = UserPreferences.builder().id("1").normalChannel(NotificationChannel.EMAIL).urgentChannel(NotificationChannel.SMS).build();
+        user = User.builder().id("1").userPreferences(userPreferences).firstname("John").lastname("Doe").build();
+        organization = Organization.builder().id("1").name("Example Organization").build();
+        userOrganizationBuilder = UserOrganization.builder().id("1").user(user).organization(organization).role(Role.MEMBER);
+
         sendNotification = null;
         setupMocking();
     }
 
     @Test
     void sendResolvedPendingRequestNotificationAccepted() {
-        UserOrganization userOrganization = new UserOrganization("1", user, organization, Role.MEMBER, MemberRequestStatus.ACCEPTED);
+        UserOrganization userOrganization = userOrganizationBuilder.status(MemberRequestStatus.ACCEPTED).build();
         userOrganizationNotificationService.sendResolvedPendingRequestNotification(userOrganization);
 
         Assertions.assertEquals(NotificationType.USER_JOINED, sendNotification.getType());
@@ -64,7 +65,7 @@ class UserOrganizationNotificationServiceTest {
 
     @Test
     void sendResolvedPendingRequestNotificationDenied() {
-        UserOrganization userOrganization = new UserOrganization("1", user, organization, Role.MEMBER, MemberRequestStatus.DECLINED);
+        UserOrganization userOrganization = userOrganizationBuilder.status(MemberRequestStatus.DECLINED).build();
         userOrganizationNotificationService.sendResolvedPendingRequestNotification(userOrganization);
         Assertions.assertEquals(NotificationType.USER_DECLINED, sendNotification.getType());
     }

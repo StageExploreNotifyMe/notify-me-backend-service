@@ -1,6 +1,5 @@
-package be.xplore.notify.me.api.dto;
+package be.xplore.notify.me.dto.user;
 
-import be.xplore.notify.me.domain.user.UserPreferences;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +11,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UserDto {
     private String id;
-    private UserPreferences userPreferences;
+    private UserPreferencesDto userPreferences;
     private String firstname;
     private String lastname;
 }

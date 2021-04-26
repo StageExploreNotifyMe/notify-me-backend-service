@@ -1,32 +1,16 @@
 package be.xplore.notify.me.domain.user;
 
 import be.xplore.notify.me.domain.Organization;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Builder;
+import lombok.Value;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-
-import static javax.persistence.GenerationType.IDENTITY;
-
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@Entity
+@Value
+@Builder
 public class UserOrganization {
-    @Id
-    @GeneratedValue(strategy = IDENTITY)
-    private String id;
-    @ManyToOne
-    private User user;
-    @ManyToOne
-    private Organization organization;
-    private Role role;
-    private MemberRequestStatus status;
+    String id;
+    User user;
+    Organization organization;
+    Role role;
+    MemberRequestStatus status;
 
 }

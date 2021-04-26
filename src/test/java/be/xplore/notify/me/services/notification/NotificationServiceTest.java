@@ -2,20 +2,13 @@ package be.xplore.notify.me.services.notification;
 
 import be.xplore.notify.me.domain.exceptions.DatabaseException;
 import be.xplore.notify.me.domain.notification.Notification;
-import be.xplore.notify.me.domain.notification.NotificationChannel;
-import be.xplore.notify.me.domain.notification.NotificationType;
-import be.xplore.notify.me.domain.notification.NotificationUrgency;
 import be.xplore.notify.me.domain.user.User;
-import be.xplore.notify.me.domain.user.UserPreferences;
 import be.xplore.notify.me.repositories.NotificationRepo;
 import be.xplore.notify.me.services.user.UserService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-
-import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -34,14 +27,16 @@ class NotificationServiceTest {
     @MockBean
     private UserService userService;
 
+    @Autowired
     private Notification notification;
+    @Autowired
     private User user;
 
     private void mockAddNotificationToInbox() {
         given(userService.addNotificationToInbox(any())).will(i -> {
             Notification n = i.getArgument(0);
-            n.getUser().getInbox().add(n);
-            return n.getUser();
+            user.getInbox().add(n);
+            return user;
         });
     }
 
@@ -49,19 +44,13 @@ class NotificationServiceTest {
         given(notificationRepo.save(any())).will(i -> i.getArgument(0));
     }
 
-    @BeforeEach
-    void setUp() {
-        user = new User("1", new UserPreferences("1", NotificationChannel.EMAIL, NotificationChannel.SMS), "John", "Doe", new ArrayList<>());
-        notification = new Notification("1", user, "Test", "This is a test", NotificationChannel.EMAIL, NotificationType.USER_JOINED, NotificationUrgency.NORMAL);
-    }
-
     @Test
     void saveNotificationAndSendToInbox() {
         mockAddNotificationToInbox();
         mockSaveNotification();
         Notification returnedNotification = notificationService.saveNotificationAndSendToInbox(notification);
-        assertEquals(notification, returnedNotification);
-        assertTrue(user.getInbox().contains(notification));
+        assertEquals(notification.getId(), returnedNotification.getId());
+        assertTrue(user.getInbox().stream().anyMatch(n -> n.getId().equals(notification.getId())));
     }
 
     @Test

@@ -7,8 +7,9 @@ import be.xplore.notify.me.domain.user.MemberRequestStatus;
 import be.xplore.notify.me.domain.user.Role;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.domain.user.UserOrganization;
+import be.xplore.notify.me.entity.mappers.user.UserOrganizationEntityMapper;
+import be.xplore.notify.me.entity.user.UserOrganizationEntity;
 import be.xplore.notify.me.repositories.UserOrganizationRepo;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -39,16 +40,15 @@ class UserOrganizationServiceTest {
     @MockBean //Not relevant for these unit tests
     private UserOrganizationNotificationService userOrganizationNotificationService;
 
-    private User user;
-    private Organization organization;
-    private UserOrganization request;
+    @Autowired
+    private UserOrganizationEntityMapper userOrganizationEntityMapper;
 
-    @BeforeEach
-    void setUp() {
-        user = new User();
-        organization = new Organization("1", "Example Organization");
-        request = new UserOrganization("1", user, organization, Role.MEMBER, MemberRequestStatus.PENDING);
-    }
+    @Autowired
+    private User user;
+    @Autowired
+    private Organization organization;
+    @Autowired
+    private UserOrganization request;
 
     private void mockSave() {
         given(userOrganizationRepo.save(any())).will(i -> i.getArgument(0));
@@ -58,16 +58,16 @@ class UserOrganizationServiceTest {
         given(userOrganizationRepo.findById(any())).will(i -> {
             String id = i.getArgument(0);
             if (id.equals(request.getId())) {
-                return Optional.of(request);
+                return Optional.of(userOrganizationEntityMapper.toEntity(request));
             }
             return Optional.empty();
         });
     }
 
     private void mockUserOrganisationByOrganization_IdAndStatus() {
-        given(userOrganizationRepo.getUserOrganisationByOrganization_IdAndStatus(any(), any(), any())).will(i -> {
-            List<UserOrganization> pending = new ArrayList<>();
-            pending.add(request);
+        given(userOrganizationRepo.getUserOrganisationByOrganizationEntity_IdAndStatus(any(), any(), any())).will(i -> {
+            List<UserOrganizationEntity> pending = new ArrayList<>();
+            pending.add(userOrganizationEntityMapper.toEntity(request));
             return new PageImpl<>(pending);
         });
     }
@@ -98,7 +98,7 @@ class UserOrganizationServiceTest {
 
     @Test
     void getPendingJoinRequestsThrowsDbException() {
-        given(userOrganizationRepo.getUserOrganisationByOrganization_IdAndStatus(any(), any(), any())).willThrow(new DatabaseException(new Exception()));
+        given(userOrganizationRepo.getUserOrganisationByOrganizationEntity_IdAndStatus(any(), any(), any())).willThrow(new DatabaseException(new Exception()));
         assertThrows(DatabaseException.class, () -> userOrganizationService.getPendingJoinRequests(organization.getId(), PageRequest.of(0, 20)));
     }
 

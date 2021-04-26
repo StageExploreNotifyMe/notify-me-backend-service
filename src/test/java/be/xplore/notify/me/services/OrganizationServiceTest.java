@@ -2,8 +2,8 @@ package be.xplore.notify.me.services;
 
 import be.xplore.notify.me.domain.Organization;
 import be.xplore.notify.me.domain.exceptions.DatabaseException;
+import be.xplore.notify.me.entity.mappers.OrganizationEntityMapper;
 import be.xplore.notify.me.repositories.OrganizationRepo;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,18 +25,17 @@ class OrganizationServiceTest {
     @MockBean
     private OrganizationRepo organizationRepo;
 
+    @Autowired
     private Organization organization;
 
-    @BeforeEach
-    void setUp() {
-        organization = new Organization("1", "Test");
-    }
+    @Autowired
+    private OrganizationEntityMapper organizationEntityMapper;
 
     private void mockFetchById() {
         given(organizationRepo.findById(any())).will(i -> {
             String id = i.getArgument(0);
             if (organization.getId().equals(id)) {
-                return Optional.of(organization);
+                return Optional.of(organizationEntityMapper.toEntity(organization));
             } else {
                 return Optional.empty();
             }

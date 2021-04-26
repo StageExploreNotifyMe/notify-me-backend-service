@@ -24,28 +24,28 @@ public class UserOrganizationNotificationService {
     public void sendResolvedPendingRequestNotification(UserOrganization userOrganization) {
         User user = userOrganization.getUser();
 
-        Notification notification = new Notification();
-        notification.setUser(user);
+        Notification.NotificationBuilder builder = Notification.builder().userId(user.getId());
 
-        setResolvedTitleAndBody(userOrganization, user, notification);
-        setResolvedNotificationDetails(userOrganization, user, notification);
+        setResolvedTitleAndBody(userOrganization, user, builder);
+        setResolvedNotificationDetails(userOrganization, user, builder);
 
+        Notification notification = builder.build();
         notificationService.saveNotificationAndSendToInbox(notification);
         notificationSenderService.sendNotification(notification);
     }
 
-    private void setResolvedNotificationDetails(UserOrganization userOrganization, User user, Notification notification) {
-        notification.setType(userOrganization.getStatus() == MemberRequestStatus.ACCEPTED ? NotificationType.USER_JOINED : NotificationType.USER_DECLINED);
-        notification.setUrgency(NotificationUrgency.NORMAL);
-        notification.setUsedChannel(user.getUserPreferences().getNormalChannel());
+    private void setResolvedNotificationDetails(UserOrganization userOrganization, User user, Notification.NotificationBuilder builder) {
+        builder.type(userOrganization.getStatus() == MemberRequestStatus.ACCEPTED ? NotificationType.USER_JOINED : NotificationType.USER_DECLINED);
+        builder.urgency(NotificationUrgency.NORMAL);
+        builder.usedChannel(user.getUserPreferences().getNormalChannel());
     }
 
-    private void setResolvedTitleAndBody(UserOrganization userOrganization, User user, Notification notification) {
+    private void setResolvedTitleAndBody(UserOrganization userOrganization, User user, Notification.NotificationBuilder builder) {
         String title = String.format("Request to join %s %s", userOrganization.getOrganization().getName(), userOrganization.getStatus().toString());
         String body = String.format("%s %s", user.getFirstname(), user.getLastname());
 
-        notification.setTitle(title);
-        notification.setBody(body);
+        builder.title(title);
+        builder.body(body);
     }
 
 }

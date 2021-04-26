@@ -1,18 +1,16 @@
 package be.xplore.notify.me.services.user;
 
 import be.xplore.notify.me.domain.exceptions.DatabaseException;
+import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.notification.Notification;
-import be.xplore.notify.me.domain.notification.NotificationChannel;
 import be.xplore.notify.me.domain.user.User;
-import be.xplore.notify.me.domain.user.UserPreferences;
+import be.xplore.notify.me.entity.mappers.user.UserEntityMapper;
 import be.xplore.notify.me.repositories.UserRepo;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,17 +27,18 @@ class UserServiceTest {
     @MockBean
     private UserRepo userRepo;
 
-    private User user;
+    @Autowired
+    private UserEntityMapper userEntityMapper;
 
-    @BeforeEach
-    void setUp() {
-        user = new User("1", new UserPreferences("1", NotificationChannel.EMAIL, NotificationChannel.SMS), "Test", "User", new ArrayList<>());
-    }
+    @Autowired
+    private User user;
+    @Autowired
+    private Notification notification;
 
     private void mockGetById() {
         given(userRepo.findById(any())).will(i -> {
             if (i.getArgument(0).equals(user.getId())) {
-                return Optional.of(user);
+                return Optional.of(userEntityMapper.toEntity(user));
             }
             return Optional.empty();
         });
@@ -52,7 +51,7 @@ class UserServiceTest {
     @Test
     void getById() {
         mockGetById();
-        String id = "1";
+        String id = user.getId();
         Optional<User> optionalUser = userService.getById(id);
         assertTrue(optionalUser.isPresent());
         User userById = optionalUser.get();
@@ -68,11 +67,22 @@ class UserServiceTest {
     @Test
     void addNotificationToInbox() {
         mockSave();
-        Notification notification = new Notification();
-        notification.setUser(user);
+        mockGetById();
+        User returnedUser = userService.addNotificationToInbox(notification);
+        assertTrue(returnedUser.getInbox().stream().anyMatch(n -> n.getId().equals(notification.getId())));
+    }
 
-        userService.addNotificationToInbox(notification);
-        assertTrue(user.getInbox().contains(notification));
+    @Test
+    void addNotificationToInboxUserNotFound() {
+        mockSave();
+        mockGetById();
+        assertThrows(NotFoundException.class, () -> userService.addNotificationToInbox(Notification.builder().userId("qdsfae").build()));
+    }
+
+    @Test
+    void userSaveDbException() {
+        given(userRepo.save(any())).willThrow(new DatabaseException(new Exception()));
+        assertThrows(DatabaseException.class, () -> userService.saveUser(User.builder().build()));
     }
 
 }
