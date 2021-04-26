@@ -1,9 +1,10 @@
-package be.xplore.notify.me.domain;
+package be.xplore.notify.me.entity;
 
+import be.xplore.notify.me.domain.MemberRequestStatus;
+import be.xplore.notify.me.domain.Role;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -12,20 +13,18 @@ import javax.persistence.ManyToOne;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
-@Getter
-@Setter
+@Entity
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-public class UserOrganisation {
+public class UserOrganizationEntity {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private String id;
     @ManyToOne
-    private User user;
+    private UserEntity userEntity;
     @ManyToOne
-    private Organization organization;
+    private OrganizationEntity organizationEntity;
     private Role role;
     private MemberRequestStatus status;
-
 }

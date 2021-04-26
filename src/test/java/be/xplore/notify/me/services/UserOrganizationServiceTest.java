@@ -4,9 +4,9 @@ import be.xplore.notify.me.domain.MemberRequestStatus;
 import be.xplore.notify.me.domain.Organization;
 import be.xplore.notify.me.domain.Role;
 import be.xplore.notify.me.domain.User;
-import be.xplore.notify.me.domain.UserOrganisation;
+import be.xplore.notify.me.domain.UserOrganization;
 import be.xplore.notify.me.domain.exceptions.DatabaseException;
-import be.xplore.notify.me.repositories.UserOrganisationRepo;
+import be.xplore.notify.me.repositories.UserOrganizationRepo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,32 +26,32 @@ class UserOrganizationServiceTest {
     private UserOrganizationService userOrganizationService;
 
     @MockBean
-    private UserOrganisationRepo userOrganisationRepo;
+    private UserOrganizationRepo userOrganizationRepo;
 
     private User user;
     private Organization organization;
 
     @BeforeEach
     void setUp() {
-        user = new User();
-        organization = new Organization();
+        user = User.builder().build();
+        organization = Organization.builder().build();
 
-        given(userOrganisationRepo.save(any())).will(i -> i.getArgument(0));
+        given(userOrganizationRepo.save(any())).will(i -> i.getArgument(0));
     }
 
     @Test
     void userJoinOrganization() {
-        UserOrganisation uo = userOrganizationService.userJoinOrganization(user, organization);
+        UserOrganization uo = userOrganizationService.userJoinOrganization(user, organization);
         assertNotNull(uo);
-        assertEquals(user, uo.getUser());
-        assertEquals(organization, uo.getOrganization());
+        assertEquals(user.getId(), uo.getUser().getId());
+        assertEquals(organization.getId(), uo.getOrganization().getId());
         assertEquals(Role.MEMBER, uo.getRole());
         assertEquals(MemberRequestStatus.PENDING, uo.getStatus());
     }
 
     @Test
     void userJoinOrganizationDbException() {
-        given(userOrganisationRepo.save(any())).willThrow(new DatabaseException(new Exception("test exception")));
+        given(userOrganizationRepo.save(any())).willThrow(new DatabaseException(new Exception("test exception")));
         assertThrows(DatabaseException.class, () -> userOrganizationService.userJoinOrganization(user, organization));
     }
 }

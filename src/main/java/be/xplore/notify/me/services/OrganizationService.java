@@ -6,6 +6,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class OrganizationService {
     public Organization getOrganizationById(String organizationId) {
-        return new Organization(organizationId, "");
+        return Organization.builder().id(organizationId).build();
     }
 }

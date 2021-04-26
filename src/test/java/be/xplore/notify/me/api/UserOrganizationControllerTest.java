@@ -1,9 +1,9 @@
 package be.xplore.notify.me.api;
 
-import be.xplore.notify.me.api.dto.UserOrganizationIdsDto;
-import be.xplore.notify.me.domain.UserOrganisation;
 import be.xplore.notify.me.domain.exceptions.DatabaseException;
-import be.xplore.notify.me.repositories.UserOrganisationRepo;
+import be.xplore.notify.me.dto.UserOrganizationDto;
+import be.xplore.notify.me.dto.UserOrganizationIdsDto;
+import be.xplore.notify.me.repositories.UserOrganizationRepo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class UserOrganisationControllerTest {
+class UserOrganizationControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -36,21 +36,21 @@ class UserOrganisationControllerTest {
     private final String organizationId = "testOrganization";
 
     @MockBean
-    private UserOrganisationRepo userOrganisationRepo;
+    private UserOrganizationRepo userOrganizationRepo;
 
     @BeforeEach
     void setUp() {
-        given(userOrganisationRepo.save(any())).will(i -> i.getArgument(0));
+        given(userOrganizationRepo.save(any())).will(i -> i.getArgument(0));
     }
 
     @Test
     void userJoinOrganization() {
         try {
             String result = performRequestWithBody(mapper.writeValueAsString(new UserOrganizationIdsDto(userId, organizationId)), HttpStatus.CREATED.value());
-            UserOrganisation userOrganisation = mapper.readValue(result, UserOrganisation.class);
+            UserOrganizationDto userOrganization = mapper.readValue(result, UserOrganizationDto.class);
 
-            Assertions.assertEquals(userId, userOrganisation.getUser().getId());
-            Assertions.assertEquals(organizationId, userOrganisation.getOrganization().getId());
+            Assertions.assertEquals(userId, userOrganization.getUser().getId());
+            Assertions.assertEquals(organizationId, userOrganization.getOrganization().getId());
         } catch (Exception e) {
             FailTest(e);
         }
@@ -59,7 +59,7 @@ class UserOrganisationControllerTest {
     @Test
     void userJoinException() {
         try {
-            given(userOrganisationRepo.save(any())).willThrow(new DatabaseException(new Exception()));
+            given(userOrganizationRepo.save(any())).willThrow(new DatabaseException(new Exception()));
             performRequestWithBody(mapper.writeValueAsString(new UserOrganizationIdsDto(userId, organizationId)), HttpStatus.INTERNAL_SERVER_ERROR.value());
         } catch (Exception e) {
             FailTest(e);
