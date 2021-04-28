@@ -1,4 +1,4 @@
-
+INSERT INTO venue_entity (id, name) values ('1', 'Groenplaats');
 INSERT INTO organization_entity (id, name) values ('1', 'KdG');
 
 INSERT INTO user_preferences_entity (id, normal_channel, urgent_channel) values ('1', 0, 1);
