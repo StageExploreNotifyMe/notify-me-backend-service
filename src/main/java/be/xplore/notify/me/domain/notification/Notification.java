@@ -3,6 +3,8 @@ package be.xplore.notify.me.domain.notification;
 import lombok.Builder;
 import lombok.Value;
 
+import java.time.LocalDateTime;
+
 @Value
 @Builder
 public class Notification {
@@ -13,6 +15,7 @@ public class Notification {
     NotificationChannel usedChannel;
     NotificationType type;
     NotificationUrgency urgency;
+    LocalDateTime dateTime;
 
     @Override
     public String toString() {

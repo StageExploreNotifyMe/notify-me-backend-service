@@ -13,6 +13,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import java.time.LocalDateTime;
+
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,4 +30,5 @@ public class NotificationEntity {
     private NotificationChannel usedChannel;
     private NotificationType type;
     private NotificationUrgency urgency;
+    private LocalDateTime dateTime;
 }
