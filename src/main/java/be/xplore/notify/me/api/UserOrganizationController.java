@@ -1,6 +1,8 @@
 package be.xplore.notify.me.api;
 
 import be.xplore.notify.me.domain.Organization;
+import be.xplore.notify.me.domain.exceptions.NotFoundException;
+import be.xplore.notify.me.domain.user.Role;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.domain.user.UserOrganization;
 import be.xplore.notify.me.dto.mappers.UserOrganizationDtoMapper;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
@@ -36,9 +39,9 @@ public class UserOrganizationController {
     private final UserOrganizationDtoMapper userOrganizationDtoMapper;
 
     public UserOrganizationController(
-                UserOrganizationService userOrganizationService, UserService userService,
-                OrganizationService organizationService, ModelMapper modelMapper,
-                UserOrganizationDtoMapper userOrganizationDtoMapper
+            UserOrganizationService userOrganizationService, UserService userService,
+            OrganizationService organizationService, ModelMapper modelMapper,
+            UserOrganizationDtoMapper userOrganizationDtoMapper
     ) {
         this.userOrganizationService = userOrganizationService;
         this.userService = userService;
@@ -66,11 +69,57 @@ public class UserOrganizationController {
         return new ResponseEntity<>(true, HttpStatus.OK);
     }
 
-    @GetMapping("/requests/{organizationId}/pending/{page}")
-    public ResponseEntity<Page<UserOrganizationDto>> getOpenUserOrganizationRequests(@PathVariable String organizationId, @PathVariable int page) {
-        Page<UserOrganization> requests = userOrganizationService.getPendingJoinRequests(organizationId, PageRequest.of(page, 20));
+    @GetMapping("/requests/{organizationId}/pending")
+    public ResponseEntity<Page<UserOrganizationDto>> getOpenUserOrganizationRequests(@PathVariable String organizationId, @RequestParam(required = false) Integer page) {
+        int pageNumber = convertPageNumber(page);
+        Page<UserOrganization> requests = userOrganizationService.getPendingJoinRequests(organizationId, PageRequest.of(pageNumber, 20));
+        return getPageResponseEntity(requests);
+    }
+
+    @GetMapping("/{organizationId}/users")
+    public ResponseEntity<Page<UserOrganizationDto>> getUsersOfOrganization(@PathVariable String organizationId, @RequestParam(required = false) Integer page) {
+        int pageNumber = convertPageNumber(page);
+        Optional<Organization> organizationOptional = organizationService.getById(organizationId);
+        if (organizationOptional.isEmpty()) {
+            throw new NotFoundException("No organization with id " + organizationId + " found");
+        }
+
+        Page<UserOrganization> requests = userOrganizationService.getAllUsersByOrganizationId(organizationOptional.get().getId(), PageRequest.of(pageNumber, 20));
+        return getPageResponseEntity(requests);
+    }
+
+    @PostMapping("/{id}/promote")
+    public ResponseEntity<UserOrganizationDto> promoteMember(@PathVariable String id) {
+        UserOrganization userOrganization = getUserOrganizationById(id);
+        UserOrganization promoted = userOrganizationService.changeOrganizationMemberRole(userOrganization, Role.ORGANIZATION_LEADER);
+        return new ResponseEntity<>(userOrganizationDtoMapper.toDto(promoted), HttpStatus.OK);
+    }
+
+    @PostMapping("/{id}/demote")
+    public ResponseEntity<UserOrganizationDto> demoteMember(@PathVariable String id) {
+        UserOrganization userOrganization = getUserOrganizationById(id);
+        UserOrganization promoted = userOrganizationService.changeOrganizationMemberRole(userOrganization, Role.MEMBER);
+        return new ResponseEntity<>(userOrganizationDtoMapper.toDto(promoted), HttpStatus.OK);
+    }
+
+    private UserOrganization getUserOrganizationById(String id) {
+        Optional<UserOrganization> userOrganizationOptional = userOrganizationService.getById(id);
+        if (userOrganizationOptional.isEmpty()) {
+            throw new NotFoundException("Could not find a userOrganization with id " + id);
+        }
+        return userOrganizationOptional.get();
+    }
+
+    private ResponseEntity<Page<UserOrganizationDto>> getPageResponseEntity(Page<UserOrganization> requests) {
         Page<UserOrganizationDto> userOrganizationDto = requests.map(userOrganization -> modelMapper.map(userOrganization, UserOrganizationDto.class));
         return new ResponseEntity<>(userOrganizationDto, HttpStatus.OK);
+    }
 
+    private int convertPageNumber(@RequestParam(required = false) Integer page) {
+        int pageNumber = 0;
+        if (page != null) {
+            pageNumber = page;
+        }
+        return pageNumber;
     }
 }

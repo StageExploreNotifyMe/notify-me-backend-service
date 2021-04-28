@@ -45,13 +45,21 @@ public class UserOrganizationService {
         return save(userOrganization);
     }
 
+    public Page<UserOrganization> getAllUsersByOrganizationId(String organizationId, PageRequest pageRequest) {
+        return getUserByOrganizationAndStatus(organizationId, pageRequest, MemberRequestStatus.ACCEPTED);
+    }
+
     public Page<UserOrganization> getPendingJoinRequests(String organizationId, PageRequest pageRequest) {
+        return getUserByOrganizationAndStatus(organizationId, pageRequest, MemberRequestStatus.PENDING);
+    }
+
+    private Page<UserOrganization> getUserByOrganizationAndStatus(String organizationId, PageRequest pageRequest, MemberRequestStatus status) {
         try {
             Page<UserOrganizationEntity> userOrganisationPage =
-                    userOrganizationRepo.getUserOrganisationByOrganizationEntity_IdAndStatus(organizationId, MemberRequestStatus.PENDING, pageRequest);
+                    userOrganizationRepo.getUserOrganisationByOrganizationEntity_IdAndStatusOrderByUserEntity(organizationId, status, pageRequest);
             return userOrganisationPage.map(userOrganizationEntityMapper::fromEntity);
         } catch (Exception e) {
-            log.error("Fetching pending organisation join requests failed: {}: {}", e.getClass().getSimpleName(), e.getMessage());
+            log.error("Fetching UserOrganizations failed: {}: {}", e.getClass().getSimpleName(), e.getMessage());
             throw new DatabaseException(e);
         }
     }
@@ -68,6 +76,22 @@ public class UserOrganizationService {
         request = save(request);
         userOrganizationNotificationService.sendResolvedPendingRequestNotification(request);
         return request;
+    }
+
+    public UserOrganization changeOrganizationMemberRole(UserOrganization userOrganization, Role roleToChangeTo) {
+        if (userOrganization.getRole().equals(roleToChangeTo)) {
+            return userOrganization;
+        }
+
+        UserOrganization updated = UserOrganization.builder()
+                .id(userOrganization.getId())
+                .status(userOrganization.getStatus())
+                .organization(userOrganization.getOrganization())
+                .user(userOrganization.getUser())
+                .role(roleToChangeTo)
+                .build();
+
+        return save(updated);
     }
 
     public Optional<UserOrganization> getById(String id) {

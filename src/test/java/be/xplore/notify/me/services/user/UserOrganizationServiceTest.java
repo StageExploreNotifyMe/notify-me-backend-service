@@ -48,7 +48,7 @@ class UserOrganizationServiceTest {
     @Autowired
     private Organization organization;
     @Autowired
-    private UserOrganization request;
+    private UserOrganization userOrganization;
 
     private void mockSave() {
         given(userOrganizationRepo.save(any())).will(i -> i.getArgument(0));
@@ -57,17 +57,19 @@ class UserOrganizationServiceTest {
     private void mockFindById() {
         given(userOrganizationRepo.findById(any())).will(i -> {
             String id = i.getArgument(0);
-            if (id.equals(request.getId())) {
-                return Optional.of(userOrganizationEntityMapper.toEntity(request));
+            if (id.equals(userOrganization.getId())) {
+                return Optional.of(userOrganizationEntityMapper.toEntity(userOrganization));
             }
             return Optional.empty();
         });
     }
 
     private void mockUserOrganisationByOrganization_IdAndStatus() {
-        given(userOrganizationRepo.getUserOrganisationByOrganizationEntity_IdAndStatus(any(), any(), any())).will(i -> {
+        given(userOrganizationRepo.getUserOrganisationByOrganizationEntity_IdAndStatusOrderByUserEntity(any(), any(MemberRequestStatus.class), any())).will(i -> {
             List<UserOrganizationEntity> pending = new ArrayList<>();
-            pending.add(userOrganizationEntityMapper.toEntity(request));
+            if (i.getArgument(1).equals(MemberRequestStatus.PENDING)) {
+                pending.add(userOrganizationEntityMapper.toEntity(userOrganization));
+            }
             return new PageImpl<>(pending);
         });
     }
@@ -98,7 +100,7 @@ class UserOrganizationServiceTest {
 
     @Test
     void getPendingJoinRequestsThrowsDbException() {
-        given(userOrganizationRepo.getUserOrganisationByOrganizationEntity_IdAndStatus(any(), any(), any())).willThrow(new DatabaseException(new Exception()));
+        given(userOrganizationRepo.getUserOrganisationByOrganizationEntity_IdAndStatusOrderByUserEntity(any(), any(), any())).willThrow(new DatabaseException(new Exception()));
         assertThrows(DatabaseException.class, () -> userOrganizationService.getPendingJoinRequests(organization.getId(), PageRequest.of(0, 20)));
     }
 
@@ -106,7 +108,7 @@ class UserOrganizationServiceTest {
     void resolvePendingJoinRequestAccepted() {
         mockFindById();
         mockSave();
-        UserOrganization userOrganization = userOrganizationService.resolvePendingJoinRequest(request.getId(), true);
+        UserOrganization userOrganization = userOrganizationService.resolvePendingJoinRequest(this.userOrganization.getId(), true);
         assertEquals(MemberRequestStatus.ACCEPTED, userOrganization.getStatus());
     }
 
@@ -114,19 +116,36 @@ class UserOrganizationServiceTest {
     void resolvePendingJoinRequestRejected() {
         mockFindById();
         mockSave();
-        UserOrganization userOrganization = userOrganizationService.resolvePendingJoinRequest(request.getId(), false);
+        UserOrganization userOrganization = userOrganizationService.resolvePendingJoinRequest(this.userOrganization.getId(), false);
         assertEquals(MemberRequestStatus.DECLINED, userOrganization.getStatus());
     }
 
     @Test
     void resolvePendingJoinRequestDbException() {
         given(userOrganizationRepo.findById(any())).willThrow(new DatabaseException(new Exception()));
-        assertThrows(DatabaseException.class, () -> userOrganizationService.resolvePendingJoinRequest(request.getId(), true));
+        assertThrows(DatabaseException.class, () -> userOrganizationService.resolvePendingJoinRequest(userOrganization.getId(), true));
     }
 
     @Test
     void resolvePendingJoinRequestNotFound() {
         given(userOrganizationRepo.findById(any())).willReturn(Optional.empty());
-        assertThrows(NotFoundException.class, () -> userOrganizationService.resolvePendingJoinRequest(request.getId(), true));
+        assertThrows(NotFoundException.class, () -> userOrganizationService.resolvePendingJoinRequest(userOrganization.getId(), true));
+    }
+
+    @Test
+    void getAllUsersByOrganizationId() {
+        mockUserOrganisationByOrganization_IdAndStatus();
+        Page<UserOrganization> requests = userOrganizationService.getAllUsersByOrganizationId(organization.getId(), PageRequest.of(0, 20));
+        assertEquals(0, requests.getSize());
+    }
+
+    @Test
+    void changeOrganizationMemberRole() {
+        mockSave();
+        assertEquals(Role.MEMBER, userOrganization.getRole());
+        UserOrganization updated = userOrganizationService.changeOrganizationMemberRole(userOrganization, Role.MEMBER);
+        assertEquals(Role.MEMBER, updated.getRole());
+        UserOrganization updated2 = userOrganizationService.changeOrganizationMemberRole(updated, Role.ORGANIZATION_LEADER);
+        assertEquals(Role.ORGANIZATION_LEADER, updated2.getRole());
     }
 }
