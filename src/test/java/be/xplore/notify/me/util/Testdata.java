@@ -1,6 +1,9 @@
 package be.xplore.notify.me.util;
 
 import be.xplore.notify.me.domain.Organization;
+import be.xplore.notify.me.domain.Venue;
+import be.xplore.notify.me.domain.event.Event;
+import be.xplore.notify.me.domain.event.EventStatus;
 import be.xplore.notify.me.domain.notification.Notification;
 import be.xplore.notify.me.domain.notification.NotificationChannel;
 import be.xplore.notify.me.domain.notification.NotificationType;
@@ -13,6 +16,7 @@ import be.xplore.notify.me.domain.user.UserPreferences;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 @Configuration
@@ -41,6 +45,16 @@ public class Testdata {
     UserOrganization testUserOrganization() {
         return UserOrganization.builder().id("1").user(testUser()).organization(testOrganization())
                 .role(Role.MEMBER).status(MemberRequestStatus.PENDING).build();
+    }
+
+    @Bean
+    Venue testVenue() {
+        return Venue.builder().id("1").name("Test Venue").build();
+    }
+
+    @Bean
+    Event event() {
+        return Event.builder().id("1").venue(testVenue()).name("test").eventStatus(EventStatus.CREATED).date(LocalDateTime.now().plusMonths(2)).build();
     }
 
 }
