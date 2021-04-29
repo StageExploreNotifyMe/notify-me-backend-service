@@ -35,7 +35,7 @@ public class NotificationService {
     public Notification save(Notification notification) {
         try {
             NotificationEntity toSave = notificationEntityMapper.toEntity(notification);
-            toSave.setDateTime(LocalDateTime.now());
+            toSave.setCreationDate(LocalDateTime.now());
             NotificationEntity save = notificationRepo.save(toSave);
             return notificationEntityMapper.fromEntity(save);
         } catch (Exception e) {

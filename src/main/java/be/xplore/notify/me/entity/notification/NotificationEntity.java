@@ -30,5 +30,5 @@ public class NotificationEntity {
     private NotificationChannel usedChannel;
     private NotificationType type;
     private NotificationUrgency urgency;
-    private LocalDateTime dateTime;
+    private LocalDateTime creationDate;
 }

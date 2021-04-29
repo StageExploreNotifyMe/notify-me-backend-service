@@ -22,6 +22,6 @@ public class NotificationDto {
     NotificationChannel usedChannel;
     NotificationType type;
     NotificationUrgency urgency;
-    LocalDateTime dateTime;
+    LocalDateTime creationDate;
 
 }

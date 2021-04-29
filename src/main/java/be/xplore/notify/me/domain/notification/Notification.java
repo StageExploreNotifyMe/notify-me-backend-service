@@ -15,7 +15,7 @@ public class Notification {
     NotificationChannel usedChannel;
     NotificationType type;
     NotificationUrgency urgency;
-    LocalDateTime dateTime;
+    LocalDateTime creationDate;
 
     @Override
     public String toString() {
