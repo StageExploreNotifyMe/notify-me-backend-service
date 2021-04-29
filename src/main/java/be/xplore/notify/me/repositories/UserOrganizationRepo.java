@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserOrganizationRepo extends JpaRepository<UserOrganizationEntity, String> {
-    Page<UserOrganizationEntity> getUserOrganisationByOrganizationEntity_IdAndStatus(String organizationEntity_id, MemberRequestStatus status, Pageable pageable);
+    Page<UserOrganizationEntity> getUserOrganisationByOrganizationEntity_IdAndStatusOrderByUserEntity(String organizationEntity_id, MemberRequestStatus status, Pageable pageable);
 }
