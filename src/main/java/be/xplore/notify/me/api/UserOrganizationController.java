@@ -37,10 +37,8 @@ public class UserOrganizationController {
     private final UserOrganizationDtoMapper userOrganizationDtoMapper;
 
     public UserOrganizationController(
-            UserOrganizationService userOrganizationService, UserService userService,
-            OrganizationService organizationService, ModelMapper modelMapper,
-            UserOrganizationDtoMapper userOrganizationDtoMapper
-            UserOrganizationService userOrganizationService, UserService userService,
+            UserOrganizationService userOrganizationService,
+            UserService userService,
             OrganizationService organizationService,
             UserOrganizationDtoMapper userOrganizationDtoMapper
     ) {
@@ -111,7 +109,7 @@ public class UserOrganizationController {
     }
 
     private ResponseEntity<Page<UserOrganizationDto>> getPageResponseEntity(Page<UserOrganization> requests) {
-        Page<UserOrganizationDto> userOrganizationDto = requests.map(userOrganization -> modelMapper.map(userOrganization, UserOrganizationDto.class));
+        Page<UserOrganizationDto> userOrganizationDto = requests.map(userOrganizationDtoMapper::toDto);
         return new ResponseEntity<>(userOrganizationDto, HttpStatus.OK);
     }
 
