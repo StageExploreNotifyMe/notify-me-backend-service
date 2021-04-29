@@ -29,7 +29,7 @@ public class NotificationController {
     @GetMapping("/inbox/{userId}/pending/{page}")
     public ResponseEntity<Page<NotificationDto>> getUserNotification(@PathVariable String userId, @PathVariable int page) {
         Page<Notification> notifications = notificationService.getAllNotifications(userId, PageRequest.of(page, 20));
-                Page<NotificationDto> notificationDtos = notifications.map(notificationDtoMapper::toDto);
+        Page<NotificationDto> notificationDtos = notifications.map(notificationDtoMapper::toDto);
         return new ResponseEntity<>(notificationDtos, HttpStatus.OK);
     }
 

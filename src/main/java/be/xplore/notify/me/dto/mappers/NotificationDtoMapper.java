@@ -8,11 +8,11 @@ import org.springframework.stereotype.Component;
 public class NotificationDtoMapper implements DtoMapper<NotificationDto, Notification> {
     @Override
     public Notification fromDto(NotificationDto d) {
-       return Notification.builder().id(d.getId()).build();
+        return Notification.builder().id(d.getId()).build();
     }
 
     @Override
     public NotificationDto toDto(Notification d) {
-        return new NotificationDto(d.getId(), d.getUserId(), d.getTitle(),d.getBody(),d.getUsedChannel(),d.getType(), d.getUrgency(), d.getDateTime());
+        return new NotificationDto(d.getId(), d.getUserId(), d.getTitle(), d.getBody(), d.getUsedChannel(), d.getType(), d.getUrgency(), d.getDateTime());
     }
 }
