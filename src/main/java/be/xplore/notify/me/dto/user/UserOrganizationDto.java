@@ -1,7 +1,8 @@
-package be.xplore.notify.me.dto;
+package be.xplore.notify.me.dto.user;
 
-import be.xplore.notify.me.domain.MemberRequestStatus;
-import be.xplore.notify.me.domain.Role;
+import be.xplore.notify.me.domain.user.MemberRequestStatus;
+import be.xplore.notify.me.domain.user.Role;
+import be.xplore.notify.me.dto.OrganizationDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

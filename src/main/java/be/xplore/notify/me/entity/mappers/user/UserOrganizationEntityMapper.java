@@ -1,7 +1,9 @@
-package be.xplore.notify.me.entity.mappers;
+package be.xplore.notify.me.entity.mappers.user;
 
-import be.xplore.notify.me.domain.UserOrganization;
-import be.xplore.notify.me.entity.UserOrganizationEntity;
+import be.xplore.notify.me.domain.user.UserOrganization;
+import be.xplore.notify.me.entity.mappers.EntityMapper;
+import be.xplore.notify.me.entity.mappers.OrganizationEntityMapper;
+import be.xplore.notify.me.entity.user.UserOrganizationEntity;
 import org.springframework.stereotype.Component;
 
 @Component

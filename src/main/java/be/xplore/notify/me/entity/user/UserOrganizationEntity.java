@@ -1,7 +1,8 @@
-package be.xplore.notify.me.entity;
+package be.xplore.notify.me.entity.user;
 
-import be.xplore.notify.me.domain.MemberRequestStatus;
-import be.xplore.notify.me.domain.Role;
+import be.xplore.notify.me.domain.user.MemberRequestStatus;
+import be.xplore.notify.me.domain.user.Role;
+import be.xplore.notify.me.entity.OrganizationEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -1,4 +1,4 @@
-package be.xplore.notify.me.dto;
+package be.xplore.notify.me.dto.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,6 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto {
-    private String id;
+public class UserOrganizationProcessDto {
+    private String UserOrganizationId;
+    private boolean Accepted;
 }

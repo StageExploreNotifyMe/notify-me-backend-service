@@ -1,7 +1,7 @@
 package be.xplore.notify.me.dto.mappers;
 
-import be.xplore.notify.me.domain.UserOrganization;
-import be.xplore.notify.me.dto.UserOrganizationDto;
+import be.xplore.notify.me.domain.user.UserOrganization;
+import be.xplore.notify.me.dto.user.UserOrganizationDto;
 import org.springframework.stereotype.Component;
 
 @Component

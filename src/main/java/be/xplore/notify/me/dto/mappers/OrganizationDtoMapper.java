@@ -13,6 +13,6 @@ public class OrganizationDtoMapper implements DtoMapper<OrganizationDto, Organiz
 
     @Override
     public OrganizationDto toDto(Organization d) {
-        return new OrganizationDto(d.getId());
+        return new OrganizationDto(d.getId(), d.getName());
     }
 }
