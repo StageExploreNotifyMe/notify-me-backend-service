@@ -10,7 +10,6 @@ import be.xplore.notify.me.dto.user.UserOrganizationProcessDto;
 import be.xplore.notify.me.services.OrganizationService;
 import be.xplore.notify.me.services.user.UserOrganizationService;
 import be.xplore.notify.me.services.user.UserService;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -32,18 +31,16 @@ public class UserOrganizationController {
     private final UserOrganizationService userOrganizationService;
     private final UserService userService;
     private final OrganizationService organizationService;
-    private final ModelMapper modelMapper;
     private final UserOrganizationDtoMapper userOrganizationDtoMapper;
 
     public UserOrganizationController(
-                UserOrganizationService userOrganizationService, UserService userService,
-                OrganizationService organizationService, ModelMapper modelMapper,
-                UserOrganizationDtoMapper userOrganizationDtoMapper
+            UserOrganizationService userOrganizationService, UserService userService,
+            OrganizationService organizationService,
+            UserOrganizationDtoMapper userOrganizationDtoMapper
     ) {
         this.userOrganizationService = userOrganizationService;
         this.userService = userService;
         this.organizationService = organizationService;
-        this.modelMapper = modelMapper;
         this.userOrganizationDtoMapper = userOrganizationDtoMapper;
     }
 
@@ -69,7 +66,7 @@ public class UserOrganizationController {
     @GetMapping("/requests/{organizationId}/pending/{page}")
     public ResponseEntity<Page<UserOrganizationDto>> getOpenUserOrganizationRequests(@PathVariable String organizationId, @PathVariable int page) {
         Page<UserOrganization> requests = userOrganizationService.getPendingJoinRequests(organizationId, PageRequest.of(page, 20));
-        Page<UserOrganizationDto> userOrganizationDto = requests.map(userOrganization -> modelMapper.map(userOrganization, UserOrganizationDto.class));
+        Page<UserOrganizationDto> userOrganizationDto = requests.map(userOrganizationDtoMapper::toDto);
         return new ResponseEntity<>(userOrganizationDto, HttpStatus.OK);
 
     }
