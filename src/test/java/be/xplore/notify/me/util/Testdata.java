@@ -53,7 +53,7 @@ public class Testdata {
     }
 
     @Bean
-    Event event() {
+    Event testEvent() {
         return Event.builder().id("1").venue(testVenue()).name("test").eventStatus(EventStatus.CREATED).date(LocalDateTime.now().plusMonths(2)).build();
     }
 
