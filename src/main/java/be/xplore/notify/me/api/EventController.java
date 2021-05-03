@@ -60,10 +60,26 @@ public class EventController {
 
     @GetMapping("{id}")
     public ResponseEntity<EventDto> getEventById(@PathVariable String id) {
+        return new ResponseEntity<>(eventDtoMapper.toDto(findEventById(id)), HttpStatus.OK);
+    }
+
+    @PostMapping("/{id}/cancel")
+    public ResponseEntity<EventDto> cancelEvent(@PathVariable String id) {
+        Event event = eventService.cancelEvent(findEventById(id));
+        return new ResponseEntity<>(eventDtoMapper.toDto(event), HttpStatus.OK);
+    }
+
+    @PostMapping("/{id}/publish")
+    public ResponseEntity<EventDto> publishEvent(@PathVariable String id) {
+        Event event = eventService.publishEvent(findEventById(id));
+        return new ResponseEntity<>(eventDtoMapper.toDto(event), HttpStatus.OK);
+    }
+
+    private Event findEventById(String id) {
         Optional<Event> eventOptional = eventService.getById(id);
         if (eventOptional.isEmpty()) {
-            throw new NotFoundException("Could not find an event with id " + id);
+            throw new NotFoundException("No event found with id " + id);
         }
-        return new ResponseEntity<>(eventDtoMapper.toDto(eventOptional.get()), HttpStatus.OK);
+        return eventOptional.get();
     }
 }
