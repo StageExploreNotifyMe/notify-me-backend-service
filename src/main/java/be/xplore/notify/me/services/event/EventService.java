@@ -7,6 +7,7 @@ import be.xplore.notify.me.domain.exceptions.DatabaseException;
 import be.xplore.notify.me.entity.event.EventEntity;
 import be.xplore.notify.me.entity.mappers.event.EventEntityMapper;
 import be.xplore.notify.me.repositories.EventRepo;
+import be.xplore.notify.me.services.RepoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,13 +17,13 @@ import java.time.LocalDateTime;
 
 @Slf4j
 @Service
-public class EventService {
-    private final EventRepo eventRepo;
-    private final EventEntityMapper eventEntityMapper;
+public class EventService extends RepoService<Event, EventEntity> {
 
-    public EventService(EventRepo eventRepo, EventEntityMapper eventEntityMapper) {
-        this.eventRepo = eventRepo;
-        this.eventEntityMapper = eventEntityMapper;
+    private final EventRepo eventRepo;
+
+    public EventService(EventRepo repo, EventEntityMapper entityMapper) {
+        super(repo, entityMapper);
+        this.eventRepo = repo;
     }
 
     public Event createEvent(LocalDateTime dateTime, String name, Venue venue) {
@@ -38,19 +39,9 @@ public class EventService {
     public Page<Event> getEventsOfVenue(String venueId, int page) {
         try {
             Page<EventEntity> eventEntityPage = eventRepo.getAllByVenue_IdOrderByDate(venueId, PageRequest.of(page, 20));
-            return eventEntityPage.map(eventEntityMapper::fromEntity);
+            return eventEntityPage.map(entityMapper::fromEntity);
         } catch (Exception e) {
             log.error("Failed to fetch events for venue {}: {}: {}", venueId, e.getClass().getSimpleName(), e.getMessage());
-            throw new DatabaseException(e);
-        }
-    }
-
-    public Event save(Event event) {
-        try {
-            EventEntity save = eventRepo.save(eventEntityMapper.toEntity(event));
-            return eventEntityMapper.fromEntity(save);
-        } catch (Exception e) {
-            log.error("Failed to save event with id {}: {}: {}", event.getId(), e.getClass().getSimpleName(), e.getMessage());
             throw new DatabaseException(e);
         }
     }

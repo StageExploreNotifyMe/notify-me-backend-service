@@ -13,9 +13,4 @@ public class Notification {
     NotificationChannel usedChannel;
     NotificationType type;
     NotificationUrgency urgency;
-
-    @Override
-    public String toString() {
-        return "Notification: " + title + ": " + body + "(" + usedChannel + ", " + type + ", " + urgency + ")";
-    }
 }

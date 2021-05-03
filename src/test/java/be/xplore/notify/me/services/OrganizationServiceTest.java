@@ -2,13 +2,19 @@ package be.xplore.notify.me.services;
 
 import be.xplore.notify.me.domain.Organization;
 import be.xplore.notify.me.domain.exceptions.DatabaseException;
+import be.xplore.notify.me.entity.OrganizationEntity;
 import be.xplore.notify.me.entity.mappers.OrganizationEntityMapper;
 import be.xplore.notify.me.repositories.OrganizationRepo;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,6 +48,14 @@ class OrganizationServiceTest {
         });
     }
 
+    private void mockFetchPage() {
+        given(organizationRepo.findAll(any(PageRequest.class))).will(i -> {
+            List<OrganizationEntity> entityList = new ArrayList<>();
+            entityList.add(organizationEntityMapper.toEntity(organization));
+            return new PageImpl<>(entityList);
+        });
+    }
+
     @Test
     void getOrganizationById() {
         mockFetchById();
@@ -54,5 +68,18 @@ class OrganizationServiceTest {
     void getOrganizationByIdThrowsDbException() {
         given(organizationRepo.findById(any())).willThrow(new DatabaseException(new Exception()));
         assertThrows(DatabaseException.class, () -> organizationService.getById(organization.getId()));
+    }
+
+    @Test
+    void getOrganizations() {
+        mockFetchPage();
+        Page<Organization> organizationsPage = organizationService.getOrganizations(0);
+        assertEquals(organization.getId(), organizationsPage.getContent().get(0).getId());
+    }
+
+    @Test
+    void getOrganizationsDbException() {
+        given(organizationRepo.findAll(any(PageRequest.class))).willThrow(new DatabaseException(new Exception()));
+        assertThrows(DatabaseException.class, () -> organizationService.getOrganizations(0));
     }
 }

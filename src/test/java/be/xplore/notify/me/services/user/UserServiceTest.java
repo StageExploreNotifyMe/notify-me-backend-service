@@ -82,7 +82,7 @@ class UserServiceTest {
     @Test
     void userSaveDbException() {
         given(userRepo.save(any())).willThrow(new DatabaseException(new Exception()));
-        assertThrows(DatabaseException.class, () -> userService.saveUser(User.builder().build()));
+        assertThrows(DatabaseException.class, () -> userService.save(User.builder().build()));
     }
 
 }

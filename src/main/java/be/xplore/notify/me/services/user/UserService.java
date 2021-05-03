@@ -1,40 +1,23 @@
 package be.xplore.notify.me.services.user;
 
-import be.xplore.notify.me.domain.exceptions.DatabaseException;
 import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.notification.Notification;
 import be.xplore.notify.me.domain.user.User;
-import be.xplore.notify.me.entity.mappers.user.UserEntityMapper;
+import be.xplore.notify.me.entity.mappers.EntityMapper;
 import be.xplore.notify.me.entity.user.UserEntity;
-import be.xplore.notify.me.repositories.UserRepo;
+import be.xplore.notify.me.services.RepoService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Slf4j
 @Service
-public class UserService {
-    private final UserRepo userRepo;
-    private final UserEntityMapper userEntityMapper;
+public class UserService extends RepoService<User, UserEntity> {
 
-    public UserService(UserRepo userRepo, UserEntityMapper userEntityMapper) {
-        this.userRepo = userRepo;
-        this.userEntityMapper = userEntityMapper;
-    }
-
-    public Optional<User> getById(String id) {
-        try {
-            Optional<UserEntity> optional = userRepo.findById(id);
-            if (optional.isEmpty()) {
-                return Optional.empty();
-            }
-            User user = userEntityMapper.fromEntity(optional.get());
-            return Optional.of(user);
-        } catch (Exception e) {
-            log.error("Failed to fetch user with id {}: {}: {}", id, e.getClass().getSimpleName(), e.getMessage());
-            throw new DatabaseException(e);
-        }
+    public UserService(JpaRepository<UserEntity, String> repo, EntityMapper<UserEntity, User> entityMapper) {
+        super(repo, entityMapper);
     }
 
     public User addNotificationToInbox(Notification notification) {
@@ -44,16 +27,7 @@ public class UserService {
         }
         User user = userOptional.get();
         user.getInbox().add(notification);
-        return saveUser(user);
+        return save(user);
     }
 
-    public User saveUser(User user) {
-        try {
-            UserEntity save = userRepo.save(userEntityMapper.toEntity(user));
-            return userEntityMapper.fromEntity(save);
-        } catch (Exception e) {
-            log.error("Failed to save user with id {}: {}: {}", user.getId(), e.getClass().getSimpleName(), e.getMessage());
-            throw new DatabaseException(e);
-        }
-    }
 }
