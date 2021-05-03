@@ -12,8 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-import java.time.LocalDateTime;
-
 @Slf4j
 @Service
 public class NotificationService {
@@ -49,13 +47,8 @@ public class NotificationService {
     }
 
     public Page<Notification> getAllNotifications(String userId, PageRequest pageRequest) {
-        try {
-            Page<NotificationEntity> notifications = notificationRepo.getAllByUserId(userId, pageRequest);
-            return notifications.map(notificationEntityMapper::fromEntity);
-        } catch (Exception e) {
-            log.error("Fetching all notifications for userId: {} failed: {}: {}", userId, e.getClass().getSimpleName(), e.getMessage());
-            throw new DatabaseException(e);
-        }
+        Page<NotificationEntity> notifications = notificationRepo.getAllByUserId(userId, pageRequest);
+        return notifications.map(notificationEntityMapper::fromEntity);
     }
 
 }
