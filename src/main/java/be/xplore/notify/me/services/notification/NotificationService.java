@@ -6,9 +6,13 @@ import be.xplore.notify.me.entity.notification.NotificationEntity;
 import be.xplore.notify.me.repositories.NotificationRepo;
 import be.xplore.notify.me.services.user.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+
+import java.time.LocalDateTime;
 
 @Slf4j
 @Service
@@ -42,6 +46,16 @@ public class NotificationService {
     public Notification save(Notification notification) {
         NotificationEntity notificationEntity = notificationRepo.save(notificationEntityMapper.toEntity(notification));
         return notificationEntityMapper.fromEntity(notificationEntity);
+    }
+
+    public Page<Notification> getAllNotifications(String userId, PageRequest pageRequest) {
+        try {
+            Page<NotificationEntity> notifications = notificationRepo.getAllByUserId(userId, pageRequest);
+            return notifications.map(notificationEntityMapper::fromEntity);
+        } catch (Exception e) {
+            log.error("Fetching all notifications for userId: {} failed: {}: {}", userId, e.getClass().getSimpleName(), e.getMessage());
+            throw new DatabaseException(e);
+        }
     }
 
 }
