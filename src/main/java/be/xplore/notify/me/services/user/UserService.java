@@ -3,6 +3,7 @@ package be.xplore.notify.me.services.user;
 import be.xplore.notify.me.domain.exceptions.DatabaseException;
 import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.notification.Notification;
+import be.xplore.notify.me.domain.notification.NotificationChannel;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.entity.mappers.user.UserEntityMapper;
 import be.xplore.notify.me.entity.user.UserEntity;
@@ -16,10 +17,12 @@ import java.util.Optional;
 @Service
 public class UserService {
     private final UserRepo userRepo;
+    private final UserPreferencesService userPreferencesService;
     private final UserEntityMapper userEntityMapper;
 
-    public UserService(UserRepo userRepo, UserEntityMapper userEntityMapper) {
+    public UserService(UserRepo userRepo, UserPreferencesService userPreferencesService, UserEntityMapper userEntityMapper) {
         this.userRepo = userRepo;
+        this.userPreferencesService = userPreferencesService;
         this.userEntityMapper = userEntityMapper;
     }
 
@@ -49,11 +52,30 @@ public class UserService {
 
     public User saveUser(User user) {
         try {
-            UserEntity save = userRepo.save(userEntityMapper.toEntity(user));
-            return userEntityMapper.fromEntity(save);
+            UserEntity save = userEntityMapper.toEntity(user);
+            UserEntity saved = userRepo.save(save);
+
+            return userEntityMapper.fromEntity(saved);
         } catch (Exception e) {
             log.error("Failed to save user with id {}: {}: {}", user.getId(), e.getClass().getSimpleName(), e.getMessage());
             throw new DatabaseException(e);
         }
+    }
+
+    public User setNotificationChannels(String userId, NotificationChannel normalChannel, NotificationChannel urgentChannel) {
+        Optional<User> optionalUser = getOptionalUser(userId);
+        User user = optionalUser.get();
+        userPreferencesService.setNotificationChannels(user, normalChannel, urgentChannel);
+        Optional<User> optional = getOptionalUser(user.getId());
+        return optional.get();
+
+    }
+
+    private Optional<User> getOptionalUser(String userId) {
+        Optional<User> optionalUser = getById(userId);
+        if (optionalUser.isEmpty()) {
+            throw new NotFoundException("No user with id: " + userId + "found");
+        }
+        return optionalUser;
     }
 }
