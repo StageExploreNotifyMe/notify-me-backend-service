@@ -1,6 +1,5 @@
 package be.xplore.notify.me.services.user;
 
-import be.xplore.notify.me.domain.exceptions.DatabaseException;
 import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.notification.Notification;
 import be.xplore.notify.me.domain.user.User;
@@ -59,12 +58,6 @@ class UserServiceTest {
     }
 
     @Test
-    void getByIdThrowsDbException() {
-        given(userRepo.findById(any())).willThrow(new DatabaseException(new Exception()));
-        assertThrows(DatabaseException.class, () -> userService.getById("1"));
-    }
-
-    @Test
     void addNotificationToInbox() {
         mockSave();
         mockGetById();
@@ -77,12 +70,6 @@ class UserServiceTest {
         mockSave();
         mockGetById();
         assertThrows(NotFoundException.class, () -> userService.addNotificationToInbox(Notification.builder().userId("qdsfae").build()));
-    }
-
-    @Test
-    void userSaveDbException() {
-        given(userRepo.save(any())).willThrow(new DatabaseException(new Exception()));
-        assertThrows(DatabaseException.class, () -> userService.save(User.builder().build()));
     }
 
 }

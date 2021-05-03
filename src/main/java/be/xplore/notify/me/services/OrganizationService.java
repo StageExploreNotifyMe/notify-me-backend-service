@@ -9,21 +9,36 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Slf4j
 @Service
-public class OrganizationService extends RepoService<Organization, OrganizationEntity> {
+public class OrganizationService {
 
     private final OrganizationRepo organizationRepo;
     private final OrganizationEntityMapper organizationEntityMapper;
 
-    public OrganizationService(OrganizationRepo repo, OrganizationEntityMapper entityMapper) {
-        super(repo, entityMapper);
-        this.organizationRepo = repo;
-        this.organizationEntityMapper = entityMapper;
+    public OrganizationService(OrganizationRepo organizationRepo, OrganizationEntityMapper organizationEntityMapper) {
+        this.organizationRepo = organizationRepo;
+        this.organizationEntityMapper = organizationEntityMapper;
     }
 
     public Page<Organization> getOrganizations(int page) {
         Page<OrganizationEntity> organizationEntityPage = organizationRepo.findAll(PageRequest.of(page, 20));
         return organizationEntityPage.map(organizationEntityMapper::fromEntity);
+    }
+
+    public Optional<Organization> getById(String id) {
+        Optional<OrganizationEntity> optional = organizationRepo.findById(id);
+        if (optional.isEmpty()) {
+            return Optional.empty();
+        }
+        Organization organization = organizationEntityMapper.fromEntity(optional.get());
+        return Optional.of(organization);
+    }
+
+    public Organization save(Organization organization) {
+        OrganizationEntity organizationEntity = organizationRepo.save(organizationEntityMapper.toEntity(organization));
+        return organizationEntityMapper.fromEntity(organizationEntity);
     }
 }

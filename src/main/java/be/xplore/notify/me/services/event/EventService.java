@@ -3,27 +3,27 @@ package be.xplore.notify.me.services.event;
 import be.xplore.notify.me.domain.Venue;
 import be.xplore.notify.me.domain.event.Event;
 import be.xplore.notify.me.domain.event.EventStatus;
-import be.xplore.notify.me.domain.exceptions.DatabaseException;
 import be.xplore.notify.me.entity.event.EventEntity;
 import be.xplore.notify.me.entity.mappers.event.EventEntityMapper;
 import be.xplore.notify.me.repositories.EventRepo;
-import be.xplore.notify.me.services.RepoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Slf4j
 @Service
-public class EventService extends RepoService<Event, EventEntity> {
+public class EventService {
 
     private final EventRepo eventRepo;
+    private final EventEntityMapper eventEntityMapper;
 
-    public EventService(EventRepo repo, EventEntityMapper entityMapper) {
-        super(repo, entityMapper);
-        this.eventRepo = repo;
+    public EventService(EventRepo eventRepo, EventEntityMapper eventEntityMapper) {
+        this.eventRepo = eventRepo;
+        this.eventEntityMapper = eventEntityMapper;
     }
 
     public Event createEvent(LocalDateTime dateTime, String name, Venue venue) {
@@ -37,12 +37,21 @@ public class EventService extends RepoService<Event, EventEntity> {
     }
 
     public Page<Event> getEventsOfVenue(String venueId, int page) {
-        try {
-            Page<EventEntity> eventEntityPage = eventRepo.getAllByVenue_IdOrderByDate(venueId, PageRequest.of(page, 20));
-            return eventEntityPage.map(entityMapper::fromEntity);
-        } catch (Exception e) {
-            log.error("Failed to fetch events for venue {}: {}: {}", venueId, e.getClass().getSimpleName(), e.getMessage());
-            throw new DatabaseException(e);
+        Page<EventEntity> eventEntityPage = eventRepo.getAllByVenue_IdOrderByDate(venueId, PageRequest.of(page, 20));
+        return eventEntityPage.map(eventEntityMapper::fromEntity);
+    }
+
+    public Optional<Event> getById(String id) {
+        Optional<EventEntity> optional = eventRepo.findById(id);
+        if (optional.isEmpty()) {
+            return Optional.empty();
         }
+        Event event = eventEntityMapper.fromEntity(optional.get());
+        return Optional.of(event);
+    }
+
+    public Event save(Event event) {
+        EventEntity eventEntity = eventRepo.save(eventEntityMapper.toEntity(event));
+        return eventEntityMapper.fromEntity(eventEntity);
     }
 }

@@ -1,7 +1,6 @@
 package be.xplore.notify.me.services.event;
 
 import be.xplore.notify.me.domain.event.Line;
-import be.xplore.notify.me.domain.exceptions.DatabaseException;
 import be.xplore.notify.me.entity.event.LineEntity;
 import be.xplore.notify.me.entity.mappers.event.LineEntityMapper;
 import be.xplore.notify.me.repositories.LineRepo;
@@ -16,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -38,12 +36,6 @@ class LineServiceTest {
         mockGetLinesByVenueId();
         Page<Line> allByVenue = lineService.getAllByVenue(line.getVenue().getId(), 0);
         assertEquals(line.getId(), allByVenue.getContent().get(0).getId());
-    }
-
-    @Test
-    void getAllByVenueDbException() {
-        given(lineRepo.getAllByVenueEntity_IdOrderByName(any(), any())).willThrow(new DatabaseException(new Exception()));
-        assertThrows(DatabaseException.class, () -> lineService.getAllByVenue("a", 0));
     }
 
     private void mockGetLinesByVenueId() {

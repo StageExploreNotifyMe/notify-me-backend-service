@@ -1,6 +1,5 @@
 package be.xplore.notify.me.services.notification;
 
-import be.xplore.notify.me.domain.exceptions.DatabaseException;
 import be.xplore.notify.me.domain.notification.Notification;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.repositories.NotificationRepo;
@@ -11,7 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -51,12 +49,5 @@ class NotificationServiceTest {
         Notification returnedNotification = notificationService.saveNotificationAndSendToInbox(notification);
         assertEquals(notification.getId(), returnedNotification.getId());
         assertTrue(user.getInbox().stream().anyMatch(n -> n.getId().equals(notification.getId())));
-    }
-
-    @Test
-    void saveNotificationAndSendToInboxThrowsDbException() {
-        mockAddNotificationToInbox();
-        given(notificationRepo.save(any())).willThrow(new DatabaseException(new Exception()));
-        assertThrows(DatabaseException.class, () -> notificationService.saveNotificationAndSendToInbox(notification));
     }
 }

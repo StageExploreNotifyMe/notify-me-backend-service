@@ -1,16 +1,14 @@
 package be.xplore.notify.me.services.user;
 
 import be.xplore.notify.me.domain.Organization;
-import be.xplore.notify.me.domain.exceptions.DatabaseException;
 import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.user.MemberRequestStatus;
 import be.xplore.notify.me.domain.user.Role;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.domain.user.UserOrganization;
-import be.xplore.notify.me.entity.mappers.EntityMapper;
+import be.xplore.notify.me.entity.mappers.user.UserOrganizationEntityMapper;
 import be.xplore.notify.me.entity.user.UserOrganizationEntity;
 import be.xplore.notify.me.repositories.UserOrganizationRepo;
-import be.xplore.notify.me.services.RepoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,18 +18,19 @@ import java.util.Optional;
 
 @Slf4j
 @Service
-public class UserOrganizationService extends RepoService<UserOrganization, UserOrganizationEntity> {
+public class UserOrganizationService {
 
     private final UserOrganizationRepo userOrganizationRepo;
+    private final UserOrganizationEntityMapper userOrganizationEntityMapper;
     private final UserOrganizationNotificationService userOrganizationNotificationService;
 
     public UserOrganizationService(
-            UserOrganizationRepo repo,
-            EntityMapper<UserOrganizationEntity, UserOrganization> entityMapper,
+            UserOrganizationRepo userOrganizationRepo,
+            UserOrganizationEntityMapper userOrganizationEntityMapper,
             UserOrganizationNotificationService userOrganizationNotificationService
     ) {
-        super(repo, entityMapper);
-        this.userOrganizationRepo = repo;
+        this.userOrganizationRepo = userOrganizationRepo;
+        this.userOrganizationEntityMapper = userOrganizationEntityMapper;
         this.userOrganizationNotificationService = userOrganizationNotificationService;
     }
 
@@ -54,14 +53,9 @@ public class UserOrganizationService extends RepoService<UserOrganization, UserO
     }
 
     private Page<UserOrganization> getUserByOrganizationAndStatus(String organizationId, PageRequest pageRequest, MemberRequestStatus status) {
-        try {
-            Page<UserOrganizationEntity> userOrganisationPage =
-                    userOrganizationRepo.getUserOrganisationByOrganizationEntity_IdAndStatusOrderByUserEntity(organizationId, status, pageRequest);
-            return userOrganisationPage.map(entityMapper::fromEntity);
-        } catch (Exception e) {
-            log.error("Fetching UserOrganizations failed: {}: {}", e.getClass().getSimpleName(), e.getMessage());
-            throw new DatabaseException(e);
-        }
+        Page<UserOrganizationEntity> userOrganisationPage =
+                userOrganizationRepo.getUserOrganisationByOrganizationEntity_IdAndStatusOrderByUserEntity(organizationId, status, pageRequest);
+        return userOrganisationPage.map(userOrganizationEntityMapper::fromEntity);
     }
 
     public UserOrganization resolvePendingJoinRequest(String requestId, boolean accepted) {
@@ -94,4 +88,17 @@ public class UserOrganizationService extends RepoService<UserOrganization, UserO
         return save(updated);
     }
 
+    public Optional<UserOrganization> getById(String id) {
+        Optional<UserOrganizationEntity> optional = userOrganizationRepo.findById(id);
+        if (optional.isEmpty()) {
+            return Optional.empty();
+        }
+        UserOrganization userOrganization = userOrganizationEntityMapper.fromEntity(optional.get());
+        return Optional.of(userOrganization);
+    }
+
+    public UserOrganization save(UserOrganization userOrganization) {
+        UserOrganizationEntity userOrganizationEntity = userOrganizationRepo.save(userOrganizationEntityMapper.toEntity(userOrganization));
+        return userOrganizationEntityMapper.fromEntity(userOrganizationEntity);
+    }
 }
