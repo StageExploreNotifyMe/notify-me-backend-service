@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageRequest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -58,5 +59,12 @@ class NotificationServiceTest {
         mockAddNotificationToInbox();
         given(notificationRepo.save(any())).willThrow(new DatabaseException(new Exception()));
         assertThrows(DatabaseException.class, () -> notificationService.saveNotificationAndSendToInbox(notification));
+    }
+
+    @Test
+    void getAllNotificationsThrowsDbException() {
+        mockSaveNotification();
+        given(notificationRepo.getAllByUserId(any(), any())).willThrow(new DatabaseException(new Exception()));
+        assertThrows(DatabaseException.class, () -> notificationService.getAllNotifications(user.getId(), PageRequest.of(0, 20)));
     }
 }
