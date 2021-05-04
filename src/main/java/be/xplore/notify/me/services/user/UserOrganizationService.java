@@ -90,6 +90,7 @@ public class UserOrganizationService {
                 .user(userOrganization.getUser())
                 .role(roleToChangeTo)
                 .build();
+        userOrganizationNotificationService.sendOrganizationRoleChangeNotification(updated);
 
         return save(updated);
     }
