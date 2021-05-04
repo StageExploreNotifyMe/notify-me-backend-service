@@ -29,48 +29,40 @@ public class UserOrganizationNotificationService {
 
         Notification.NotificationBuilder builder = Notification.builder().userId(user.getId());
 
-        setResolvedTitleAndBody(userOrganization, user, builder);
-        setResolvedNotificationDetails(userOrganization, user, builder);
-
-        Notification notification = builder.build();
+        Notification notification = setResolvedNotificationDetails(userOrganization, user, builder);
         notificationService.saveNotificationAndSendToInbox(notification);
         notificationSenderService.sendNotification(notification);
     }
 
-    private void setResolvedNotificationDetails(UserOrganization userOrganization, User user, Notification.NotificationBuilder builder) {
-        builder.type(userOrganization.getStatus() == MemberRequestStatus.ACCEPTED ? NotificationType.USER_JOINED : NotificationType.USER_DECLINED);
-        builder.urgency(NotificationUrgency.NORMAL);
-        builder.usedChannel(user.getUserPreferences().getNormalChannel());
-    }
-
-    private void setResolvedTitleAndBody(UserOrganization userOrganization, User user, Notification.NotificationBuilder builder) {
-        String title = String.format("Request to join %s %s", userOrganization.getOrganization().getName(), userOrganization.getStatus().toString());
-        String body = String.format("%s %s", user.getFirstname(), user.getLastname());
-
-        builder.title(title);
-        builder.body(body);
+    private Notification setResolvedNotificationDetails(UserOrganization userOrganization, User user, Notification.NotificationBuilder builder) {
+        return Notification.builder()
+            .title(String.format("Request to join %s %s", userOrganization.getOrganization().getName(), userOrganization.getStatus().toString()))
+            .body(String.format("%s %s", user.getFirstname(), user.getLastname()))
+            .type(userOrganization.getStatus() == MemberRequestStatus.ACCEPTED ? NotificationType.USER_JOINED : NotificationType.USER_DECLINED)
+            .urgency(NotificationUrgency.NORMAL)
+            .usedChannel(user.getUserPreferences().getNormalChannel())
+            .build();
     }
 
     public void sendOrganizationRoleChangeNotification(UserOrganization userOrganization) {
         User user = userOrganization.getUser();
-        Notification.NotificationBuilder builder = Notification.builder().userId(user.getId());
-        builder.title("Changed member role");
-        builder.body(String.format("The organization changed your member role to %s", userOrganization.getRole()));
+        NotificationType notificationType = NotificationType.USER_PROMOTED;
         if (userOrganization.getRole().equals(Role.MEMBER)) {
-            builder.type(NotificationType.USER_DEMOTED);
-        } else {
-            builder.type(NotificationType.USER_PROMOTED);
+            notificationType = NotificationType.USER_DEMOTED;
         }
-        setChangedRoleNotificationDetails(user, builder);
-    }
-
-    private void setChangedRoleNotificationDetails(User user, Notification.NotificationBuilder builder) {
-        builder.usedChannel(user.getUserPreferences().getNormalChannel());
-        builder.creationDate(LocalDateTime.now());
-        builder.urgency(NotificationUrgency.NORMAL);
-        Notification notification = builder.build();
+        Notification notification = setChangedRoleNotificationDetails(userOrganization, user, notificationType);
         notificationService.saveNotificationAndSendToInbox(notification);
         notificationSenderService.sendNotification(notification);
     }
 
+    private Notification setChangedRoleNotificationDetails(UserOrganization userOrganization, User user, NotificationType notificationType) {
+        return Notification.builder()
+            .title("Changed member role")
+            .body(String.format("The organization changed your member role to %s", userOrganization.getRole()))
+            .usedChannel(user.getUserPreferences().getNormalChannel())
+            .creationDate(LocalDateTime.now())
+            .urgency(NotificationUrgency.NORMAL)
+            .type(notificationType)
+            .build();
+    }
 }
