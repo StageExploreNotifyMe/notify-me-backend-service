@@ -20,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,10 +56,9 @@ class EventControllerTest {
         mockServices();
         EventCreationDto eventCreationDto = new EventCreationDto(LocalDateTime.now().plusMonths(1), "Test Event", venue.getId());
         try {
-            String result = postEvent(eventCreationDto)
-                    .andExpect(status().is(HttpStatus.CREATED.value()))
-                    .andReturn().getResponse().getContentAsString();
-            EventDto eventDto = mapper.readValue(result, EventDto.class);
+            ResultActions resultActions = postEvent(eventCreationDto);
+            expectResult(resultActions, HttpStatus.CREATED);
+            EventDto eventDto = mapper.readValue(getResponse(resultActions), EventDto.class);
             assertDataCorrectCreatedEvent(eventCreationDto, eventDto);
         } catch (Exception e) {
             failTest(e);
@@ -97,7 +97,7 @@ class EventControllerTest {
     void getEventsOfVenue() {
         mockServices();
         try {
-            ResultActions resultActions = performGetVenueEvents("/event/venue/" + event.getVenue().getId());
+            ResultActions resultActions = performGet("/event/venue/" + event.getVenue().getId());
             expectResult(resultActions, HttpStatus.OK);
         } catch (Exception e) {
             failTest(e);
@@ -108,14 +108,42 @@ class EventControllerTest {
     void getEventsOfVenueWithPage() {
         mockServices();
         try {
-            ResultActions resultActions = performGetVenueEvents("/event/venue/" + event.getVenue().getId() + "?page=0");
+            ResultActions resultActions = performGet("/event/venue/" + event.getVenue().getId() + "?page=0");
             expectResult(resultActions, HttpStatus.OK);
         } catch (Exception e) {
             failTest(e);
         }
     }
 
-    private ResultActions performGetVenueEvents(String url) throws Exception {
+    @Test
+    void getEventById() {
+        mockServices();
+        try {
+            ResultActions resultActions = performGet("/event/" + event.getId());
+            expectResult(resultActions, HttpStatus.OK);
+            EventDto eventDto = mapper.readValue(getResponse(resultActions), EventDto.class);
+            assertEquals(event.getId(), eventDto.getId());
+        } catch (Exception e) {
+            failTest(e);
+        }
+    }
+
+    @Test
+    void getEventByIdNotFound() {
+        mockServices();
+        try {
+            ResultActions resultActions = performGet("/event/qkdjsmfl");
+            expectResult(resultActions, HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            failTest(e);
+        }
+    }
+
+    private String getResponse(ResultActions resultActions) throws UnsupportedEncodingException {
+        return resultActions.andReturn().getResponse().getContentAsString();
+    }
+
+    private ResultActions performGet(String url) throws Exception {
         return mockMvc.perform(get(url).contentType(MediaType.APPLICATION_JSON));
     }
 
@@ -127,6 +155,7 @@ class EventControllerTest {
         mockCreateEvent();
         mockGetEvents();
         given(venueService.getById(any())).will(i -> i.getArgument(0).equals(venue.getId()) ? Optional.of(venue) : Optional.empty());
+        given(eventService.getById(any())).will(i -> i.getArgument(0).equals(event.getId()) ? Optional.of(event) : Optional.empty());
     }
 
     private void mockCreateEvent() {

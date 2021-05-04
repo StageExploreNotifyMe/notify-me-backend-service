@@ -2,6 +2,7 @@ package be.xplore.notify.me.api;
 
 import be.xplore.notify.me.domain.Venue;
 import be.xplore.notify.me.domain.event.Event;
+import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.dto.event.EventCreationDto;
 import be.xplore.notify.me.dto.event.EventDto;
 import be.xplore.notify.me.dto.mappers.event.EventDtoMapper;
@@ -55,5 +56,14 @@ public class EventController {
         Page<Event> eventPage = eventService.getEventsOfVenue(id, pageNumber);
         Page<EventDto> eventDtoPage = eventPage.map(eventDtoMapper::toDto);
         return new ResponseEntity<>(eventDtoPage, HttpStatus.OK);
+    }
+
+    @GetMapping("{id}")
+    public ResponseEntity<EventDto> getEventById(@PathVariable String id) {
+        Optional<Event> eventOptional = eventService.getById(id);
+        if (eventOptional.isEmpty()) {
+            throw new NotFoundException("Could not find an event with id " + id);
+        }
+        return new ResponseEntity<>(eventDtoMapper.toDto(eventOptional.get()), HttpStatus.OK);
     }
 }

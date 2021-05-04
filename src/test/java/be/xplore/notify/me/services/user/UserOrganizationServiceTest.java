@@ -1,7 +1,6 @@
 package be.xplore.notify.me.services.user;
 
 import be.xplore.notify.me.domain.Organization;
-import be.xplore.notify.me.domain.exceptions.DatabaseException;
 import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.user.MemberRequestStatus;
 import be.xplore.notify.me.domain.user.Role;
@@ -86,22 +85,10 @@ class UserOrganizationServiceTest {
     }
 
     @Test
-    void userJoinOrganizationDbException() {
-        given(userOrganizationRepo.save(any())).willThrow(new DatabaseException(new Exception("test exception")));
-        assertThrows(DatabaseException.class, () -> userOrganizationService.userJoinOrganization(user, organization));
-    }
-
-    @Test
     void getPendingJoinRequests() {
         mockUserOrganisationByOrganization_IdAndStatus();
         Page<UserOrganization> requests = userOrganizationService.getPendingJoinRequests(organization.getId(), PageRequest.of(0, 20));
         assertEquals(1, requests.getSize());
-    }
-
-    @Test
-    void getPendingJoinRequestsThrowsDbException() {
-        given(userOrganizationRepo.getUserOrganisationByOrganizationEntity_IdAndStatusOrderByUserEntity(any(), any(), any())).willThrow(new DatabaseException(new Exception()));
-        assertThrows(DatabaseException.class, () -> userOrganizationService.getPendingJoinRequests(organization.getId(), PageRequest.of(0, 20)));
     }
 
     @Test
@@ -118,12 +105,6 @@ class UserOrganizationServiceTest {
         mockSave();
         UserOrganization userOrganization = userOrganizationService.resolvePendingJoinRequest(this.userOrganization.getId(), false);
         assertEquals(MemberRequestStatus.DECLINED, userOrganization.getStatus());
-    }
-
-    @Test
-    void resolvePendingJoinRequestDbException() {
-        given(userOrganizationRepo.findById(any())).willThrow(new DatabaseException(new Exception()));
-        assertThrows(DatabaseException.class, () -> userOrganizationService.resolvePendingJoinRequest(userOrganization.getId(), true));
     }
 
     @Test

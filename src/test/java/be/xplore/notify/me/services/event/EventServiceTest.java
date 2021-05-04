@@ -2,7 +2,6 @@ package be.xplore.notify.me.services.event;
 
 import be.xplore.notify.me.domain.Venue;
 import be.xplore.notify.me.domain.event.Event;
-import be.xplore.notify.me.domain.exceptions.DatabaseException;
 import be.xplore.notify.me.entity.event.EventEntity;
 import be.xplore.notify.me.entity.mappers.event.EventEntityMapper;
 import be.xplore.notify.me.repositories.EventRepo;
@@ -16,9 +15,11 @@ import org.springframework.data.domain.PageImpl;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -53,24 +54,12 @@ class EventServiceTest {
     }
 
     @Test
-    void saveDbException() {
-        given(eventRepo.save(any())).willThrow(new DatabaseException(new Exception()));
-        assertThrows(DatabaseException.class, () -> eventService.save(Event.builder().build()));
-    }
-
-    @Test
     void getEventsOfVenue() {
         mockGetEventsByVenueId();
         Page<Event> eventsOfVenue = eventService.getEventsOfVenue(event.getVenue().getId(), 0);
         List<Event> events = eventsOfVenue.getContent();
         assertEquals(1, events.size());
         assertEquals(event.getId(), events.get(0).getId());
-    }
-
-    @Test
-    void getEventsOfVenueDbException() {
-        given(eventRepo.getAllByVenue_IdOrderByDate(any(), any())).willThrow(new DatabaseException(new Exception()));
-        assertThrows(DatabaseException.class, () -> eventService.getEventsOfVenue(event.getVenue().getId(), 0));
     }
 
     private void mockGetEventsByVenueId() {
@@ -85,5 +74,24 @@ class EventServiceTest {
 
     private void mockSave() {
         given(eventRepo.save(any())).will(i -> i.getArgument(0));
+    }
+
+    @Test
+    void getById() {
+        mockFindById();
+        Optional<Event> eventLineOptional = eventService.getById(event.getId());
+        assertTrue(eventLineOptional.isPresent());
+        assertEquals(event.getId(), eventLineOptional.get().getId());
+    }
+
+    @Test
+    void getByIdNotFound() {
+        mockFindById();
+        Optional<Event> eventLineOptional = eventService.getById("qdsf");
+        assertTrue(eventLineOptional.isEmpty());
+    }
+
+    private void mockFindById() {
+        given(eventRepo.findById(any())).will(i -> i.getArgument(0).equals(event.getId()) ? Optional.of(eventEntityMapper.toEntity(event)) : Optional.empty());
     }
 }

@@ -2,6 +2,7 @@ package be.xplore.notify.me.api;
 
 import be.xplore.notify.me.domain.Organization;
 import be.xplore.notify.me.dto.OrganizationDto;
+import be.xplore.notify.me.entity.OrganizationEntity;
 import be.xplore.notify.me.entity.mappers.OrganizationEntityMapper;
 import be.xplore.notify.me.repositories.OrganizationRepo;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,11 +12,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,15 +47,6 @@ class OrganizationControllerTest {
     @Autowired
     private Organization organization;
 
-    private void mockFetchByIds() {
-        given(organizationRepo.findById(any())).will(i -> {
-            if (i.getArgument(0).equals(organization.getId())) {
-                return Optional.of(organizationEntityMapper.toEntity(organization));
-            }
-            return Optional.empty();
-        });
-    }
-
     @Test
     void getOrganizationById() {
         try {
@@ -76,8 +72,47 @@ class OrganizationControllerTest {
         }
     }
 
+    @Test
+    void getOrganizations() {
+        try {
+            mockFetchAll();
+            ResultActions request = mockMvc.perform(get("/organization").contentType(MediaType.APPLICATION_JSON));
+            request.andExpect(status().is(HttpStatus.OK.value()));
+        } catch (Exception e) {
+            failTest(e);
+        }
+    }
+
+    @Test
+    void getOrganizationsWithPage() {
+        try {
+            mockFetchAll();
+            ResultActions request = mockMvc.perform(get("/organization?page=0").contentType(MediaType.APPLICATION_JSON));
+            request.andExpect(status().is(HttpStatus.OK.value()));
+        } catch (Exception e) {
+            failTest(e);
+        }
+    }
+
     private void failTest(Exception e) {
         e.printStackTrace();
         Assertions.fail("Exception was thrown in test.");
+    }
+
+    private void mockFetchByIds() {
+        given(organizationRepo.findById(any())).will(i -> {
+            if (i.getArgument(0).equals(organization.getId())) {
+                return Optional.of(organizationEntityMapper.toEntity(organization));
+            }
+            return Optional.empty();
+        });
+    }
+
+    private void mockFetchAll() {
+        given(organizationRepo.findAll(any(PageRequest.class))).will(i -> {
+            List<OrganizationEntity> organizationEntityList = new ArrayList<>();
+            organizationEntityList.add(organizationEntityMapper.toEntity(organization));
+            return new PageImpl<>(organizationEntityList);
+        });
     }
 }

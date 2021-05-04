@@ -1,7 +1,6 @@
 package be.xplore.notify.me.services;
 
 import be.xplore.notify.me.domain.Venue;
-import be.xplore.notify.me.domain.exceptions.DatabaseException;
 import be.xplore.notify.me.entity.mappers.VenueEntityMapper;
 import be.xplore.notify.me.repositories.VenueRepo;
 import org.junit.jupiter.api.Test;
@@ -12,7 +11,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -52,21 +50,9 @@ class VenueServiceTest {
     }
 
     @Test
-    void getByIdDbException() {
-        given(venueRepo.findById(any())).willThrow(new DatabaseException(new Exception()));
-        assertThrows(DatabaseException.class, () -> venueService.getById(venue.getId()));
-    }
-
-    @Test
     void save() {
         setUpMocks();
         Venue savedVenue = venueService.save(venue);
         assertEquals(venue.getId(), savedVenue.getId());
-    }
-
-    @Test
-    void saveDbException() {
-        given(venueRepo.save(any())).willThrow(new DatabaseException(new Exception()));
-        assertThrows(DatabaseException.class, () -> venueService.save(venue));
     }
 }

@@ -3,7 +3,9 @@ package be.xplore.notify.me.util;
 import be.xplore.notify.me.domain.Organization;
 import be.xplore.notify.me.domain.Venue;
 import be.xplore.notify.me.domain.event.Event;
+import be.xplore.notify.me.domain.event.EventLine;
 import be.xplore.notify.me.domain.event.EventStatus;
+import be.xplore.notify.me.domain.event.Line;
 import be.xplore.notify.me.domain.notification.Notification;
 import be.xplore.notify.me.domain.notification.NotificationChannel;
 import be.xplore.notify.me.domain.notification.NotificationType;
@@ -37,14 +39,14 @@ public class Testdata {
     @Bean
     Notification testNotification() {
         return Notification.builder().id("1").userId(testUser().getId()).title("Test").body("This is a test")
-                .usedChannel(NotificationChannel.EMAIL).type(NotificationType.USER_JOINED).urgency(NotificationUrgency.NORMAL)
-                .build();
+            .usedChannel(NotificationChannel.EMAIL).type(NotificationType.USER_JOINED).urgency(NotificationUrgency.NORMAL)
+            .build();
     }
 
     @Bean
     UserOrganization testUserOrganization() {
         return UserOrganization.builder().id("1").user(testUser()).organization(testOrganization())
-                .role(Role.MEMBER).status(MemberRequestStatus.PENDING).build();
+            .role(Role.MEMBER).status(MemberRequestStatus.PENDING).build();
     }
 
     @Bean
@@ -53,8 +55,18 @@ public class Testdata {
     }
 
     @Bean
-    Event event() {
+    Event testEvent() {
         return Event.builder().id("1").venue(testVenue()).name("test").eventStatus(EventStatus.CREATED).date(LocalDateTime.now().plusMonths(2)).build();
+    }
+
+    @Bean
+    Line testLine() {
+        return Line.builder().id("1").name("test").description("this is a test line").venue(testVenue()).build();
+    }
+
+    @Bean
+    EventLine testEventLine() {
+        return EventLine.builder().id("1").line(testLine()).assignedUsers(new ArrayList<>()).organization(testOrganization()).event(testEvent()).build();
     }
 
 }

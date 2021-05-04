@@ -8,11 +8,17 @@ import org.springframework.stereotype.Component;
 public class OrganizationEntityMapper implements EntityMapper<OrganizationEntity, Organization> {
     @Override
     public Organization fromEntity(OrganizationEntity organizationEntity) {
+        if (organizationEntity == null) {
+            return null;
+        }
         return Organization.builder().id(organizationEntity.getId()).name(organizationEntity.getName()).build();
     }
 
     @Override
     public OrganizationEntity toEntity(Organization organization) {
+        if (organization == null) {
+            return null;
+        }
         return new OrganizationEntity(organization.getId(), organization.getName());
     }
 }

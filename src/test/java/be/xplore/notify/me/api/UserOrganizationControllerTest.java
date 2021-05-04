@@ -1,7 +1,6 @@
 package be.xplore.notify.me.api;
 
 import be.xplore.notify.me.domain.Organization;
-import be.xplore.notify.me.domain.exceptions.DatabaseException;
 import be.xplore.notify.me.domain.user.Role;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.domain.user.UserOrganization;
@@ -90,34 +89,10 @@ class UserOrganizationControllerTest {
     }
 
     @Test
-    void userJoinException() {
-        try {
-            mockAll();
-            given(userOrganizationRepo.save(any())).willThrow(new DatabaseException(new Exception()));
-            ResultActions postWithContent = getPerformPostWithContent("/userorganization/request/join", new UserOrganizationIdsDto(user.getId(), organization.getId()));
-            expectStatus(HttpStatus.INTERNAL_SERVER_ERROR, postWithContent);
-        } catch (Exception e) {
-            failTest(e);
-        }
-    }
-
-    @Test
     void userJoinNotFound() {
         try {
             mockFetchesByIds();
             ResultActions resultActions = getPerformPostWithContent("/userorganization/request/join", new UserOrganizationIdsDto("qqsdfqsdf", organization.getId()));
-            expectStatus(HttpStatus.NOT_FOUND, resultActions);
-        } catch (Exception e) {
-            failTest(e);
-        }
-    }
-
-    @Test
-    void userJoinNotFound2() {
-        try {
-            mockFetchesByIds();
-            given(userOrganizationRepo.save(any())).willThrow(new DatabaseException(new Exception()));
-            ResultActions resultActions = getPerformPostWithContent("/userorganization/request/join", new UserOrganizationIdsDto(user.getId(), "sdfqqsdf"));
             expectStatus(HttpStatus.NOT_FOUND, resultActions);
         } catch (Exception e) {
             failTest(e);
