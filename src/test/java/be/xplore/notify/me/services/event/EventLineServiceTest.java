@@ -15,8 +15,10 @@ import org.springframework.data.domain.PageImpl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -71,5 +73,24 @@ class EventLineServiceTest {
             }
             return new PageImpl<>(lineEntityList);
         });
+    }
+
+    @Test
+    void getById() {
+        mockFindById();
+        Optional<EventLine> eventLineOptional = eventLineService.getById(eventLine.getId());
+        assertTrue(eventLineOptional.isPresent());
+        assertEquals(eventLine.getId(), eventLineOptional.get().getId());
+    }
+
+    @Test
+    void getByIdNotFound() {
+        mockFindById();
+        Optional<EventLine> eventLineOptional = eventLineService.getById("qdsf");
+        assertTrue(eventLineOptional.isEmpty());
+    }
+
+    private void mockFindById() {
+        given(eventLineRepo.findById(any())).will(i -> i.getArgument(0).equals(eventLine.getId()) ? Optional.of(eventLineEntityMapper.toEntity(eventLine)) : Optional.empty());
     }
 }
