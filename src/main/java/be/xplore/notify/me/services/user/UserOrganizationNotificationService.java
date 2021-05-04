@@ -63,6 +63,7 @@ public class UserOrganizationNotificationService {
             .creationDate(LocalDateTime.now())
             .urgency(NotificationUrgency.NORMAL)
             .type(notificationType)
+            .userId(user.getId())
             .build();
     }
 }
