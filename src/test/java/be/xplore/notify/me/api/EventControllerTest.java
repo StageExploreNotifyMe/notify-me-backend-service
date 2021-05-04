@@ -56,9 +56,9 @@ class EventControllerTest {
         mockServices();
         EventCreationDto eventCreationDto = new EventCreationDto(LocalDateTime.now().plusMonths(1), "Test Event", venue.getId());
         try {
-            ResultActions resultActions = postEvent(eventCreationDto);
+            ResultActions resultActions = performPost(eventCreationDto, "/event");
             expectResult(resultActions, HttpStatus.CREATED);
-            EventDto eventDto = mapper.readValue(getResponse(resultActions), EventDto.class);
+            EventDto eventDto = mapper.readValue(getResult(resultActions), EventDto.class);
             assertDataCorrectCreatedEvent(eventCreationDto, eventDto);
         } catch (Exception e) {
             failTest(e);
@@ -76,7 +76,7 @@ class EventControllerTest {
         mockServices();
         EventCreationDto eventCreationDto = new EventCreationDto(LocalDateTime.now().plusMonths(1), "Test Event", "qsdf");
         try {
-            expectResult(postEvent(eventCreationDto), HttpStatus.NOT_FOUND);
+            expectResult(performPost(eventCreationDto, "/event"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             failTest(e);
         }
@@ -87,7 +87,7 @@ class EventControllerTest {
         mockServices();
         EventCreationDto eventCreationDto = new EventCreationDto(LocalDateTime.now().minusMonths(1), "Test Event", venue.getId());
         try {
-            expectResult(postEvent(eventCreationDto), HttpStatus.BAD_REQUEST);
+            expectResult(performPost(eventCreationDto, "/event"), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             failTest(e);
         }
@@ -97,7 +97,7 @@ class EventControllerTest {
     void getEventsOfVenue() {
         mockServices();
         try {
-            ResultActions resultActions = performGet("/event/venue/" + event.getVenue().getId());
+            ResultActions resultActions = performGetVenueEvents("/event/venue/" + event.getVenue().getId());
             expectResult(resultActions, HttpStatus.OK);
         } catch (Exception e) {
             failTest(e);
@@ -108,7 +108,7 @@ class EventControllerTest {
     void getEventsOfVenueWithPage() {
         mockServices();
         try {
-            ResultActions resultActions = performGet("/event/venue/" + event.getVenue().getId() + "?page=0");
+            ResultActions resultActions = performGetVenueEvents("/event/venue/" + event.getVenue().getId() + "?page=0");
             expectResult(resultActions, HttpStatus.OK);
         } catch (Exception e) {
             failTest(e);
@@ -116,34 +116,32 @@ class EventControllerTest {
     }
 
     @Test
-    void getEventById() {
-        mockServices();
+    void cancelEvent() {
         try {
-            ResultActions resultActions = performGet("/event/" + event.getId());
+            mockServices();
+            ResultActions resultActions = performPost(new EventDto(), "/event/" + event.getId() + "/cancel");
             expectResult(resultActions, HttpStatus.OK);
-            EventDto eventDto = mapper.readValue(getResponse(resultActions), EventDto.class);
-            assertEquals(event.getId(), eventDto.getId());
+            EventDto eventDto = mapper.readValue(getResult(resultActions), EventDto.class);
+            assertEquals(EventStatus.CANCELED, eventDto.getEventStatus());
         } catch (Exception e) {
             failTest(e);
         }
     }
 
     @Test
-    void getEventByIdNotFound() {
-        mockServices();
+    void publishEvent() {
         try {
-            ResultActions resultActions = performGet("/event/qkdjsmfl");
-            expectResult(resultActions, HttpStatus.NOT_FOUND);
+            mockServices();
+            ResultActions resultActions = performPost(new EventDto(), "/event/" + event.getId() + "/publish");
+            expectResult(resultActions, HttpStatus.OK);
+            EventDto eventDto = mapper.readValue(getResult(resultActions), EventDto.class);
+            assertEquals(EventStatus.PUBLIC, eventDto.getEventStatus());
         } catch (Exception e) {
             failTest(e);
         }
     }
 
-    private String getResponse(ResultActions resultActions) throws UnsupportedEncodingException {
-        return resultActions.andReturn().getResponse().getContentAsString();
-    }
-
-    private ResultActions performGet(String url) throws Exception {
+    private ResultActions performGetVenueEvents(String url) throws Exception {
         return mockMvc.perform(get(url).contentType(MediaType.APPLICATION_JSON));
     }
 
@@ -156,6 +154,22 @@ class EventControllerTest {
         mockGetEvents();
         given(venueService.getById(any())).will(i -> i.getArgument(0).equals(venue.getId()) ? Optional.of(venue) : Optional.empty());
         given(eventService.getById(any())).will(i -> i.getArgument(0).equals(event.getId()) ? Optional.of(event) : Optional.empty());
+        mockCancelEvent();
+        mockPublishEvent();
+    }
+
+    private void mockCancelEvent() {
+        given(eventService.cancelEvent(any())).will(i -> {
+            Event e = i.getArgument(0);
+            return Event.builder().id(e.getId()).date(e.getDate()).eventStatus(EventStatus.CANCELED).venue(e.getVenue()).name(e.getName()).build();
+        });
+    }
+
+    private void mockPublishEvent() {
+        given(eventService.publishEvent(any())).will(i -> {
+            Event e = i.getArgument(0);
+            return Event.builder().id(e.getId()).date(e.getDate()).eventStatus(EventStatus.PUBLIC).venue(e.getVenue()).name(e.getName()).build();
+        });
     }
 
     private void mockCreateEvent() {
@@ -178,9 +192,12 @@ class EventControllerTest {
         });
     }
 
-    private ResultActions postEvent(EventCreationDto eventCreationDto) throws Exception {
-        return mockMvc.perform(post("/event")
-            .content(mapper.writeValueAsString(eventCreationDto)).contentType(MediaType.APPLICATION_JSON));
+    private ResultActions performPost(Object body, String url) throws Exception {
+        return mockMvc.perform(post(url).content(mapper.writeValueAsString(body)).contentType(MediaType.APPLICATION_JSON));
+    }
+
+    private String getResult(ResultActions resultActions) throws UnsupportedEncodingException {
+        return resultActions.andReturn().getResponse().getContentAsString();
     }
 
     private void failTest(Exception e) {

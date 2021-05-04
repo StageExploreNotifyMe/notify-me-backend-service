@@ -2,6 +2,7 @@ package be.xplore.notify.me.services.event;
 
 import be.xplore.notify.me.domain.Venue;
 import be.xplore.notify.me.domain.event.Event;
+import be.xplore.notify.me.domain.event.EventStatus;
 import be.xplore.notify.me.entity.event.EventEntity;
 import be.xplore.notify.me.entity.mappers.event.EventEntityMapper;
 import be.xplore.notify.me.repositories.EventRepo;
@@ -60,6 +61,22 @@ class EventServiceTest {
         List<Event> events = eventsOfVenue.getContent();
         assertEquals(1, events.size());
         assertEquals(event.getId(), events.get(0).getId());
+    }
+
+    @Test
+    void cancelEvent() {
+        mockSave();
+        Event updatedEvent = eventService.cancelEvent(this.event);
+        assertEquals(EventStatus.CANCELED, updatedEvent.getEventStatus());
+        assertEquals(event.getId(), updatedEvent.getId());
+    }
+
+    @Test
+    void publishEvent() {
+        mockSave();
+        Event updatedEvent = eventService.publishEvent(this.event);
+        assertEquals(EventStatus.PUBLIC, updatedEvent.getEventStatus());
+        assertEquals(event.getId(), updatedEvent.getId());
     }
 
     private void mockGetEventsByVenueId() {

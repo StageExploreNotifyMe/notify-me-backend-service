@@ -54,4 +54,24 @@ public class EventService {
         EventEntity eventEntity = eventRepo.save(eventEntityMapper.toEntity(event));
         return eventEntityMapper.fromEntity(eventEntity);
     }
+
+    public Event cancelEvent(Event event) {
+        Event toSave = updateEventStatus(event, EventStatus.CANCELED);
+        return save(toSave);
+    }
+
+    public Event publishEvent(Event event) {
+        Event toSave = updateEventStatus(event, EventStatus.PUBLIC);
+        return save(toSave);
+    }
+
+    private Event updateEventStatus(Event event, EventStatus status) {
+        return Event.builder()
+            .id(event.getId())
+            .name(event.getName())
+            .venue(event.getVenue())
+            .date(event.getDate())
+            .eventStatus(status)
+            .build();
+    }
 }
