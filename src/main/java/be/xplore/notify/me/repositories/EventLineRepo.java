@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface EventLineRepo extends JpaRepository<EventLineEntity, String> {
     Page<EventLineEntity> getAllByEvent_IdOrderByLine(String event_id, Pageable pageable);
+
+    Page<EventLineEntity> getAllByOrganization_IdOrderByEvent_date(String organization_id, Pageable pageable);
 }
