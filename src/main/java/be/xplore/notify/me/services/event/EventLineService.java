@@ -21,10 +21,12 @@ import java.util.Optional;
 public class EventLineService {
     private final EventLineRepo eventLineRepo;
     private final EventLineEntityMapper eventLineEntityMapper;
+    private final EventLineNotificationService eventLineNotificationService;
 
-    public EventLineService(EventLineRepo eventLineRepo, EventLineEntityMapper eventLineEntityMapper) {
+    public EventLineService(EventLineRepo eventLineRepo, EventLineEntityMapper eventLineEntityMapper, EventLineNotificationService eventLineNotificationService) {
         this.eventLineRepo = eventLineRepo;
         this.eventLineEntityMapper = eventLineEntityMapper;
+        this.eventLineNotificationService = eventLineNotificationService;
     }
 
     public Page<EventLine> getAllLinesOfEvent(String eventId, int page) {
@@ -68,7 +70,9 @@ public class EventLineService {
         }
 
         line.getAssignedUsers().add(user);
-        return save(line);
+        EventLine saved = save(line);
+        eventLineNotificationService.notifyLineAssigned(user, line);
+        return saved;
     }
 
     public Page<EventLine> getAllLinesOfOrganization(String id, int pageNumber) {
