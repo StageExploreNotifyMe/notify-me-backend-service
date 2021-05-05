@@ -97,7 +97,7 @@ class EventControllerTest {
     void getEventsOfVenue() {
         mockServices();
         try {
-            ResultActions resultActions = performGetVenueEvents("/event/venue/" + event.getVenue().getId());
+            ResultActions resultActions = performGet("/event/venue/" + event.getVenue().getId());
             expectResult(resultActions, HttpStatus.OK);
         } catch (Exception e) {
             failTest(e);
@@ -108,7 +108,7 @@ class EventControllerTest {
     void getEventsOfVenueWithPage() {
         mockServices();
         try {
-            ResultActions resultActions = performGetVenueEvents("/event/venue/" + event.getVenue().getId() + "?page=0");
+            ResultActions resultActions = performGet("/event/venue/" + event.getVenue().getId() + "?page=0");
             expectResult(resultActions, HttpStatus.OK);
         } catch (Exception e) {
             failTest(e);
@@ -141,12 +141,36 @@ class EventControllerTest {
         }
     }
 
-    private ResultActions performGetVenueEvents(String url) throws Exception {
+    @Test
+    void getEventById() {
+        try {
+            mockServices();
+            ResultActions resultActions = performGet("/event/" + event.getId());
+            expectResult(resultActions, HttpStatus.OK);
+            EventDto eventDto = mapper.readValue(getResult(resultActions), EventDto.class);
+            assertEquals(event.getId(), eventDto.getId());
+        } catch (Exception e) {
+            failTest(e);
+        }
+    }
+
+    @Test
+    void getEventByIdNotFound() {
+        try {
+            mockServices();
+            ResultActions resultActions = performGet("/event/qsdmflkj");
+            expectResult(resultActions, HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            failTest(e);
+        }
+    }
+
+    private ResultActions performGet(String url) throws Exception {
         return mockMvc.perform(get(url).contentType(MediaType.APPLICATION_JSON));
     }
 
-    private void expectResult(ResultActions resultActions, HttpStatus ok) throws Exception {
-        resultActions.andExpect(status().is(ok.value()));
+    private void expectResult(ResultActions resultActions, HttpStatus expectedStatus) throws Exception {
+        resultActions.andExpect(status().is(expectedStatus.value()));
     }
 
     private void mockServices() {

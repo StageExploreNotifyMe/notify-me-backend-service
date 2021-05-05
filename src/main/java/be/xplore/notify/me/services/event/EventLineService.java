@@ -77,4 +77,18 @@ public class EventLineService {
         EventLineEntity eventLineEntity = eventLineRepo.save(eventLineEntityMapper.toEntity(eventLine));
         return eventLineEntityMapper.fromEntity(eventLineEntity);
     }
+
+    public EventLine assignUserToEventLine(User user, EventLine line) {
+        if (line.getAssignedUsers().stream().anyMatch(u -> u.getId().equals(user.getId()))) {
+            return line;
+        }
+
+        line.getAssignedUsers().add(user);
+        return save(line);
+    }
+
+    public Page<EventLine> getAllLinesOfOrganization(String id, int pageNumber) {
+        Page<EventLineEntity> eventLineEntityPage = eventLineRepo.getAllByOrganization_IdOrderByEvent_date(id, PageRequest.of(pageNumber, 20));
+        return eventLineEntityPage.map(eventLineEntityMapper::fromEntity);
+    }
 }
