@@ -26,21 +26,19 @@ public class UserOrganizationNotificationService {
 
     public void sendResolvedPendingRequestNotification(UserOrganization userOrganization) {
         User user = userOrganization.getUser();
-
-        Notification.NotificationBuilder builder = Notification.builder().userId(user.getId());
-
-        Notification notification = setResolvedNotificationDetails(userOrganization, user, builder);
+        Notification notification = setResolvedNotificationDetails(userOrganization, user);
         notificationService.saveNotificationAndSendToInbox(notification);
         notificationSenderService.sendNotification(notification);
     }
 
-    private Notification setResolvedNotificationDetails(UserOrganization userOrganization, User user, Notification.NotificationBuilder builder) {
+    private Notification setResolvedNotificationDetails(UserOrganization userOrganization, User user) {
         return Notification.builder()
             .title(String.format("Request to join %s %s", userOrganization.getOrganization().getName(), userOrganization.getStatus().toString()))
             .body(String.format("%s %s", user.getFirstname(), user.getLastname()))
             .type(userOrganization.getStatus() == MemberRequestStatus.ACCEPTED ? NotificationType.USER_JOINED : NotificationType.USER_DECLINED)
             .urgency(NotificationUrgency.NORMAL)
             .usedChannel(user.getUserPreferences().getNormalChannel())
+            .userId(user.getId())
             .build();
     }
 
