@@ -1,5 +1,6 @@
 package be.xplore.notify.me.api;
 
+import be.xplore.notify.me.api.util.Converters;
 import be.xplore.notify.me.domain.event.EventLine;
 import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.user.User;
@@ -25,25 +26,23 @@ public class UserController {
     private final UserService userService;
     private final EventLineDtoMapper eventLineDtoMapper;
     private final EventLineService eventLineService;
+    private final Converters converters;
 
-    public UserController(UserService userService, EventLineDtoMapper eventLineDtoMapper, EventLineService eventLineService) {
+    public UserController(UserService userService, EventLineDtoMapper eventLineDtoMapper, EventLineService eventLineService, Converters converters) {
         this.userService = userService;
         this.eventLineDtoMapper = eventLineDtoMapper;
         this.eventLineService = eventLineService;
+        this.converters = converters;
     }
 
     @GetMapping("/{id}/lines")
     public ResponseEntity<Page<EventLineDto>> getUserLines(@PathVariable String id, @RequestParam(required = false) Integer page) {
-        int pageNumber = 0;
-        if (page != null) {
-            pageNumber = page;
-        }
         Optional<User> userOptional = userService.getById(id);
         if (userOptional.isEmpty()) {
             throw new NotFoundException("No user found with id " + id);
         }
 
-        Page<EventLine> allLinesOfUser = eventLineService.getAllLinesOfUser(userOptional.get(), pageNumber);
+        Page<EventLine> allLinesOfUser = eventLineService.getAllLinesOfUser(userOptional.get(), converters.getPageNumber(page));
         return new ResponseEntity<>(allLinesOfUser.map(eventLineDtoMapper::toDto), HttpStatus.OK);
 
     }
