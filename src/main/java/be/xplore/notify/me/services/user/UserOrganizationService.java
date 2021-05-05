@@ -14,7 +14,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -56,6 +58,16 @@ public class UserOrganizationService {
         Page<UserOrganizationEntity> userOrganisationPage =
                 userOrganizationRepo.getUserOrganisationByOrganizationEntity_IdAndStatusOrderByUserEntity(organizationId, status, pageRequest);
         return userOrganisationPage.map(userOrganizationEntityMapper::fromEntity);
+    }
+
+    public List<UserOrganization> getAllOrganizationLeadersByOrganizationId(String organizationId) {
+        List<UserOrganizationEntity> userOrganizationEntities =
+                userOrganizationRepo.getUserOrganizationEntityByOrganizationEntity_Id(organizationId);
+        return userOrganizationEntities
+                .stream()
+                .map(userOrganizationEntityMapper::fromEntity)
+                .filter(u -> u.getRole().equals(Role.ORGANIZATION_LEADER))
+                .collect(Collectors.toList());
     }
 
     public UserOrganization resolvePendingJoinRequest(String requestId, boolean accepted) {
