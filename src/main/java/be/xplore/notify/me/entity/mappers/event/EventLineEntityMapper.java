@@ -37,6 +37,7 @@ public class EventLineEntityMapper implements EntityMapper<EventLineEntity, Even
                 .organization(organizationEntityMapper.fromEntity(eventLineEntity.getOrganization()))
                 .assignedUsers(eventLineEntity.getAssignedUsers().stream().map(userEntityMapper::fromEntity).collect(Collectors.toList()))
                 .line(lineEntityMapper.fromEntity(eventLineEntity.getLine()))
+                .lineManager(userEntityMapper.fromEntity(eventLineEntity.getLineManager()))
                 .build();
     }
 
@@ -47,7 +48,8 @@ public class EventLineEntityMapper implements EntityMapper<EventLineEntity, Even
                 lineEntityMapper.toEntity(eventLine.getLine()),
                 eventEntityMapper.toEntity(eventLine.getEvent()),
                 organizationEntityMapper.toEntity(eventLine.getOrganization()),
-                eventLine.getAssignedUsers().stream().map(userEntityMapper::toEntity).collect(Collectors.toList())
+                eventLine.getAssignedUsers().stream().map(userEntityMapper::toEntity).collect(Collectors.toList()),
+                userEntityMapper.toEntity(eventLine.getLineManager())
         );
     }
 }

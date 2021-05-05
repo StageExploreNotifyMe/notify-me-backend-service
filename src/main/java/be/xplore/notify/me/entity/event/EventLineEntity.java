@@ -31,4 +31,6 @@ public class EventLineEntity {
     private OrganizationEntity organization;
     @ManyToMany
     private List<UserEntity> assignedUsers;
+    @ManyToOne
+    private UserEntity lineManager;
 }

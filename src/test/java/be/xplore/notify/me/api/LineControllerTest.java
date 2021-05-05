@@ -4,6 +4,7 @@ import be.xplore.notify.me.domain.Organization;
 import be.xplore.notify.me.domain.event.Event;
 import be.xplore.notify.me.domain.event.EventLine;
 import be.xplore.notify.me.domain.event.Line;
+import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.dto.event.EventLineDto;
 import be.xplore.notify.me.dto.event.LineAssignEventDto;
 import be.xplore.notify.me.dto.event.LineAssignOrganizationDto;
@@ -51,6 +52,8 @@ class LineControllerTest {
     private EventLine eventLine;
     @Autowired
     private Event event;
+    @Autowired
+    private User user;
     private EventLine eventLineWithoutOrg;
 
     @MockBean
@@ -126,7 +129,7 @@ class LineControllerTest {
     void assignLineToEvent() {
         try {
             mockEverything();
-            ResultActions resultActions = performPost("/line/event/add", new LineAssignEventDto(line.getId(), event.getId()));
+            ResultActions resultActions = performPost("/line/event/add", new LineAssignEventDto(line.getId(), event.getId(), user.getId()));
             expectResult(resultActions, HttpStatus.CREATED);
             EventLineDto eventLineDto = mapper.readValue(getResponse(resultActions), EventLineDto.class);
             assertEquals(event.getId(), eventLineDto.getEvent().getId());
@@ -140,7 +143,7 @@ class LineControllerTest {
     void assignLineToEventLineNotFound() {
         try {
             mockEverything();
-            ResultActions resultActions = performPost("/line/event/add", new LineAssignEventDto("qdsf", event.getId()));
+            ResultActions resultActions = performPost("/line/event/add", new LineAssignEventDto("qdsf", event.getId(), user.getId()));
             expectResult(resultActions, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             failTest(e);
@@ -223,7 +226,7 @@ class LineControllerTest {
     }
 
     private void mockAddLineToEvent() {
-        given(eventLineService.addLineToEvent(any(), any())).willReturn(eventLine);
+        given(eventLineService.addLineToEvent(any(), any(), any())).willReturn(eventLine);
     }
 
     private void mockGetLinesByVenue() {

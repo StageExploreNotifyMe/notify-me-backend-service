@@ -3,6 +3,7 @@ package be.xplore.notify.me.services.event;
 import be.xplore.notify.me.domain.Organization;
 import be.xplore.notify.me.domain.event.EventLine;
 import be.xplore.notify.me.domain.event.Line;
+import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.entity.event.EventLineEntity;
 import be.xplore.notify.me.entity.mappers.event.EventLineEntityMapper;
 import be.xplore.notify.me.repositories.EventLineRepo;
@@ -33,6 +34,8 @@ class EventLineServiceTest {
     private EventLineEntityMapper eventLineEntityMapper;
     @Autowired
     private Organization organization;
+    @Autowired
+    private User user;
 
     @MockBean
     private EventLineRepo eventLineRepo;
@@ -47,14 +50,14 @@ class EventLineServiceTest {
     @Test
     void addLineToEvent() {
         mockSave();
-        EventLine eventLine = eventLineService.addLineToEvent(line, this.eventLine.getEvent());
+        EventLine eventLine = eventLineService.addLineToEvent(line, this.eventLine.getEvent(), user);
         assertEquals(eventLine.getEvent().getId(), eventLine.getEvent().getId());
     }
 
     @Test
     void assignOrganizationToLine() {
         mockSave();
-        EventLine toAssingTo = EventLine.builder().id("qdf").line(line).event(eventLine.getEvent()).build();
+        EventLine toAssingTo = EventLine.builder().id("qdf").line(line).event(eventLine.getEvent()).lineManager(user).build();
         EventLine saved = eventLineService.assignOrganizationToLine(organization, toAssingTo);
         assertEquals(organization.getId(), saved.getOrganization().getId());
     }

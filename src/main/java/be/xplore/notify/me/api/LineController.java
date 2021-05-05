@@ -6,6 +6,7 @@ import be.xplore.notify.me.domain.event.Event;
 import be.xplore.notify.me.domain.event.EventLine;
 import be.xplore.notify.me.domain.event.Line;
 import be.xplore.notify.me.domain.exceptions.NotFoundException;
+import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.dto.event.EventLineDto;
 import be.xplore.notify.me.dto.event.LineAssignEventDto;
 import be.xplore.notify.me.dto.event.LineAssignOrganizationDto;
@@ -17,6 +18,7 @@ import be.xplore.notify.me.services.VenueService;
 import be.xplore.notify.me.services.event.EventLineService;
 import be.xplore.notify.me.services.event.EventService;
 import be.xplore.notify.me.services.event.LineService;
+import be.xplore.notify.me.services.user.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -42,6 +44,7 @@ public class LineController {
     private final EventService eventService;
     private final OrganizationService organizationService;
     private final VenueService venueService;
+    private final UserService userService;
 
     public LineController(
             LineService lineService,
@@ -50,8 +53,8 @@ public class LineController {
             EventLineDtoMapper eventLineDtoMapper,
             EventService eventService,
             OrganizationService organizationService,
-            VenueService venueService
-    ) {
+            VenueService venueService,
+            UserService userService) {
         this.lineService = lineService;
         this.eventLineService = eventLineService;
         this.lineDtoMapper = lineDtoMapper;
@@ -59,6 +62,7 @@ public class LineController {
         this.eventService = eventService;
         this.organizationService = organizationService;
         this.venueService = venueService;
+        this.userService = userService;
     }
 
     @GetMapping("/venue/{id}")
@@ -75,7 +79,7 @@ public class LineController {
 
     @PostMapping("event/add")
     public ResponseEntity<EventLineDto> assignLineToEvent(@RequestBody LineAssignEventDto dto) {
-        EventLine eventLine = eventLineService.addLineToEvent(getLineById(dto.getLineId()), getEventById(dto.getEventId()));
+        EventLine eventLine = eventLineService.addLineToEvent(getLineById(dto.getLineId()), getEventById(dto.getEventId()), getUserById(dto.getLineManagerId()));
         return new ResponseEntity<>(eventLineDtoMapper.toDto(eventLine), HttpStatus.CREATED);
     }
 
@@ -130,6 +134,14 @@ public class LineController {
             throw new NotFoundException("Could not find venue with id " + id);
         }
         return venueOptional.get();
+    }
+
+    private User getUserById(String id) {
+        Optional<User> userOptional = userService.getById(id);
+        if (userOptional.isEmpty()) {
+            throw new NotFoundException("Could not find user with id " + id);
+        }
+        return userOptional.get();
     }
 
     private Event getEventById(String id) {
