@@ -76,7 +76,7 @@ public class EventLineController {
 
     @PostMapping("event/add")
     public ResponseEntity<EventLineDto> assignLineToEvent(@RequestBody LineAssignEventDto dto) {
-        EventLine eventLine = eventLineService.addLineToEvent(getLineById(dto.getLineId()), getEventById(dto.getEventId()));
+        EventLine eventLine = eventLineService.addLineToEvent(getLineById(dto.getLineId()), getEventById(dto.getEventId()), getLineManagerById(dto.getLineManagerId()));
         return new ResponseEntity<>(eventLineDtoMapper.toDto(eventLine), HttpStatus.CREATED);
     }
 
@@ -118,6 +118,14 @@ public class EventLineController {
         Optional<User> userOptional = userService.getById(dto.getMemberId());
         if (userOptional.isEmpty()) {
             throw new NotFoundException("Could not find a user with id " + dto.getMemberId());
+        }
+        return userOptional.get();
+    }
+
+    private User getLineManagerById(String id) {
+        Optional<User> userOptional = userService.getById(id);
+        if (userOptional.isEmpty()) {
+            throw new NotFoundException("Could not find user with id " + id);
         }
         return userOptional.get();
     }

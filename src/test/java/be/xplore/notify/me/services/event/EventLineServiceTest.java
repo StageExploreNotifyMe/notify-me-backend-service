@@ -38,8 +38,6 @@ class EventLineServiceTest {
     private EventLineEntityMapper eventLineEntityMapper;
     @Autowired
     private Organization organization;
-    @Autowired
-    private User user;
 
     @MockBean
     private EventLineRepo eventLineRepo;

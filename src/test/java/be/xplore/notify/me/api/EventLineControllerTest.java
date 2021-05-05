@@ -136,7 +136,7 @@ class EventLineControllerTest {
     void assignLineToEvent() {
         try {
             mockEverything();
-            ResultActions resultActions = performPost("/line/event/add", new LineAssignEventDto(line.getId(), event.getId()));
+            ResultActions resultActions = performPost("/line/event/add", new LineAssignEventDto(line.getId(), event.getId(), user.getId()));
             expectResult(resultActions, HttpStatus.CREATED);
             EventLineDto eventLineDto = mapper.readValue(getResponse(resultActions), EventLineDto.class);
             assertEquals(event.getId(), eventLineDto.getEvent().getId());
@@ -150,7 +150,18 @@ class EventLineControllerTest {
     void assignLineToEventLineNotFound() {
         try {
             mockEverything();
-            ResultActions resultActions = performPost("/line/event/add", new LineAssignEventDto("qdsf", event.getId()));
+            ResultActions resultActions = performPost("/line/event/add", new LineAssignEventDto("qdsf", event.getId(), user.getId()));
+            expectResult(resultActions, HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            failTest(e);
+        }
+    }
+
+    @Test
+    void assignLineToEventLineManagerNotFound() {
+        try {
+            mockEverything();
+            ResultActions resultActions = performPost("/line/event/add", new LineAssignEventDto(line.getId(), event.getId(), "qsdf"));
             expectResult(resultActions, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             failTest(e);
@@ -328,7 +339,7 @@ class EventLineControllerTest {
     }
 
     private void mockAddLineToEvent() {
-        given(eventLineService.addLineToEvent(any(), any())).willReturn(eventLine);
+        given(eventLineService.addLineToEvent(any(), any(), any())).willReturn(eventLine);
     }
 
     private void mockGetLinesByVenue() {
