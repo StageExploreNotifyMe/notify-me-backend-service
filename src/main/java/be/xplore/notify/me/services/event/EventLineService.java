@@ -4,6 +4,7 @@ import be.xplore.notify.me.domain.Organization;
 import be.xplore.notify.me.domain.event.Event;
 import be.xplore.notify.me.domain.event.EventLine;
 import be.xplore.notify.me.domain.event.Line;
+import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.entity.event.EventLineEntity;
 import be.xplore.notify.me.entity.mappers.event.EventLineEntityMapper;
 import be.xplore.notify.me.repositories.EventLineRepo;
@@ -59,5 +60,19 @@ public class EventLineService {
     public EventLine save(EventLine eventLine) {
         EventLineEntity eventLineEntity = eventLineRepo.save(eventLineEntityMapper.toEntity(eventLine));
         return eventLineEntityMapper.fromEntity(eventLineEntity);
+    }
+
+    public EventLine assignUserToEventLine(User user, EventLine line) {
+        if (line.getAssignedUsers().stream().anyMatch(u -> u.getId().equals(user.getId()))) {
+            return line;
+        }
+
+        line.getAssignedUsers().add(user);
+        return save(line);
+    }
+
+    public Page<EventLine> getAllLinesOfOrganization(String id, int pageNumber) {
+        Page<EventLineEntity> eventLineEntityPage = eventLineRepo.getAllByOrganization_IdOrderByEvent_date(id, PageRequest.of(pageNumber, 20));
+        return eventLineEntityPage.map(eventLineEntityMapper::fromEntity);
     }
 }
