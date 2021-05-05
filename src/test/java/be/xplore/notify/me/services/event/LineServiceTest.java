@@ -13,8 +13,10 @@ import org.springframework.data.domain.PageImpl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -46,5 +48,31 @@ class LineServiceTest {
             }
             return new PageImpl<>(lineEntityList);
         });
+    }
+
+    @Test
+    void getById() {
+        mockFindById();
+        Optional<Line> lineOptional = lineService.getById(line.getId());
+        assertTrue(lineOptional.isPresent());
+        assertEquals(line.getId(), lineOptional.get().getId());
+    }
+
+    @Test
+    void getByIdNotFound() {
+        mockFindById();
+        Optional<Line> lineOptional = lineService.getById("qdsf");
+        assertTrue(lineOptional.isEmpty());
+    }
+
+    private void mockFindById() {
+        given(lineRepo.findById(any())).will(i -> i.getArgument(0).equals(line.getId()) ? Optional.of(lineEntityMapper.toEntity(line)) : Optional.empty());
+    }
+
+    @Test
+    void save() {
+        given(lineRepo.save(any())).will(i -> i.getArgument(0));
+        Line save = lineService.save(line);
+        assertEquals(line.getId(), save.getId());
     }
 }

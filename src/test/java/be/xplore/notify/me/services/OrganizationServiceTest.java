@@ -54,6 +54,10 @@ class OrganizationServiceTest {
         });
     }
 
+    private void mockSave() {
+        given(organizationRepo.save(any())).will(i -> i.getArgument(0));
+    }
+
     @Test
     void getOrganizationById() {
         mockFetchById();
@@ -69,4 +73,10 @@ class OrganizationServiceTest {
         assertEquals(organization.getId(), organizationsPage.getContent().get(0).getId());
     }
 
+    @Test
+    void save() {
+        mockSave();
+        Organization saved = organizationService.save(organization);
+        assertEquals(organization.getId(), saved.getId());
+    }
 }
