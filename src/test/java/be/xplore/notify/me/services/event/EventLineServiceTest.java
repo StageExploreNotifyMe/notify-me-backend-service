@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -96,12 +97,49 @@ class EventLineServiceTest {
         assertEquals(1, allLinesOfOrganization.getContent().size());
     }
 
+    @Test
+    void getAllLinesOfUser() {
+        mockGetEventLinesOfUser();
+        Page<EventLine> allLinesOfUser = eventLineService.getAllLinesOfUser(user, 0);
+        assertEquals(1, allLinesOfUser.getContent().size());
+    }
+
+    @Test
+    void cancelUserEventLineNotAssigned() {
+        assertThrows(IllegalArgumentException.class, () -> eventLineService.cancelUserEventLine(user.getId(), eventLine));
+    }
+
+    private EventLine updateAssignedUsers(EventLine line, List<User> users) {
+        return EventLine.builder()
+            .id(line.getId())
+            .line(line.getLine())
+            .event(line.getEvent())
+            .assignedUsers(users)
+            .organization(line.getOrganization())
+            .build();
+    }
+
+    @Test
+    void cancelUserEventLine() {
+        mockSave();
+        List<User> users = new ArrayList<>();
+        users.add(user);
+        EventLine eventLine = eventLineService.cancelUserEventLine(user.getId(), updateAssignedUsers(this.eventLine, users));
+        assertTrue(eventLine.getAssignedUsers().stream().noneMatch(u -> u.getId().equals(user.getId())));
+    }
+
+    private void mockGetEventLinesOfUser() {
+        given(eventLineRepo.getAllByAssignedUsersContainsOrderByEvent_date(any(), any())).will(i -> getPageOfEventLine());
+    }
+
+    private Object getPageOfEventLine() {
+        List<EventLineEntity> lineEntityList = new ArrayList<>();
+        lineEntityList.add(eventLineEntityMapper.toEntity(eventLine));
+        return new PageImpl<>(lineEntityList);
+    }
+
     private void mockGetLinesOfOrg() {
-        given(eventLineRepo.getAllByOrganization_IdOrderByEvent_date(any(), any())).will(i -> {
-            List<EventLineEntity> eventLines = new ArrayList<>();
-            eventLines.add(eventLineEntityMapper.toEntity(eventLine));
-            return new PageImpl<>(eventLines);
-        });
+        given(eventLineRepo.getAllByOrganization_IdOrderByEvent_date(any(), any())).will(i -> getPageOfEventLine());
     }
 
     private void mockSave() {
