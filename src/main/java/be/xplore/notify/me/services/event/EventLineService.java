@@ -26,16 +26,19 @@ public class EventLineService {
     private final EventLineEntityMapper eventLineEntityMapper;
     private final UserEntityMapper userEntityMapper;
     private final OrganizationNotificationService organizationNotificationService;
+    private final EventLineNotificationService eventLineNotificationService;
 
     public EventLineService(
             EventLineRepo eventLineRepo,
             EventLineEntityMapper eventLineEntityMapper,
             UserEntityMapper userEntityMapper,
-            OrganizationNotificationService organizationNotificationService) {
+            OrganizationNotificationService organizationNotificationService,
+            EventLineNotificationService eventLineNotificationService) {
         this.eventLineRepo = eventLineRepo;
         this.eventLineEntityMapper = eventLineEntityMapper;
         this.userEntityMapper = userEntityMapper;
         this.organizationNotificationService = organizationNotificationService;
+        this.eventLineNotificationService = eventLineNotificationService;
     }
 
     public Page<EventLine> getAllLinesOfEvent(String eventId, int page) {
@@ -102,6 +105,7 @@ public class EventLineService {
         }
 
         assignedUsers.remove(userOptional.get());
+        eventLineNotificationService.sendMemberCanceledNotification(userId, line);
         return save(updateAssignedUsers(line, assignedUsers));
     }
 
