@@ -7,8 +7,11 @@ import be.xplore.notify.me.entity.mappers.user.UserEntityMapper;
 import be.xplore.notify.me.entity.user.UserEntity;
 import be.xplore.notify.me.repositories.UserRepo;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 @Slf4j
@@ -24,13 +27,28 @@ public class UserService {
     }
 
     public User addNotificationToInbox(Notification notification) {
-        Optional<User> userOptional = getById(notification.getUserId());
-        if (userOptional.isEmpty()) {
-            throw new NotFoundException("No user found for id " + notification.getUserId());
-        }
-        User user = userOptional.get();
+        User user = getUserById(notification.getUserId());
         user.getInbox().add(notification);
         return save(user);
+    }
+
+    public Page<User> getUsersPage(PageRequest pageRequest) {
+        Page<UserEntity> userEntityPage = userRepo.findAll(pageRequest);
+        return userEntityPage.map(userEntityMapper::fromEntity);
+    }
+
+    public User addNotificationToQueue(Notification notification) {
+        User user = getUserById(notification.getUserId());
+        user.getNotificationQueue().add(notification);
+        return save(user);
+    }
+
+    private User getUserById(String userId) {
+        Optional<User> userOptional = getById(userId);
+        if (userOptional.isEmpty()) {
+            throw new NotFoundException("No user found for id " + userId);
+        }
+        return userOptional.get();
     }
 
     public Optional<User> getById(String id) {
@@ -47,4 +65,15 @@ public class UserService {
         return userEntityMapper.fromEntity(userEntity);
     }
 
+    public User clearUserQueue(User user) {
+        User toSave = User.builder()
+                .id(user.getId())
+                .firstname(user.getFirstname())
+                .lastname(user.getLastname())
+                .userPreferences(user.getUserPreferences())
+                .notificationQueue(new ArrayList<>())
+                .inbox(user.getInbox())
+                .build();
+        return save(toSave);
+    }
 }

@@ -48,6 +48,14 @@ class NotificationServiceTest {
         });
     }
 
+    private void mockAddNotificationToQueue() {
+        given(userService.addNotificationToInbox(any())).will(i -> {
+            Notification n = i.getArgument(0);
+            user.getNotificationQueue().add(n);
+            return user;
+        });
+    }
+
     private void mockSaveNotification() {
         given(notificationRepo.save(any())).will(i -> i.getArgument(0));
     }
@@ -57,6 +65,15 @@ class NotificationServiceTest {
         mockAddNotificationToInbox();
         mockSaveNotification();
         Notification returnedNotification = notificationService.saveNotificationAndSendToInbox(notification);
+        assertEquals(notification.getId(), returnedNotification.getId());
+        assertTrue(user.getInbox().stream().anyMatch(n -> n.getId().equals(notification.getId())));
+    }
+
+    @Test
+    void saveNotificationAndSendToQueue() {
+        mockAddNotificationToQueue();
+        mockSaveNotification();
+        Notification returnedNotification = notificationService.saveNotificationAndSendToQueue(notification);
         assertEquals(notification.getId(), returnedNotification.getId());
         assertTrue(user.getInbox().stream().anyMatch(n -> n.getId().equals(notification.getId())));
     }

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -27,6 +28,8 @@ public class UserEntity {
     private UserPreferencesEntity userPreferences;
     private String firstname;
     private String lastname;
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     private List<NotificationEntity> inbox = new ArrayList<>();
+    @ManyToMany
+    private List<NotificationEntity> notificationQueue = new ArrayList<>();
 }

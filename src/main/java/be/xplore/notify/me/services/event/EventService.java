@@ -20,10 +20,12 @@ public class EventService {
 
     private final EventRepo eventRepo;
     private final EventEntityMapper eventEntityMapper;
+    private final EventNotificationService eventNotificationService;
 
-    public EventService(EventRepo eventRepo, EventEntityMapper eventEntityMapper) {
+    public EventService(EventRepo eventRepo, EventEntityMapper eventEntityMapper, EventNotificationService eventNotificationService) {
         this.eventRepo = eventRepo;
         this.eventEntityMapper = eventEntityMapper;
+        this.eventNotificationService = eventNotificationService;
     }
 
     public Event createEvent(LocalDateTime dateTime, String name, Venue venue) {
@@ -32,8 +34,9 @@ public class EventService {
             throw new IllegalArgumentException("Event cannot be created in the past");
         }
 
-        Event event = Event.builder().date(dateTime).venue(venue).eventStatus(EventStatus.CREATED).name(name).build();
-        return save(event);
+        Event event = save(Event.builder().date(dateTime).venue(venue).eventStatus(EventStatus.CREATED).name(name).build());
+        eventNotificationService.eventCreated(event);
+        return event;
     }
 
     public Page<Event> getEventsOfVenue(String venueId, int page) {

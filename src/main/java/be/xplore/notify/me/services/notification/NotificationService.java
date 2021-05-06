@@ -32,6 +32,12 @@ public class NotificationService {
         return savedNotification;
     }
 
+    public Notification saveNotificationAndSendToQueue(Notification notification) {
+        Notification savedNotification = save(notification);
+        userService.addNotificationToQueue(savedNotification);
+        return savedNotification;
+    }
+
     public Optional<Notification> getById(String id) {
         Optional<NotificationEntity> optional = notificationRepo.findById(id);
         if (optional.isEmpty()) {
