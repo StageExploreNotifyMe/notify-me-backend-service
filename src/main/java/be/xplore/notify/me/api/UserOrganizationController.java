@@ -1,5 +1,6 @@
 package be.xplore.notify.me.api;
 
+import be.xplore.notify.me.api.util.Converters;
 import be.xplore.notify.me.domain.Organization;
 import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.user.Role;
@@ -35,17 +36,20 @@ public class UserOrganizationController {
     private final UserService userService;
     private final OrganizationService organizationService;
     private final UserOrganizationDtoMapper userOrganizationDtoMapper;
+    private final Converters converters;
 
     public UserOrganizationController(
             UserOrganizationService userOrganizationService,
             UserService userService,
             OrganizationService organizationService,
-            UserOrganizationDtoMapper userOrganizationDtoMapper
+            UserOrganizationDtoMapper userOrganizationDtoMapper,
+            Converters converters
     ) {
         this.userOrganizationService = userOrganizationService;
         this.userService = userService;
         this.organizationService = organizationService;
         this.userOrganizationDtoMapper = userOrganizationDtoMapper;
+        this.converters = converters;
     }
 
     @PostMapping("/request/join")
@@ -69,14 +73,14 @@ public class UserOrganizationController {
 
     @GetMapping("/requests/{organizationId}/pending")
     public ResponseEntity<Page<UserOrganizationDto>> getOpenUserOrganizationRequests(@PathVariable String organizationId, @RequestParam(required = false) Integer page) {
-        int pageNumber = convertPageNumber(page);
+        int pageNumber = converters.getPageNumber(page);
         Page<UserOrganization> requests = userOrganizationService.getPendingJoinRequests(organizationId, PageRequest.of(pageNumber, 20));
         return getPageResponseEntity(requests);
     }
 
     @GetMapping("/{organizationId}/users")
     public ResponseEntity<Page<UserOrganizationDto>> getUsersOfOrganization(@PathVariable String organizationId, @RequestParam(required = false) Integer page) {
-        int pageNumber = convertPageNumber(page);
+        int pageNumber = converters.getPageNumber(page);
         Optional<Organization> organizationOptional = organizationService.getById(organizationId);
         if (organizationOptional.isEmpty()) {
             throw new NotFoundException("No organization with id " + organizationId + " found");
@@ -111,13 +115,5 @@ public class UserOrganizationController {
     private ResponseEntity<Page<UserOrganizationDto>> getPageResponseEntity(Page<UserOrganization> requests) {
         Page<UserOrganizationDto> userOrganizationDto = requests.map(userOrganizationDtoMapper::toDto);
         return new ResponseEntity<>(userOrganizationDto, HttpStatus.OK);
-    }
-
-    private int convertPageNumber(@RequestParam(required = false) Integer page) {
-        int pageNumber = 0;
-        if (page != null) {
-            pageNumber = page;
-        }
-        return pageNumber;
     }
 }

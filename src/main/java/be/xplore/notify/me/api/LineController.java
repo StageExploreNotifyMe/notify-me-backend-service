@@ -1,5 +1,6 @@
 package be.xplore.notify.me.api;
 
+import be.xplore.notify.me.api.util.Converters;
 import be.xplore.notify.me.domain.Venue;
 import be.xplore.notify.me.domain.event.Line;
 import be.xplore.notify.me.domain.exceptions.NotFoundException;
@@ -26,16 +27,18 @@ public class LineController {
     private final LineService lineService;
     private final LineDtoMapper lineDtoMapper;
     private final VenueService venueService;
+    private final Converters converters;
 
-    public LineController(LineService lineService, LineDtoMapper lineDtoMapper, VenueService venueService) {
+    public LineController(LineService lineService, LineDtoMapper lineDtoMapper, VenueService venueService, Converters converters) {
         this.lineService = lineService;
         this.lineDtoMapper = lineDtoMapper;
         this.venueService = venueService;
+        this.converters = converters;
     }
 
     @GetMapping("/venue/{id}")
     public ResponseEntity<Page<LineDto>> getLinesOfVenue(@PathVariable String id, @RequestParam(required = false) Integer page) {
-        Page<Line> linePage = lineService.getAllByVenue(getVenueById(id).getId(), getPageNumber(page));
+        Page<Line> linePage = lineService.getAllByVenue(getVenueById(id).getId(), converters.getPageNumber(page));
         return new ResponseEntity<>(linePage.map(lineDtoMapper::toDto), HttpStatus.OK);
     }
 
@@ -45,13 +48,5 @@ public class LineController {
             throw new NotFoundException("Could not find venue with id " + id);
         }
         return venueOptional.get();
-    }
-
-    private int getPageNumber(Integer page) {
-        int pageNumber = 0;
-        if (page != null) {
-            pageNumber = page;
-        }
-        return pageNumber;
     }
 }

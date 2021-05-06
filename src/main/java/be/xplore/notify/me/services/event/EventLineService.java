@@ -7,6 +7,7 @@ import be.xplore.notify.me.domain.event.Line;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.entity.event.EventLineEntity;
 import be.xplore.notify.me.entity.mappers.event.EventLineEntityMapper;
+import be.xplore.notify.me.entity.mappers.user.UserEntityMapper;
 import be.xplore.notify.me.repositories.EventLineRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -21,11 +23,18 @@ import java.util.Optional;
 public class EventLineService {
     private final EventLineRepo eventLineRepo;
     private final EventLineEntityMapper eventLineEntityMapper;
+    private final UserEntityMapper userEntityMapper;
     private final EventLineNotificationService eventLineNotificationService;
 
-    public EventLineService(EventLineRepo eventLineRepo, EventLineEntityMapper eventLineEntityMapper, EventLineNotificationService eventLineNotificationService) {
+    public EventLineService(
+            EventLineRepo eventLineRepo,
+            EventLineEntityMapper eventLineEntityMapper,
+            UserEntityMapper userEntityMapper,
+            EventLineNotificationService eventLineNotificationService
+    ) {
         this.eventLineRepo = eventLineRepo;
         this.eventLineEntityMapper = eventLineEntityMapper;
+        this.userEntityMapper = userEntityMapper;
         this.eventLineNotificationService = eventLineNotificationService;
     }
 
@@ -65,18 +74,45 @@ public class EventLineService {
     }
 
     public EventLine assignUserToEventLine(User user, EventLine line) {
-        if (line.getAssignedUsers().stream().anyMatch(u -> u.getId().equals(user.getId()))) {
+        List<User> assignedUsers = line.getAssignedUsers();
+        if (assignedUsers.stream().anyMatch(u -> u.getId().equals(user.getId()))) {
             return line;
         }
 
-        line.getAssignedUsers().add(user);
-        EventLine saved = save(line);
-        eventLineNotificationService.notifyLineAssigned(user, line);
+        assignedUsers.add(user);
+        EventLine saved = save(updateAssignedUsers(line, assignedUsers));
+        eventLineNotificationService.notifyLineAssigned(user, saved);
         return saved;
     }
 
     public Page<EventLine> getAllLinesOfOrganization(String id, int pageNumber) {
         Page<EventLineEntity> eventLineEntityPage = eventLineRepo.getAllByOrganization_IdOrderByEvent_date(id, PageRequest.of(pageNumber, 20));
         return eventLineEntityPage.map(eventLineEntityMapper::fromEntity);
+    }
+
+    public Page<EventLine> getAllLinesOfUser(User user, int pageNumber) {
+        Page<EventLineEntity> eventLineEntityPage = eventLineRepo.getAllByAssignedUsersContainsOrderByEvent_date(userEntityMapper.toEntity(user), PageRequest.of(pageNumber, 20));
+        return eventLineEntityPage.map(eventLineEntityMapper::fromEntity);
+    }
+
+    public EventLine cancelUserEventLine(String userId, EventLine line) {
+        List<User> assignedUsers = line.getAssignedUsers();
+        Optional<User> userOptional = assignedUsers.stream().filter(u -> u.getId().equals(userId)).findAny();
+        if (userOptional.isEmpty()) {
+            throw new IllegalArgumentException("User with id " + userId + " is not assigned to this line.");
+        }
+
+        assignedUsers.remove(userOptional.get());
+        return save(updateAssignedUsers(line, assignedUsers));
+    }
+
+    private EventLine updateAssignedUsers(EventLine line, List<User> users) {
+        return EventLine.builder()
+            .id(line.getId())
+            .line(line.getLine())
+            .event(line.getEvent())
+            .assignedUsers(users)
+            .organization(line.getOrganization())
+            .build();
     }
 }
