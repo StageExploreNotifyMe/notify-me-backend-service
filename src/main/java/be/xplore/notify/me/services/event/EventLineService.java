@@ -9,6 +9,7 @@ import be.xplore.notify.me.entity.event.EventLineEntity;
 import be.xplore.notify.me.entity.mappers.event.EventLineEntityMapper;
 import be.xplore.notify.me.entity.mappers.user.UserEntityMapper;
 import be.xplore.notify.me.repositories.EventLineRepo;
+import be.xplore.notify.me.services.OrganizationNotificationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,11 +25,13 @@ public class EventLineService {
     private final EventLineRepo eventLineRepo;
     private final EventLineEntityMapper eventLineEntityMapper;
     private final UserEntityMapper userEntityMapper;
+    private final OrganizationNotificationService organizationNotificationService;
 
     public EventLineService(EventLineRepo eventLineRepo, EventLineEntityMapper eventLineEntityMapper, UserEntityMapper userEntityMapper) {
         this.eventLineRepo = eventLineRepo;
         this.eventLineEntityMapper = eventLineEntityMapper;
         this.userEntityMapper = userEntityMapper;
+        this.organizationNotificationService = organizationNotificationService;
     }
 
     public Page<EventLine> getAllLinesOfEvent(String eventId, int page) {
@@ -49,6 +52,7 @@ public class EventLineService {
                 .event(line.getEvent())
                 .assignedUsers(new ArrayList<>())
                 .build();
+        organizationNotificationService.sendOrganizationLineAssignmentNotification(organization, updatedLine);
         return save(updatedLine);
     }
 
