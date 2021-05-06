@@ -27,7 +27,11 @@ public class EventLineService {
     private final UserEntityMapper userEntityMapper;
     private final OrganizationNotificationService organizationNotificationService;
 
-    public EventLineService(EventLineRepo eventLineRepo, EventLineEntityMapper eventLineEntityMapper, UserEntityMapper userEntityMapper) {
+    public EventLineService(
+            EventLineRepo eventLineRepo,
+            EventLineEntityMapper eventLineEntityMapper,
+            UserEntityMapper userEntityMapper,
+            OrganizationNotificationService organizationNotificationService) {
         this.eventLineRepo = eventLineRepo;
         this.eventLineEntityMapper = eventLineEntityMapper;
         this.userEntityMapper = userEntityMapper;
