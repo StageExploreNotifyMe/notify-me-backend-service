@@ -14,4 +14,4 @@ INSERT INTO line_entity (id, description, name, venue_entity_id) values ('2', 'T
 INSERT INTO line_entity (id, description, name, venue_entity_id) values ('3', 'People are needed to direct cars to where to park in the parking lot', 'Parking area', '1');
 
 INSERT INTO event_entity(id, date, event_status, name, venue_id) values ('1', CURRENT_TIMESTAMP, 1, 'testEvent', '1');
-INSERT INTO event_line_entity (id, event_line_status, event_id, line_id, line_manager_id, organization_id) values ('1', 1, '1','1','1','1')
+INSERT INTO event_line_entity (id, event_line_status, event_id, line_id, line_manager_id, organization_id) values ('1', 0, '1','1','1','1')

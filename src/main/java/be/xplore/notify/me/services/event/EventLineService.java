@@ -4,7 +4,6 @@ import be.xplore.notify.me.domain.Organization;
 import be.xplore.notify.me.domain.event.Event;
 import be.xplore.notify.me.domain.event.EventLine;
 import be.xplore.notify.me.domain.event.EventLineStatus;
-import be.xplore.notify.me.domain.event.EventLineStatus;
 import be.xplore.notify.me.domain.event.Line;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.entity.event.EventLineEntity;
@@ -30,12 +29,20 @@ public class EventLineService {
     private final EventLineEntityMapper eventLineEntityMapper;
     private final UserEntityMapper userEntityMapper;
     private final EventEntityMapper eventEntityMapper;
+    private final EventLineNotificationService eventLineNotificationService;
 
-    public EventLineService(EventLineRepo eventLineRepo, EventLineEntityMapper eventLineEntityMapper, UserEntityMapper userEntityMapper, EventEntityMapper eventEntityMapper) {
+    public EventLineService(
+            EventLineRepo eventLineRepo,
+            EventLineEntityMapper eventLineEntityMapper,
+            UserEntityMapper userEntityMapper,
+            EventEntityMapper eventEntityMapper,
+            EventLineNotificationService eventLineNotificationService
+    ) {
         this.eventLineRepo = eventLineRepo;
         this.eventLineEntityMapper = eventLineEntityMapper;
         this.userEntityMapper = userEntityMapper;
         this.eventEntityMapper = eventEntityMapper;
+        this.eventLineNotificationService = eventLineNotificationService;
     }
 
     public Page<EventLine> getAllLinesOfEvent(String eventId, int page) {
@@ -45,7 +52,14 @@ public class EventLineService {
     }
 
     public EventLine addLineToEvent(Line line, Event event, User lineManager) {
-        return save(EventLine.builder().event(event).line(line).assignedUsers(new ArrayList<>()).eventLineStatus(EventLineStatus.CREATED).lineManager(lineManager).build());
+        return save(EventLine.builder()
+            .event(event)
+            .line(line)
+            .assignedUsers(new ArrayList<>())
+            .eventLineStatus(EventLineStatus.CREATED)
+            .lineManager(lineManager)
+            .eventLineStatus(EventLineStatus.CREATED)
+            .build());
     }
 
     public EventLine assignOrganizationToLine(Organization organization, EventLine line) {
@@ -97,6 +111,7 @@ public class EventLineService {
 
     public EventLine cancelEventLine(EventLine eventLine) {
         EventLine toSave = updateEventLineStatus(eventLine, EventLineStatus.CANCELED);
+        eventLineNotificationService.sendEventLineCanceledNotification(toSave);
         return save(toSave);
     }
 
@@ -105,6 +120,7 @@ public class EventLineService {
             .id(eventLine.getId())
             .line(eventLine.getLine())
             .organization(eventLine.getOrganization())
+            .lineManager(eventLine.getLineManager())
             .assignedUsers(eventLine.getAssignedUsers())
             .eventLineStatus(status)
             .event(eventLine.getEvent())
