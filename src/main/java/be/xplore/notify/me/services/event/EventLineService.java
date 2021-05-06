@@ -3,6 +3,7 @@ package be.xplore.notify.me.services.event;
 import be.xplore.notify.me.domain.Organization;
 import be.xplore.notify.me.domain.event.Event;
 import be.xplore.notify.me.domain.event.EventLine;
+import be.xplore.notify.me.domain.event.EventLineStatus;
 import be.xplore.notify.me.domain.event.Line;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.entity.event.EventLineEntity;
@@ -34,7 +35,7 @@ public class EventLineService {
     }
 
     public EventLine addLineToEvent(Line line, Event event) {
-        return save(EventLine.builder().event(event).line(line).assignedUsers(new ArrayList<>()).build());
+        return save(EventLine.builder().event(event).line(line).assignedUsers(new ArrayList<>()).eventLineStatus(EventLineStatus.CREATED).build());
     }
 
     public EventLine assignOrganizationToLine(Organization organization, EventLine line) {
@@ -44,6 +45,7 @@ public class EventLineService {
                 .organization(organization)
                 .event(line.getEvent())
                 .assignedUsers(new ArrayList<>())
+                .eventLineStatus(EventLineStatus.ASSIGNED)
                 .build();
         return save(updatedLine);
     }
@@ -74,5 +76,21 @@ public class EventLineService {
     public Page<EventLine> getAllLinesOfOrganization(String id, int pageNumber) {
         Page<EventLineEntity> eventLineEntityPage = eventLineRepo.getAllByOrganization_IdOrderByEvent_date(id, PageRequest.of(pageNumber, 20));
         return eventLineEntityPage.map(eventLineEntityMapper::fromEntity);
+    }
+
+    public EventLine cancelEventLine(EventLine eventLine) {
+        EventLine toSave = updateEventLineStatus(eventLine, EventLineStatus.CANCELED);
+        return save(toSave);
+    }
+
+    private EventLine updateEventLineStatus(EventLine eventLine, EventLineStatus status) {
+        return EventLine.builder()
+            .id(eventLine.getId())
+            .line(eventLine.getLine())
+            .organization(eventLine.getOrganization())
+            .assignedUsers(eventLine.getAssignedUsers())
+            .eventLineStatus(status)
+            .event(eventLine.getEvent())
+            .build();
     }
 }

@@ -4,6 +4,7 @@ import be.xplore.notify.me.domain.Organization;
 import be.xplore.notify.me.domain.Venue;
 import be.xplore.notify.me.domain.event.Event;
 import be.xplore.notify.me.domain.event.EventLine;
+import be.xplore.notify.me.domain.event.EventLineStatus;
 import be.xplore.notify.me.domain.event.EventStatus;
 import be.xplore.notify.me.domain.event.Line;
 import be.xplore.notify.me.domain.notification.Notification;
@@ -66,7 +67,13 @@ public class Testdata {
 
     @Bean
     EventLine testEventLine() {
-        return EventLine.builder().id("1").line(testLine()).assignedUsers(new ArrayList<>()).organization(testOrganization()).event(testEvent()).build();
+        return EventLine.builder()
+            .id("1").line(testLine())
+            .assignedUsers(new ArrayList<>())
+            .organization(testOrganization())
+            .event(testEvent())
+            .eventLineStatus(EventLineStatus.CREATED)
+            .build();
     }
 
 }

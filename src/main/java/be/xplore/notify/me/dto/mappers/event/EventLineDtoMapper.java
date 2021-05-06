@@ -31,6 +31,7 @@ public class EventLineDtoMapper implements DtoMapper<EventLineDto, EventLine> {
                 .organization(organizationDtoMapper.fromDto(d.getOrganization()))
                 .event(eventDtoMapper.fromDto(d.getEvent()))
                 .assignedUsers(d.getAssignedUsers().stream().map(userDtoMapper::fromDto).collect(Collectors.toList()))
+            .eventLineStatus(d.getEventLineStatus())
                 .build();
     }
 
@@ -41,7 +42,8 @@ public class EventLineDtoMapper implements DtoMapper<EventLineDto, EventLine> {
                 lineDtoMapper.toDto(d.getLine()),
                 eventDtoMapper.toDto(d.getEvent()),
                 organizationDtoMapper.toDto(d.getOrganization()),
-                d.getAssignedUsers().stream().map(userDtoMapper::toDto).collect(Collectors.toList())
+                d.getAssignedUsers().stream().map(userDtoMapper::toDto).collect(Collectors.toList()),
+                d.getEventLineStatus()
         );
     }
 }
