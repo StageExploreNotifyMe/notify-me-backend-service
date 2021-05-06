@@ -10,7 +10,6 @@ import be.xplore.notify.me.entity.event.EventLineEntity;
 import be.xplore.notify.me.entity.mappers.event.EventEntityMapper;
 import be.xplore.notify.me.entity.mappers.event.EventLineEntityMapper;
 import be.xplore.notify.me.entity.mappers.user.UserEntityMapper;
-import be.xplore.notify.me.entity.mappers.user.UserEntityMapper;
 import be.xplore.notify.me.entity.user.UserEntity;
 import be.xplore.notify.me.repositories.EventLineRepo;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +30,6 @@ public class EventLineService {
     private final UserEntityMapper userEntityMapper;
     private final EventEntityMapper eventEntityMapper;
     private final EventLineNotificationService eventLineNotificationService;
-    private final UserEntityMapper userEntityMapper;
 
     public EventLineService(
             EventLineRepo eventLineRepo,
@@ -153,6 +151,8 @@ public class EventLineService {
             .event(line.getEvent())
             .assignedUsers(users)
             .organization(line.getOrganization())
+            .eventLineStatus(line.getEventLineStatus())
+            .lineManager(line.getLineManager())
             .build();
     }
 }

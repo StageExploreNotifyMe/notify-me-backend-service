@@ -122,6 +122,8 @@ class EventLineServiceTest {
             .id(line.getId())
             .line(line.getLine())
             .event(line.getEvent())
+            .eventLineStatus(line.getEventLineStatus())
+            .lineManager(line.getLineManager())
             .assignedUsers(users)
             .organization(line.getOrganization())
             .build();

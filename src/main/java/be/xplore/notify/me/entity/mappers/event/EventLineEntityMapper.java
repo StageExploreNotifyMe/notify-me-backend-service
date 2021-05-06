@@ -45,13 +45,13 @@ public class EventLineEntityMapper implements EntityMapper<EventLineEntity, Even
     @Override
     public EventLineEntity toEntity(EventLine eventLine) {
         return new EventLineEntity(
-                eventLine.getId(),
-                lineEntityMapper.toEntity(eventLine.getLine()),
-                eventEntityMapper.toEntity(eventLine.getEvent()),
-                eventLine.getEventLineStatus(),
-                organizationEntityMapper.toEntity(eventLine.getOrganization()),
-                eventLine.getAssignedUsers().stream().map(userEntityMapper::toEntity).collect(Collectors.toList()),
-                userEntityMapper.toEntity(eventLine.getLineManager())
+        eventLine.getId(),
+        lineEntityMapper.toEntity(eventLine.getLine()),
+        eventEntityMapper.toEntity(eventLine.getEvent()),
+        eventLine.getEventLineStatus(),
+        organizationEntityMapper.toEntity(eventLine.getOrganization()),
+        eventLine.getAssignedUsers().stream().map(userEntityMapper::toEntity).collect(Collectors.toList()),
+        userEntityMapper.toEntity(eventLine.getLineManager())
         );
     }
 }

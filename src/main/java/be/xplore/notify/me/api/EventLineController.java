@@ -116,10 +116,6 @@ public class EventLineController {
         return new ResponseEntity<>(eventLineDtoMapper.toDto(eventLine), HttpStatus.OK);
     }
 
-    private int getPageNumber(Integer page) {
-        int pageNumber = 0;
-        if (page != null) {
-            pageNumber = page;
     @PostMapping("{lineId}/cancel/member")
     public ResponseEntity<EventLineDto> cancelMemberEventLine(@PathVariable String lineId, @RequestBody LineMemberDto dto) {
         if (pathVarAndBodyMatch(lineId, dto.getEventLineId())) {

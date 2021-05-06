@@ -30,12 +30,12 @@ public class UserEntityMapper implements EntityMapper<UserEntity, User> {
     }
 
     @Override
-    public UserEntity toEntity(User user) {
+public UserEntity toEntity(User user) {
         return new UserEntity(user.getId(), userPreferencesEntityMapper.toEntity(
-                user.getUserPreferences()),
-                user.getFirstname(),
-                user.getLastname(),
-                user.getInbox().stream().map(notificationEntityMapper::toEntity).collect(Collectors.toList())
-        );
+        user.getUserPreferences()),
+        user.getFirstname(),
+        user.getLastname(),
+        user.getInbox().stream().map(notificationEntityMapper::toEntity).collect(Collectors.toList())
+    );
     }
 }

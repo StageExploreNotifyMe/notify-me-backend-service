@@ -313,6 +313,7 @@ class EventLineControllerTest {
     void cancelEventLine() {
         try {
             mockEverything();
+            mockCancelEventLine();
             ResultActions resultActions = performPost("/line/" + eventLine.getId() + "/cancel", new EventLineDto());
             expectResult(resultActions, HttpStatus.OK);
             EventLineDto eventLineDto = mapper.readValue(getResponse(resultActions), EventLineDto.class);
@@ -329,8 +330,6 @@ class EventLineControllerTest {
         mockAssignOrgToLine();
         mockGetByIds();
         mockAssignUserToLine();
-        simulateGetLinesOfOrg();
-        mockCancelEventLine();
         mockGetLinesOfOrg();
         mockCancelMemberLine();
     }
