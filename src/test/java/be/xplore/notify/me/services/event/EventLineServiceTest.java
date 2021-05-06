@@ -53,14 +53,14 @@ class EventLineServiceTest {
     @Test
     void addLineToEvent() {
         mockSave();
-        EventLine eventLine = eventLineService.addLineToEvent(line, this.eventLine.getEvent());
+        EventLine eventLine = eventLineService.addLineToEvent(line, this.eventLine.getEvent(), user);
         assertEquals(eventLine.getEvent().getId(), eventLine.getEvent().getId());
     }
 
     @Test
     void assignOrganizationToLine() {
         mockSave();
-        EventLine toAssingTo = EventLine.builder().id("qdf").line(line).event(eventLine.getEvent()).build();
+        EventLine toAssingTo = EventLine.builder().id("qdf").line(line).event(eventLine.getEvent()).lineManager(user).build();
         EventLine saved = eventLineService.assignOrganizationToLine(organization, toAssingTo);
         assertEquals(organization.getId(), saved.getOrganization().getId());
     }

@@ -31,6 +31,7 @@ public class LineController {
         this.lineService = lineService;
         this.lineDtoMapper = lineDtoMapper;
         this.venueService = venueService;
+
     }
 
     @GetMapping("/venue/{id}")

@@ -15,5 +15,6 @@ public class EventLine {
     Event event;
     Organization organization;
     List<User> assignedUsers;
+    User lineManager;
     EventLineStatus eventLineStatus;
 }

@@ -73,6 +73,7 @@ public class Testdata {
             .organization(testOrganization())
             .event(testEvent())
             .eventLineStatus(EventLineStatus.CREATED)
+            .lineManager(testUser())
             .build();
     }
 

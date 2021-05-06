@@ -20,10 +20,12 @@ public class EventService {
 
     private final EventRepo eventRepo;
     private final EventEntityMapper eventEntityMapper;
+    private final EventNotificationService eventNotificationService;
 
-    public EventService(EventRepo eventRepo, EventEntityMapper eventEntityMapper) {
+    public EventService(EventRepo eventRepo, EventEntityMapper eventEntityMapper, EventNotificationService notificationService) {
         this.eventRepo = eventRepo;
         this.eventEntityMapper = eventEntityMapper;
+        this.eventNotificationService = notificationService;
     }
 
     public Event createEvent(LocalDateTime dateTime, String name, Venue venue) {
@@ -57,6 +59,7 @@ public class EventService {
 
     public Event cancelEvent(Event event) {
         Event toSave = updateEventStatus(event, EventStatus.CANCELED);
+        eventNotificationService.sendEventCanceledNotification(toSave);
         return save(toSave);
     }
 
