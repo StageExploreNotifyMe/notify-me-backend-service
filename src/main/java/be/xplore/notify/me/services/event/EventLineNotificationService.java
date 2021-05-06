@@ -29,7 +29,6 @@ public class EventLineNotificationService {
 
     private Notification setEventLineCanceledDetails(EventLine eventLine) {
         return Notification.builder()
-            .id(eventLine.getId())
             .title(String.format("eventLine %s is %s", eventLine.getLine().getName(), eventLine.getEventLineStatus()))
             .body(String.format("eventLine %s is %s ", eventLine.getLine().getName(), eventLine.getEventLineStatus()))
             .creationDate(LocalDateTime.now())
