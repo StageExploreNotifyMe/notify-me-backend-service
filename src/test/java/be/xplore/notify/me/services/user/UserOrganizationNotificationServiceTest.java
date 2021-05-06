@@ -69,4 +69,18 @@ class UserOrganizationNotificationServiceTest {
         userOrganizationNotificationService.sendResolvedPendingRequestNotification(userOrganization);
         Assertions.assertEquals(NotificationType.USER_DECLINED, sendNotification.getType());
     }
+
+    @Test
+    void sendOrganizationRoleChangeNotificationPromoted() {
+        UserOrganization userOrganization = userOrganizationBuilder.role(Role.ORGANIZATION_LEADER).build();
+        userOrganizationNotificationService.sendOrganizationRoleChangeNotification(userOrganization);
+        Assertions.assertEquals(NotificationType.USER_PROMOTED, sendNotification.getType());
+    }
+
+    @Test
+    void sendOrganizationRoleChangeNotificationDemoted() {
+        UserOrganization userOrganization = userOrganizationBuilder.role(Role.MEMBER).build();
+        userOrganizationNotificationService.sendOrganizationRoleChangeNotification(userOrganization);
+        Assertions.assertEquals(NotificationType.USER_DEMOTED, sendNotification.getType());
+    }
 }
