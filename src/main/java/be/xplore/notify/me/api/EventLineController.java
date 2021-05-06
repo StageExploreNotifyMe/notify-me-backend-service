@@ -1,5 +1,6 @@
 package be.xplore.notify.me.api;
 
+import be.xplore.notify.me.api.util.Converters;
 import be.xplore.notify.me.domain.Organization;
 import be.xplore.notify.me.domain.event.Event;
 import be.xplore.notify.me.domain.event.EventLine;
@@ -8,8 +9,8 @@ import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.dto.event.EventLineDto;
 import be.xplore.notify.me.dto.event.LineAssignEventDto;
-import be.xplore.notify.me.dto.event.LineAssignMemberDto;
 import be.xplore.notify.me.dto.event.LineAssignOrganizationDto;
+import be.xplore.notify.me.dto.event.LineMemberDto;
 import be.xplore.notify.me.dto.mappers.event.EventLineDtoMapper;
 import be.xplore.notify.me.services.OrganizationService;
 import be.xplore.notify.me.services.event.EventLineService;
@@ -40,6 +41,7 @@ public class EventLineController {
     private final EventService eventService;
     private final OrganizationService organizationService;
     private final UserService userService;
+    private final Converters converters;
 
     public EventLineController(
             LineService lineService,
@@ -47,7 +49,8 @@ public class EventLineController {
             EventLineDtoMapper eventLineDtoMapper,
             EventService eventService,
             OrganizationService organizationService,
-            UserService userService
+            UserService userService,
+            Converters converters
     ) {
         this.lineService = lineService;
         this.eventLineService = eventLineService;
@@ -55,6 +58,7 @@ public class EventLineController {
         this.eventService = eventService;
         this.organizationService = organizationService;
         this.userService = userService;
+        this.converters = converters;
     }
 
     @GetMapping("/{id}")
@@ -64,13 +68,13 @@ public class EventLineController {
 
     @GetMapping("/event/{id}")
     public ResponseEntity<Page<EventLineDto>> getEventLines(@PathVariable String id, @RequestParam(required = false) Integer page) {
-        Page<EventLine> linesOfEvent = eventLineService.getAllLinesOfEvent(getEventById(id).getId(), getPageNumber(page));
+        Page<EventLine> linesOfEvent = eventLineService.getAllLinesOfEvent(getEventById(id).getId(), converters.getPageNumber(page));
         return new ResponseEntity<>(linesOfEvent.map(eventLineDtoMapper::toDto), HttpStatus.OK);
     }
 
     @GetMapping("/organization/{id}")
     public ResponseEntity<Page<EventLineDto>> getEventLinesOfOrganization(@PathVariable String id, @RequestParam(required = false) Integer page) {
-        Page<EventLine> linesOfEvent = eventLineService.getAllLinesOfOrganization(getOrganizationById(id).getId(), getPageNumber(page));
+        Page<EventLine> linesOfEvent = eventLineService.getAllLinesOfOrganization(getOrganizationById(id).getId(), converters.getPageNumber(page));
         return new ResponseEntity<>(linesOfEvent.map(eventLineDtoMapper::toDto), HttpStatus.OK);
     }
 
@@ -82,7 +86,7 @@ public class EventLineController {
 
     @PostMapping("{lineId}/assign/organization")
     public ResponseEntity<EventLineDto> assignOrganizationToEventLine(@PathVariable String lineId, @RequestBody LineAssignOrganizationDto dto) {
-        if (!lineId.equals(dto.getEventLineId())) {
+        if (pathVarAndBodyMatch(lineId, dto.getEventLineId())) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
@@ -94,12 +98,12 @@ public class EventLineController {
     }
 
     @PostMapping("{lineId}/assign/member")
-    public ResponseEntity<EventLineDto> assignMemberToEventLine(@PathVariable String lineId, @RequestBody LineAssignMemberDto dto) {
-        if (!lineId.equals(dto.getEventLineId())) {
+    public ResponseEntity<EventLineDto> assignMemberToEventLine(@PathVariable String lineId, @RequestBody LineMemberDto dto) {
+        if (pathVarAndBodyMatch(lineId, dto.getEventLineId())) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        User user = getUserById(dto);
+        User user = getUserById(dto.getMemberId());
         EventLine line = getEventLineById(dto.getEventLineId());
 
         EventLine updatedLine = eventLineService.assignUserToEventLine(user, line);
@@ -116,14 +120,26 @@ public class EventLineController {
         int pageNumber = 0;
         if (page != null) {
             pageNumber = page;
+    @PostMapping("{lineId}/cancel/member")
+    public ResponseEntity<EventLineDto> cancelMemberEventLine(@PathVariable String lineId, @RequestBody LineMemberDto dto) {
+        if (pathVarAndBodyMatch(lineId, dto.getEventLineId())) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return pageNumber;
+
+        EventLine line = getEventLineById(dto.getEventLineId());
+
+        EventLine updatedLine = eventLineService.cancelUserEventLine(dto.getMemberId(), line);
+        return new ResponseEntity<>(eventLineDtoMapper.toDto(updatedLine), HttpStatus.OK);
     }
 
-    private User getUserById(LineAssignMemberDto dto) {
-        Optional<User> userOptional = userService.getById(dto.getMemberId());
+    private boolean pathVarAndBodyMatch(String lineId, String eventLineId) {
+        return !lineId.equals(eventLineId);
+    }
+
+    private User getUserById(String id) {
+        Optional<User> userOptional = userService.getById(id);
         if (userOptional.isEmpty()) {
-            throw new NotFoundException("Could not find a user with id " + dto.getMemberId());
+            throw new NotFoundException("Could not find a user with id " + id);
         }
         return userOptional.get();
     }

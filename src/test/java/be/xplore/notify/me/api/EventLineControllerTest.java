@@ -8,8 +8,8 @@ import be.xplore.notify.me.domain.event.Line;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.dto.event.EventLineDto;
 import be.xplore.notify.me.dto.event.LineAssignEventDto;
-import be.xplore.notify.me.dto.event.LineAssignMemberDto;
 import be.xplore.notify.me.dto.event.LineAssignOrganizationDto;
+import be.xplore.notify.me.dto.event.LineMemberDto;
 import be.xplore.notify.me.services.OrganizationService;
 import be.xplore.notify.me.services.event.EventLineService;
 import be.xplore.notify.me.services.event.EventService;
@@ -223,7 +223,7 @@ class EventLineControllerTest {
         try {
             mockEverything();
             ResultActions resultActions = performPost("/line/" + eventLine.getId() + "/assign/member",
-                new LineAssignMemberDto(user.getId(), eventLine.getOrganization().getId())
+                new LineMemberDto(user.getId(), eventLine.getOrganization().getId())
             );
             expectResult(resultActions, HttpStatus.OK);
             EventLineDto eventLineDto = mapper.readValue(getResponse(resultActions), EventLineDto.class);
@@ -238,7 +238,7 @@ class EventLineControllerTest {
         try {
             mockEverything();
             ResultActions resultActions = performPost("/line/" + eventLine.getId() + "/assign/member",
-                new LineAssignMemberDto(eventLine.getId(), "qdsf")
+                new LineMemberDto(eventLine.getId(), "qdsf")
             );
             expectResult(resultActions, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
@@ -251,7 +251,7 @@ class EventLineControllerTest {
         try {
             mockEverything();
             ResultActions resultActions = performPost("/line/qsdf/assign/member",
-                new LineAssignMemberDto(user.getId(), eventLine.getOrganization().getId())
+                new LineMemberDto(user.getId(), eventLine.getOrganization().getId())
             );
             expectResult(resultActions, HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
@@ -284,6 +284,32 @@ class EventLineControllerTest {
     }
 
     @Test
+    void cancelMemberEventLine() {
+        try {
+            mockEverything();
+            ResultActions resultActions = performPost("/line/" + eventLine.getId() + "/cancel/member",
+                new LineMemberDto(eventLine.getId(), user.getId())
+            );
+            expectResult(resultActions, HttpStatus.OK);
+        } catch (Exception e) {
+            failTest(e);
+        }
+    }
+
+    @Test
+    void cancelMemberEventLineBadRequest() {
+        try {
+            mockEverything();
+            ResultActions resultActions = performPost("/line/qsdf/cancel/member",
+                new LineMemberDto(eventLine.getId(), user.getId())
+            );
+            expectResult(resultActions, HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            failTest(e);
+        }
+    }
+
+    @Test
     void cancelEventLine() {
         try {
             mockEverything();
@@ -305,9 +331,11 @@ class EventLineControllerTest {
         mockAssignUserToLine();
         simulateGetLinesOfOrg();
         mockCancelEventLine();
+        mockGetLinesOfOrg();
+        mockCancelMemberLine();
     }
 
-    private void simulateGetLinesOfOrg() {
+    private void mockGetLinesOfOrg() {
         given(eventLineService.getAllLinesOfOrganization(any(), any(int.class))).will(i -> {
             List<EventLine> eventLines = new ArrayList<>();
             eventLines.add(eventLine);
@@ -321,6 +349,10 @@ class EventLineControllerTest {
             line.getAssignedUsers().add(i.getArgument(0));
             return line;
         });
+    }
+
+    private void mockCancelMemberLine() {
+        given(eventLineService.cancelUserEventLine(any(), any(EventLine.class))).willReturn(eventLine);
     }
 
     private void mockGetByIds() {
