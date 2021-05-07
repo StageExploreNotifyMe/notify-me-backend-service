@@ -1,5 +1,5 @@
 package be.xplore.notify.me.domain.user;
 
 public enum Role {
-    MEMBER
+    MEMBER, ORGANIZATION_LEADER, VENUE_MANAGER, LINE_MANAGER, ADMIN
 }

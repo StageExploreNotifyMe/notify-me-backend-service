@@ -1,8 +1,8 @@
 package be.xplore.notify.me.services.notification;
 
-import be.xplore.notify.me.domain.exceptions.DatabaseException;
 import be.xplore.notify.me.domain.notification.Notification;
 import be.xplore.notify.me.domain.user.User;
+import be.xplore.notify.me.entity.mappers.notification.NotificationEntityMapper;
 import be.xplore.notify.me.repositories.NotificationRepo;
 import be.xplore.notify.me.services.user.UserService;
 import org.junit.jupiter.api.Test;
@@ -10,8 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -21,6 +22,8 @@ class NotificationServiceTest {
 
     @Autowired
     private NotificationService notificationService;
+    @Autowired
+    private NotificationEntityMapper notificationEntityMapper;
 
     @MockBean
     private NotificationRepo notificationRepo;
@@ -31,6 +34,11 @@ class NotificationServiceTest {
     private Notification notification;
     @Autowired
     private User user;
+
+    private void mockGetById() {
+        given(notificationRepo.findById(any()))
+                .will(i -> i.getArgument(0).equals(notification.getId()) ? Optional.of(notificationEntityMapper.toEntity(notification)) : Optional.empty());
+    }
 
     private void mockAddNotificationToInbox() {
         given(userService.addNotificationToInbox(any())).will(i -> {
@@ -54,9 +62,17 @@ class NotificationServiceTest {
     }
 
     @Test
-    void saveNotificationAndSendToInboxThrowsDbException() {
-        mockAddNotificationToInbox();
-        given(notificationRepo.save(any())).willThrow(new DatabaseException(new Exception()));
-        assertThrows(DatabaseException.class, () -> notificationService.saveNotificationAndSendToInbox(notification));
+    void getById() {
+        mockGetById();
+        Optional<Notification> notificationOptional = notificationService.getById(notification.getId());
+        assertTrue(notificationOptional.isPresent());
+        assertEquals(notification.getId(), notificationOptional.get().getId());
+    }
+
+    @Test
+    void getByIdNotFound() {
+        mockGetById();
+        Optional<Notification> notificationOptional = notificationService.getById("qdsf");
+        assertTrue(notificationOptional.isEmpty());
     }
 }

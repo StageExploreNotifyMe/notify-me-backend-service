@@ -1,6 +1,5 @@
 package be.xplore.notify.me.services.user;
 
-import be.xplore.notify.me.domain.exceptions.DatabaseException;
 import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.notification.Notification;
 import be.xplore.notify.me.domain.notification.NotificationChannel;
@@ -57,12 +56,6 @@ class UserServiceTest {
         assertTrue(optionalUser.isPresent());
         User userById = optionalUser.get();
         assertEquals(userById.getId(), id);
-    }
-
-    @Test
-    void getByIdThrowsDbException() {
-        given(userRepo.findById(any())).willThrow(new DatabaseException(new Exception()));
-        assertThrows(DatabaseException.class, () -> userService.getById("1"));
     }
 
     @Test

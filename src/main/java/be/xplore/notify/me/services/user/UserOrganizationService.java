@@ -1,7 +1,6 @@
 package be.xplore.notify.me.services.user;
 
 import be.xplore.notify.me.domain.Organization;
-import be.xplore.notify.me.domain.exceptions.DatabaseException;
 import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.user.MemberRequestStatus;
 import be.xplore.notify.me.domain.user.Role;
@@ -22,17 +21,17 @@ import java.util.Optional;
 public class UserOrganizationService {
 
     private final UserOrganizationRepo userOrganizationRepo;
-    private final UserOrganizationNotificationService userOrganizationNotificationService;
     private final UserOrganizationEntityMapper userOrganizationEntityMapper;
+    private final UserOrganizationNotificationService userOrganizationNotificationService;
 
     public UserOrganizationService(
             UserOrganizationRepo userOrganizationRepo,
-            UserOrganizationNotificationService userOrganizationNotificationService,
-            UserOrganizationEntityMapper userOrganizationEntityMapper
+            UserOrganizationEntityMapper userOrganizationEntityMapper,
+            UserOrganizationNotificationService userOrganizationNotificationService
     ) {
         this.userOrganizationRepo = userOrganizationRepo;
-        this.userOrganizationNotificationService = userOrganizationNotificationService;
         this.userOrganizationEntityMapper = userOrganizationEntityMapper;
+        this.userOrganizationNotificationService = userOrganizationNotificationService;
     }
 
     public UserOrganization userJoinOrganization(User user, Organization organization) {
@@ -45,15 +44,18 @@ public class UserOrganizationService {
         return save(userOrganization);
     }
 
+    public Page<UserOrganization> getAllUsersByOrganizationId(String organizationId, PageRequest pageRequest) {
+        return getUserByOrganizationAndStatus(organizationId, pageRequest, MemberRequestStatus.ACCEPTED);
+    }
+
     public Page<UserOrganization> getPendingJoinRequests(String organizationId, PageRequest pageRequest) {
-        try {
-            Page<UserOrganizationEntity> userOrganisationPage =
-                    userOrganizationRepo.getUserOrganisationByOrganizationEntity_IdAndStatus(organizationId, MemberRequestStatus.PENDING, pageRequest);
-            return userOrganisationPage.map(userOrganizationEntityMapper::fromEntity);
-        } catch (Exception e) {
-            log.error("Fetching pending organisation join requests failed: {}: {}", e.getClass().getSimpleName(), e.getMessage());
-            throw new DatabaseException(e);
-        }
+        return getUserByOrganizationAndStatus(organizationId, pageRequest, MemberRequestStatus.PENDING);
+    }
+
+    private Page<UserOrganization> getUserByOrganizationAndStatus(String organizationId, PageRequest pageRequest, MemberRequestStatus status) {
+        Page<UserOrganizationEntity> userOrganisationPage =
+                userOrganizationRepo.getUserOrganisationByOrganizationEntity_IdAndStatusOrderByUserEntity(organizationId, status, pageRequest);
+        return userOrganisationPage.map(userOrganizationEntityMapper::fromEntity);
     }
 
     public UserOrganization resolvePendingJoinRequest(String requestId, boolean accepted) {
@@ -70,28 +72,34 @@ public class UserOrganizationService {
         return request;
     }
 
-    public Optional<UserOrganization> getById(String id) {
-        try {
-            Optional<UserOrganizationEntity> optional = userOrganizationRepo.findById(id);
-            if (optional.isEmpty()) {
-                return Optional.empty();
-            }
-            UserOrganization userOrganization = userOrganizationEntityMapper.fromEntity(optional.get());
-            return Optional.of(userOrganization);
-        } catch (Exception e) {
-            log.error("Fetching UserOrganization with id {} failed: {}: {}", id, e.getClass().getSimpleName(), e.getMessage());
-            throw new DatabaseException(e);
+    public UserOrganization changeOrganizationMemberRole(UserOrganization userOrganization, Role roleToChangeTo) {
+        if (userOrganization.getRole().equals(roleToChangeTo)) {
+            return userOrganization;
         }
+
+        UserOrganization updated = UserOrganization.builder()
+                .id(userOrganization.getId())
+                .status(userOrganization.getStatus())
+                .organization(userOrganization.getOrganization())
+                .user(userOrganization.getUser())
+                .role(roleToChangeTo)
+                .build();
+        userOrganizationNotificationService.sendOrganizationRoleChangeNotification(updated);
+
+        return save(updated);
+    }
+
+    public Optional<UserOrganization> getById(String id) {
+        Optional<UserOrganizationEntity> optional = userOrganizationRepo.findById(id);
+        if (optional.isEmpty()) {
+            return Optional.empty();
+        }
+        UserOrganization userOrganization = userOrganizationEntityMapper.fromEntity(optional.get());
+        return Optional.of(userOrganization);
     }
 
     public UserOrganization save(UserOrganization userOrganization) {
-        try {
-            UserOrganizationEntity userOrganizationEntity = userOrganizationRepo.save(userOrganizationEntityMapper.toEntity(userOrganization));
-            return userOrganizationEntityMapper.fromEntity(userOrganizationEntity);
-        } catch (Exception e) {
-            log.error("Saving UserOrganisation failed: {}: {}", e.getClass().getSimpleName(), e.getMessage());
-            throw new DatabaseException(e);
-        }
+        UserOrganizationEntity userOrganizationEntity = userOrganizationRepo.save(userOrganizationEntityMapper.toEntity(userOrganization));
+        return userOrganizationEntityMapper.fromEntity(userOrganizationEntity);
     }
-
 }
