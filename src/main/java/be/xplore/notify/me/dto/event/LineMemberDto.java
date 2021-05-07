@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class LineAssignMemberDto {
+public class LineMemberDto {
     private String eventLineId;
     private String memberId;
 }

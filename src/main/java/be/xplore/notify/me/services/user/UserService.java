@@ -2,6 +2,7 @@ package be.xplore.notify.me.services.user;
 
 import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.notification.Notification;
+import be.xplore.notify.me.domain.notification.NotificationChannel;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.entity.mappers.user.UserEntityMapper;
 import be.xplore.notify.me.entity.user.UserEntity;
@@ -14,21 +15,17 @@ import java.util.Optional;
 @Slf4j
 @Service
 public class UserService {
-
     private final UserRepo userRepo;
+    private final UserPreferencesService userPreferencesService;
     private final UserEntityMapper userEntityMapper;
 
-    public UserService(UserRepo userRepo, UserEntityMapper userEntityMapper) {
+    public UserService(UserRepo userRepo, UserPreferencesService userPreferencesService, UserEntityMapper userEntityMapper) {
         this.userRepo = userRepo;
+        this.userPreferencesService = userPreferencesService;
         this.userEntityMapper = userEntityMapper;
     }
 
-    public User addNotificationToInbox(Notification notification) {
-        Optional<User> userOptional = getById(notification.getUserId());
-        if (userOptional.isEmpty()) {
-            throw new NotFoundException("No user found for id " + notification.getUserId());
-        }
-        User user = userOptional.get();
+    public User addNotificationToInbox(Notification notification, User user) {
         user.getInbox().add(notification);
         return save(user);
     }
@@ -47,4 +44,18 @@ public class UserService {
         return userEntityMapper.fromEntity(userEntity);
     }
 
+    public User setNotificationChannels(String userId, NotificationChannel normalChannel, NotificationChannel urgentChannel) {
+        User user = getOptionalUser(userId);
+        userPreferencesService.setNotificationChannels(user, normalChannel, urgentChannel);
+        return getOptionalUser(user.getId());
+
+    }
+
+    private User getOptionalUser(String userId) {
+        Optional<User> optionalUser = getById(userId);
+        if (optionalUser.isEmpty()) {
+            throw new NotFoundException("No user with id: " + userId + "found");
+        }
+        return optionalUser.get();
+    }
 }

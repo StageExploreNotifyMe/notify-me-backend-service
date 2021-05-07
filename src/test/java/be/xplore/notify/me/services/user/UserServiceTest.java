@@ -2,6 +2,7 @@ package be.xplore.notify.me.services.user;
 
 import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.notification.Notification;
+import be.xplore.notify.me.domain.notification.NotificationChannel;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.entity.mappers.user.UserEntityMapper;
 import be.xplore.notify.me.repositories.UserRepo;
@@ -61,15 +62,26 @@ class UserServiceTest {
     void addNotificationToInbox() {
         mockSave();
         mockGetById();
-        User returnedUser = userService.addNotificationToInbox(notification);
+        User returnedUser = userService.addNotificationToInbox(notification, user);
         assertTrue(returnedUser.getInbox().stream().anyMatch(n -> n.getId().equals(notification.getId())));
     }
 
     @Test
-    void addNotificationToInboxUserNotFound() {
+    void setNotificationChannelsUserNotFound() {
         mockSave();
         mockGetById();
-        assertThrows(NotFoundException.class, () -> userService.addNotificationToInbox(Notification.builder().userId("qdsfae").build()));
+        NotificationChannel normalChannel = NotificationChannel.EMAIL;
+        NotificationChannel urgentChannel = NotificationChannel.SMS;
+        assertThrows(NotFoundException.class, () -> userService.setNotificationChannels("dsfqfdq", normalChannel, urgentChannel));
     }
 
+    @Test
+    void setNotificationChannels() {
+        mockSave();
+        mockGetById();
+        NotificationChannel normalChannel = NotificationChannel.EMAIL;
+        NotificationChannel urgentChannel = NotificationChannel.SMS;
+        User returnedUser = userService.setNotificationChannels("1", normalChannel, urgentChannel);
+        assertEquals(returnedUser.getUserPreferences().getNormalChannel(), user.getUserPreferences().getNormalChannel());
+    }
 }
