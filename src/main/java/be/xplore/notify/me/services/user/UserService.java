@@ -49,7 +49,6 @@ public class UserService {
         return userEntityMapper.fromEntity(userEntity);
     }
 
-
     public User setNotificationChannels(String userId, NotificationChannel normalChannel, NotificationChannel urgentChannel) {
         Optional<User> optionalUser = getOptionalUser(userId);
         User user = optionalUser.get();
