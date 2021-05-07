@@ -30,7 +30,7 @@ public class UserOrganizationNotificationService {
         setResolvedNotificationDetails(userOrganization, user, builder);
 
         Notification notification = builder.build();
-        notificationService.saveNotificationAndSendToInbox(notification);
+        notificationService.saveNotificationAndSendToInbox(notification, user);
         notificationSenderService.sendNotification(notification);
     }
 

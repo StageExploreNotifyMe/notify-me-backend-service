@@ -34,7 +34,7 @@ public class EventLineNotificationService {
                 .type(NotificationType.LINE_ASSIGNED)
                 .build();
 
-        Notification notification = notificationService.saveNotificationAndSendToInbox(toSave);
+        Notification notification = notificationService.saveNotificationAndSendToInbox(toSave, user);
         notificationSenderService.sendNotification(notification);
     }
 

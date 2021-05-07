@@ -1,6 +1,5 @@
 package be.xplore.notify.me.services.user;
 
-import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.notification.Notification;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.entity.mappers.user.UserEntityMapper;
@@ -23,12 +22,7 @@ public class UserService {
         this.userEntityMapper = userEntityMapper;
     }
 
-    public User addNotificationToInbox(Notification notification) {
-        Optional<User> userOptional = getById(notification.getUserId());
-        if (userOptional.isEmpty()) {
-            throw new NotFoundException("No user found for id " + notification.getUserId());
-        }
-        User user = userOptional.get();
+    public User addNotificationToInbox(Notification notification, User user) {
         user.getInbox().add(notification);
         return save(user);
     }
