@@ -49,7 +49,7 @@ class NotificationServiceTest {
     }
 
     private void mockAddNotificationToQueue() {
-        given(userService.addNotificationToInbox(any())).will(i -> {
+        given(userService.addNotificationToInbox(any(), any())).will(i -> {
             Notification n = i.getArgument(0);
             user.getNotificationQueue().add(n);
             return user;

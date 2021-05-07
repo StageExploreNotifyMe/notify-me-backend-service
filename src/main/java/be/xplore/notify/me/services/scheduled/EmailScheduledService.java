@@ -54,7 +54,7 @@ public class EmailScheduledService {
             return;
         }
         Notification notification = collectNotifications(user);
-        sendCollectedNotification(notification);
+        sendCollectedNotification(notification, user);
         userService.clearUserQueue(user);
     }
 
@@ -71,8 +71,8 @@ public class EmailScheduledService {
             .build();
     }
 
-    private void sendCollectedNotification(Notification notification) {
-        Notification savedNot = notificationService.saveNotificationAndSendToInbox(notification);
+    private void sendCollectedNotification(Notification notification, User user) {
+        Notification savedNot = notificationService.saveNotificationAndSendToInbox(notification, user);
         notificationSenderService.sendNotification(savedNot);
     }
 
