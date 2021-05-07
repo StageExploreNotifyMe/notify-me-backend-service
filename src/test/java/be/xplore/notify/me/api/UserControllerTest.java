@@ -2,8 +2,11 @@ package be.xplore.notify.me.api;
 
 import be.xplore.notify.me.domain.event.EventLine;
 import be.xplore.notify.me.domain.user.User;
+import be.xplore.notify.me.domain.user.UserPreferences;
+import be.xplore.notify.me.dto.user.UserPreferencesDto;
 import be.xplore.notify.me.services.event.EventLineService;
 import be.xplore.notify.me.services.user.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -40,6 +44,31 @@ class UserControllerTest {
     private User user;
     @Autowired
     private EventLine eventLine;
+
+    @Autowired
+    private ObjectMapper mapper;
+
+    @Test
+    void getNormalChannelUser() {
+        try {
+            mockEverything();
+            ResultActions request = mockMvc.perform(get("/user/1/channel").contentType(MediaType.APPLICATION_JSON));
+            request.andExpect(status().is(HttpStatus.OK.value()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    void getNormalChannelUserNotFound() {
+        try {
+            mockEverything();
+            ResultActions request = mockMvc.perform(get("/user/sdf/channel").contentType(MediaType.APPLICATION_JSON));
+            request.andExpect(status().is(HttpStatus.NOT_FOUND.value()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     @Test
     void getUserLines() {
@@ -63,6 +92,29 @@ class UserControllerTest {
         }
     }
 
+    @Test
+    void processChangeChannel() {
+        try {
+            mockEverything();
+            UserPreferences userPreferences = user.getUserPreferences();
+            String requestBody = mapper.writeValueAsString(new UserPreferencesDto(userPreferences.getId(), userPreferences.getNormalChannel(), userPreferences.getUrgentChannel()));
+            ResultActions request = mockMvc.perform(post("/user/1/preferences/channel").content(requestBody).contentType(MediaType.APPLICATION_JSON));
+            request.andExpect(status().is(HttpStatus.OK.value()));
+        } catch (Exception e) {
+            failTest(e);
+        }
+    }
+
+    @Test
+    void getUserPreferencesNotificationChannel() {
+        try {
+            ResultActions request = mockMvc.perform(get("/user/preferences").contentType(MediaType.APPLICATION_JSON));
+            request.andExpect(status().is(HttpStatus.OK.value()));
+        } catch (Exception e) {
+            failTest(e);
+        }
+    }
+
     private void mockEverything() {
         given(userService.getById(any())).will(i -> i.getArgument(0).equals(user.getId()) ? Optional.of(user) : Optional.empty());
         given(eventLineService.getAllLinesOfUser(any(), anyInt())).will(i -> new PageImpl<>(Collections.singletonList(eventLine)));
@@ -80,4 +132,5 @@ class UserControllerTest {
         e.printStackTrace();
         Assertions.fail("Exception was thrown in test.");
     }
+
 }
