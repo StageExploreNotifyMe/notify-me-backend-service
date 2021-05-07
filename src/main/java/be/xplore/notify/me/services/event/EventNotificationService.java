@@ -29,7 +29,7 @@ public class EventNotificationService {
         List<User> lineManagers = eventLineService.getLineManagersByEvent(event);
         for (User lineManager : lineManagers) {
             Notification notification = setEventCanceledNotificationDetails(event, lineManager);
-            notificationService.saveNotificationAndSendToInbox(notification);
+            notificationService.saveNotificationAndSendToInbox(notification, lineManager);
             notificationSenderService.sendNotification(notification);
         }
     }

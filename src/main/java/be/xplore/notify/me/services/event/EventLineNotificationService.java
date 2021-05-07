@@ -25,7 +25,7 @@ public class EventLineNotificationService {
 
     public void sendEventLineCanceledNotification(EventLine eventLine) {
         Notification notification = setEventLineCanceledDetails(eventLine);
-        notificationService.saveNotificationAndSendToInbox(notification);
+        notificationService.saveNotificationAndSendToInbox(notification, eventLine.getLineManager());
         notificationSenderService.sendNotification(notification);
     }
 
