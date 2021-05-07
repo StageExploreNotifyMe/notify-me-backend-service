@@ -62,15 +62,8 @@ class UserServiceTest {
     void addNotificationToInbox() {
         mockSave();
         mockGetById();
-        User returnedUser = userService.addNotificationToInbox(notification);
+        User returnedUser = userService.addNotificationToInbox(notification, user);
         assertTrue(returnedUser.getInbox().stream().anyMatch(n -> n.getId().equals(notification.getId())));
-    }
-
-    @Test
-    void addNotificationToInboxUserNotFound() {
-        mockSave();
-        mockGetById();
-        assertThrows(NotFoundException.class, () -> userService.addNotificationToInbox(Notification.builder().userId("qdsfae").build()));
     }
 
     @Test

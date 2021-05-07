@@ -27,7 +27,7 @@ public class UserOrganizationNotificationService {
     public void sendResolvedPendingRequestNotification(UserOrganization userOrganization) {
         User user = userOrganization.getUser();
         Notification notification = setResolvedNotificationDetails(userOrganization, user);
-        notificationService.saveNotificationAndSendToInbox(notification);
+        notificationService.saveNotificationAndSendToInbox(notification, user);
         notificationSenderService.sendNotification(notification);
     }
 
@@ -49,7 +49,7 @@ public class UserOrganizationNotificationService {
             notificationType = NotificationType.USER_DEMOTED;
         }
         Notification notification = setChangedRoleNotificationDetails(userOrganization, user, notificationType);
-        notificationService.saveNotificationAndSendToInbox(notification);
+        notificationService.saveNotificationAndSendToInbox(notification, user);
         notificationSenderService.sendNotification(notification);
     }
 

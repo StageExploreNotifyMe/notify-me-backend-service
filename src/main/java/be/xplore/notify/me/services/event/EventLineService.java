@@ -24,11 +24,18 @@ public class EventLineService {
     private final EventLineRepo eventLineRepo;
     private final EventLineEntityMapper eventLineEntityMapper;
     private final UserEntityMapper userEntityMapper;
+    private final EventLineNotificationService eventLineNotificationService;
 
-    public EventLineService(EventLineRepo eventLineRepo, EventLineEntityMapper eventLineEntityMapper, UserEntityMapper userEntityMapper) {
+    public EventLineService(
+            EventLineRepo eventLineRepo,
+            EventLineEntityMapper eventLineEntityMapper,
+            UserEntityMapper userEntityMapper,
+            EventLineNotificationService eventLineNotificationService
+    ) {
         this.eventLineRepo = eventLineRepo;
         this.eventLineEntityMapper = eventLineEntityMapper;
         this.userEntityMapper = userEntityMapper;
+        this.eventLineNotificationService = eventLineNotificationService;
     }
 
     public Page<EventLine> getAllLinesOfEvent(String eventId, int page) {
@@ -73,7 +80,9 @@ public class EventLineService {
         }
 
         assignedUsers.add(user);
-        return save(updateAssignedUsers(line, assignedUsers));
+        EventLine saved = save(updateAssignedUsers(line, assignedUsers));
+        eventLineNotificationService.notifyLineAssigned(user, saved);
+        return saved;
     }
 
     public Page<EventLine> getAllLinesOfOrganization(String id, int pageNumber) {

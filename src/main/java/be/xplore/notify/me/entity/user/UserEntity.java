@@ -9,7 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 import java.util.ArrayList;
@@ -27,6 +27,6 @@ public class UserEntity {
     private UserPreferencesEntity userPreferences;
     private String firstname;
     private String lastname;
-    @ManyToMany
+    @OneToMany
     private List<NotificationEntity> inbox = new ArrayList<>();
 }
