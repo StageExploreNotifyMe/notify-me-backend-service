@@ -46,6 +46,7 @@ public class EventNotificationService {
             .userId(lineManager.getId())
             .build();
     }
+
     public void eventCreated(Event event) {
         if (event.getVenue().getLineManagers().size() == 0) {
             return;
