@@ -68,21 +68,10 @@ public class UserService {
     }
 
     public User setNotificationChannels(String userId, NotificationChannel normalChannel, NotificationChannel urgentChannel) {
-        Optional<User> optionalUser = getOptionalUser(userId);
-        User user = optionalUser.get();
-        userPreferencesService.setNotificationChannels(user, normalChannel, urgentChannel);
-        Optional<User> optional = getOptionalUser(user.getId());
-        return optional.get();
-
+        userPreferencesService.setNotificationChannels(getUserById(userId), normalChannel, urgentChannel);
+        return getUserById(userId);
     }
 
-    private Optional<User> getOptionalUser(String userId) {
-        Optional<User> optionalUser = getById(userId);
-        if (optionalUser.isEmpty()) {
-            throw new NotFoundException("No user with id: " + userId + "found");
-        }
-        return optionalUser;
-    }
     public User clearUserQueue(User user) {
         User toSave = User.builder()
                 .id(user.getId())
