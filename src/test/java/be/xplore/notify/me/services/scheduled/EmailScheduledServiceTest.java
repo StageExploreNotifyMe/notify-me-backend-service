@@ -51,7 +51,7 @@ class EmailScheduledServiceTest {
     void run() {
         mockGetUsers();
         mockSaveAndSendNotification();
-        emailScheduledService.run();
+        emailScheduledService.sendQueuedEmails();
         assertNotNull(sendNotification);
         assertEquals(NotificationType.WEEKLY_DIGEST, sendNotification.getType());
         assertTrue(sendNotification.getBody().contains(notification.getBody()));

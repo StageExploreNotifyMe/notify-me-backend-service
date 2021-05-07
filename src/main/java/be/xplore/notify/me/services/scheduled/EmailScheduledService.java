@@ -11,6 +11,7 @@ import be.xplore.notify.me.services.user.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +24,7 @@ import java.util.Map;
 @Slf4j
 @Service
 @Transactional
-public class EmailScheduledService implements Runnable {
+public class EmailScheduledService {
 
     private final UserService userService;
     private final NotificationService notificationService;
@@ -35,13 +36,9 @@ public class EmailScheduledService implements Runnable {
         this.notificationSenderService = notificationSenderService;
     }
 
-    @Override
-    public void run() {
-        log.trace("Scheduled task ran");
-        sendQueuedEmails();
-    }
-
-    private void sendQueuedEmails() {
+    @Scheduled(cron = "${notify.me.scheduled.email.cron:0 12 * * * 0}")
+    public void sendQueuedEmails() {
+        log.trace("Scheduled email task ran");
         int page = 0;
         boolean hasNext;
         do {
