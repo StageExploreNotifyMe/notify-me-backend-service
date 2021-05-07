@@ -1,6 +1,8 @@
 package be.xplore.notify.me.services.user;
 
+import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.notification.Notification;
+import be.xplore.notify.me.domain.notification.NotificationChannel;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.entity.mappers.user.UserEntityMapper;
 import be.xplore.notify.me.repositories.UserRepo;
@@ -12,6 +14,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -63,4 +66,22 @@ class UserServiceTest {
         assertTrue(returnedUser.getInbox().stream().anyMatch(n -> n.getId().equals(notification.getId())));
     }
 
+    @Test
+    void setNotificationChannelsUserNotFound() {
+        mockSave();
+        mockGetById();
+        NotificationChannel normalChannel = NotificationChannel.EMAIL;
+        NotificationChannel urgentChannel = NotificationChannel.SMS;
+        assertThrows(NotFoundException.class, () -> userService.setNotificationChannels("dsfqfdq", normalChannel, urgentChannel));
+    }
+
+    @Test
+    void setNotificationChannels() {
+        mockSave();
+        mockGetById();
+        NotificationChannel normalChannel = NotificationChannel.EMAIL;
+        NotificationChannel urgentChannel = NotificationChannel.SMS;
+        User returnedUser = userService.setNotificationChannels("1", normalChannel, urgentChannel);
+        assertEquals(returnedUser.getUserPreferences().getNormalChannel(), user.getUserPreferences().getNormalChannel());
+    }
 }

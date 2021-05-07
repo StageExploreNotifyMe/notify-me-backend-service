@@ -1,6 +1,7 @@
 package be.xplore.notify.me.services.user;
 
 import be.xplore.notify.me.domain.notification.Notification;
+import be.xplore.notify.me.domain.notification.NotificationChannel;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.entity.mappers.user.UserEntityMapper;
 import be.xplore.notify.me.entity.user.UserEntity;
@@ -13,12 +14,13 @@ import java.util.Optional;
 @Slf4j
 @Service
 public class UserService {
-
     private final UserRepo userRepo;
+    private final UserPreferencesService userPreferencesService;
     private final UserEntityMapper userEntityMapper;
 
-    public UserService(UserRepo userRepo, UserEntityMapper userEntityMapper) {
+    public UserService(UserRepo userRepo, UserPreferencesService userPreferencesService, UserEntityMapper userEntityMapper) {
         this.userRepo = userRepo;
+        this.userPreferencesService = userPreferencesService;
         this.userEntityMapper = userEntityMapper;
     }
 
@@ -41,4 +43,20 @@ public class UserService {
         return userEntityMapper.fromEntity(userEntity);
     }
 
+    public User setNotificationChannels(String userId, NotificationChannel normalChannel, NotificationChannel urgentChannel) {
+        Optional<User> optionalUser = getOptionalUser(userId);
+        User user = optionalUser.get();
+        userPreferencesService.setNotificationChannels(user, normalChannel, urgentChannel);
+        Optional<User> optional = getOptionalUser(user.getId());
+        return optional.get();
+
+    }
+
+    private Optional<User> getOptionalUser(String userId) {
+        Optional<User> optionalUser = getById(userId);
+        if (optionalUser.isEmpty()) {
+            throw new NotFoundException("No user with id: " + userId + "found");
+        }
+        return optionalUser;
+    }
 }
