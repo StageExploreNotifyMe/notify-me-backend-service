@@ -1,0 +1,9 @@
+{
+    "properties": [
+        {
+            "name": "notify.me.scheduled.email.cron",
+            "type": "java.lang.String",
+            "description": "Cron expression that determines when the collected emails should be send.  Default '0 12 * * * 0', every wednesday at midday."
+        }
+    ]
+}

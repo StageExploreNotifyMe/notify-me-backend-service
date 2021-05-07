@@ -28,7 +28,8 @@ public class Testdata {
     User testUser() {
         UserPreferences userPreferences = UserPreferences.builder().id("1")
                 .normalChannel(NotificationChannel.EMAIL).urgentChannel(NotificationChannel.SMS).build();
-        return User.builder().id("1").userPreferences(userPreferences).firstname("John").lastname("Doe").inbox(new ArrayList<>()).build();
+        return User.builder().id("1").userPreferences(userPreferences).firstname("John").lastname("Doe")
+                .inbox(new ArrayList<>()).notificationQueue(new ArrayList<>()).build();
     }
 
     @Bean

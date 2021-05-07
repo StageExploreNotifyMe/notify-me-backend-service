@@ -9,19 +9,16 @@ import be.xplore.notify.me.entity.event.EventLineEntity;
 import be.xplore.notify.me.entity.mappers.event.EventEntityMapper;
 import be.xplore.notify.me.entity.mappers.event.EventLineEntityMapper;
 import be.xplore.notify.me.entity.mappers.user.UserEntityMapper;
-import be.xplore.notify.me.entity.user.UserEntity;
 import be.xplore.notify.me.repositories.EventLineRepo;
+import be.xplore.notify.me.services.OrganizationNotificationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -31,18 +28,21 @@ public class EventLineService {
     private final UserEntityMapper userEntityMapper;
     private final EventLineNotificationService eventLineNotificationService;
     private final EventEntityMapper eventEntityMapper;
+    private final OrganizationNotificationService organizationNotificationService;
 
     public EventLineService(
             EventLineRepo eventLineRepo,
             EventLineEntityMapper eventLineEntityMapper,
             UserEntityMapper userEntityMapper,
             EventLineNotificationService eventLineNotificationService,
+            OrganizationNotificationService organizationNotificationService
             EventEntityMapper eventEntityMapper) {
         this.eventLineRepo = eventLineRepo;
         this.eventLineEntityMapper = eventLineEntityMapper;
         this.userEntityMapper = userEntityMapper;
         this.eventLineNotificationService = eventLineNotificationService;
         this.eventEntityMapper = eventEntityMapper;
+        this.organizationNotificationService = organizationNotificationService;
     }
 
     public Page<EventLine> getAllLinesOfEvent(String eventId, int page) {
@@ -57,13 +57,14 @@ public class EventLineService {
 
     public EventLine assignOrganizationToLine(Organization organization, EventLine line) {
         EventLine updatedLine = EventLine.builder()
-                .id(line.getId())
-                .line(line.getLine())
-                .organization(organization)
-                .event(line.getEvent())
-                .assignedUsers(new ArrayList<>())
+            .id(line.getId())
+            .line(line.getLine())
+            .organization(organization)
+            .event(line.getEvent())
+            .assignedUsers(new ArrayList<>())
                 .lineManager(line.getLineManager())
-                .build();
+            .build();
+        organizationNotificationService.sendOrganizationLineAssignmentNotification(organization, updatedLine);
         return save(updatedLine);
     }
 
