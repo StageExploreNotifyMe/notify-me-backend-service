@@ -78,7 +78,7 @@ class UserOrganizationServiceTest {
         mockSave();
         UserOrganization uo = userOrganizationService.userJoinOrganization(user, organization);
         assertNotNull(uo);
-        assertEquals(user, uo.getUser());
+        assertEquals(user.getId(), uo.getUser().getId());
         assertEquals(organization, uo.getOrganization());
         assertEquals(Role.MEMBER, uo.getRole());
         assertEquals(MemberRequestStatus.PENDING, uo.getStatus());

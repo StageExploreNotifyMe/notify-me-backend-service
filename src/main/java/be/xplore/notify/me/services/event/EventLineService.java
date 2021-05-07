@@ -84,7 +84,9 @@ public class EventLineService {
         }
 
         assignedUsers.add(user);
-        return save(updateAssignedUsers(line, assignedUsers));
+        EventLine saved = save(updateAssignedUsers(line, assignedUsers));
+        eventLineNotificationService.notifyLineAssigned(user, saved);
+        return saved;
     }
 
     public Page<EventLine> getAllLinesOfOrganization(String id, int pageNumber) {

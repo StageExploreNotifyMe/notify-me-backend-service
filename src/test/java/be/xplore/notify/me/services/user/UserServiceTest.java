@@ -2,6 +2,7 @@ package be.xplore.notify.me.services.user;
 
 import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.notification.Notification;
+import be.xplore.notify.me.domain.notification.NotificationChannel;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.entity.mappers.user.UserEntityMapper;
 import be.xplore.notify.me.repositories.UserRepo;
@@ -9,7 +10,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -61,15 +66,54 @@ class UserServiceTest {
     void addNotificationToInbox() {
         mockSave();
         mockGetById();
-        User returnedUser = userService.addNotificationToInbox(notification);
+        User returnedUser = userService.addNotificationToInbox(notification, user);
         assertTrue(returnedUser.getInbox().stream().anyMatch(n -> n.getId().equals(notification.getId())));
     }
 
     @Test
-    void addNotificationToInboxUserNotFound() {
-        mockSave();
+    void addNotificationToQueue() {
         mockGetById();
-        assertThrows(NotFoundException.class, () -> userService.addNotificationToInbox(Notification.builder().userId("qdsfae").build()));
+        mockSave();
+        User userWithQueue = userService.addNotificationToQueue(notification);
+        assertTrue(userWithQueue.getNotificationQueue().contains(notification));
     }
 
+    @Test
+    void clearUserQueue() {
+        mockGetById();
+        mockSave();
+        User userWithQueue = userService.addNotificationToQueue(notification);
+        assertTrue(userWithQueue.getNotificationQueue().contains(notification));
+        User userWithoutQueue = userService.clearUserQueue(userWithQueue);
+        assertTrue(userWithoutQueue.getNotificationQueue().isEmpty());
+    }
+
+    @Test
+    void getUsersPage() {
+        given(userRepo.findAll(any(PageRequest.class))).will(i -> new PageImpl<>(Collections.singletonList(userEntityMapper.toEntity(user))));
+
+        Page<User> usersPage = userService.getUsersPage(PageRequest.of(0, 100));
+        assertTrue(usersPage.hasContent());
+        assertEquals(1, usersPage.getTotalElements());
+        assertEquals(user.getId(), usersPage.getContent().get(0).getId());
+    }
+
+    @Test
+    void setNotificationChannelsUserNotFound() {
+        mockSave();
+        mockGetById();
+        NotificationChannel normalChannel = NotificationChannel.EMAIL;
+        NotificationChannel urgentChannel = NotificationChannel.SMS;
+        assertThrows(NotFoundException.class, () -> userService.setNotificationChannels("dsfqfdq", normalChannel, urgentChannel));
+    }
+
+    @Test
+    void setNotificationChannels() {
+        mockSave();
+        mockGetById();
+        NotificationChannel normalChannel = NotificationChannel.EMAIL;
+        NotificationChannel urgentChannel = NotificationChannel.SMS;
+        User returnedUser = userService.setNotificationChannels("1", normalChannel, urgentChannel);
+        assertEquals(returnedUser.getUserPreferences().getNormalChannel(), user.getUserPreferences().getNormalChannel());
+    }
 }
