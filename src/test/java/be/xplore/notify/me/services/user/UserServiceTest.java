@@ -2,6 +2,7 @@ package be.xplore.notify.me.services.user;
 
 import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.notification.Notification;
+import be.xplore.notify.me.domain.notification.NotificationChannel;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.entity.mappers.user.UserEntityMapper;
 import be.xplore.notify.me.repositories.UserRepo;
@@ -102,5 +103,24 @@ class UserServiceTest {
         assertTrue(usersPage.hasContent());
         assertEquals(1, usersPage.getTotalElements());
         assertEquals(user.getId(), usersPage.getContent().get(0).getId());
+    }
+
+    @Test
+    void setNotificationChannelsUserNotFound() {
+        mockSave();
+        mockGetById();
+        NotificationChannel normalChannel = NotificationChannel.EMAIL;
+        NotificationChannel urgentChannel = NotificationChannel.SMS;
+        assertThrows(NotFoundException.class, () -> userService.setNotificationChannels("dsfqfdq", normalChannel, urgentChannel));
+    }
+
+    @Test
+    void setNotificationChannels() {
+        mockSave();
+        mockGetById();
+        NotificationChannel normalChannel = NotificationChannel.EMAIL;
+        NotificationChannel urgentChannel = NotificationChannel.SMS;
+        User returnedUser = userService.setNotificationChannels("1", normalChannel, urgentChannel);
+        assertEquals(returnedUser.getUserPreferences().getNormalChannel(), user.getUserPreferences().getNormalChannel());
     }
 }
