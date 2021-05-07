@@ -1,5 +1,6 @@
 package be.xplore.notify.me.services.user;
 
+import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.notification.Notification;
 import be.xplore.notify.me.domain.notification.NotificationChannel;
 import be.xplore.notify.me.domain.user.User;
@@ -44,19 +45,17 @@ public class UserService {
     }
 
     public User setNotificationChannels(String userId, NotificationChannel normalChannel, NotificationChannel urgentChannel) {
-        Optional<User> optionalUser = getOptionalUser(userId);
-        User user = optionalUser.get();
+        User user = getOptionalUser(userId);
         userPreferencesService.setNotificationChannels(user, normalChannel, urgentChannel);
-        Optional<User> optional = getOptionalUser(user.getId());
-        return optional.get();
+        return getOptionalUser(user.getId());
 
     }
 
-    private Optional<User> getOptionalUser(String userId) {
+    private User getOptionalUser(String userId) {
         Optional<User> optionalUser = getById(userId);
         if (optionalUser.isEmpty()) {
             throw new NotFoundException("No user with id: " + userId + "found");
         }
-        return optionalUser;
+        return optionalUser.get();
     }
 }
