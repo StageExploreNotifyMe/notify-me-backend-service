@@ -13,8 +13,8 @@ import be.xplore.notify.me.services.user.UserOrganizationService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Service
 public class EventLineNotificationService {
@@ -36,7 +36,7 @@ public class EventLineNotificationService {
         for (UserOrganization userOrganization: userOrganizations) {
             Notification notification = MemberCanceledDetails(userId, line, userOrganization.getUser());
             notificationSenderService.sendNotification(notification);
-            notificationService.saveNotificationAndSendToInbox(notification);
+            notificationService.saveNotificationAndSendToInbox(notification, userOrganization.getUser());
         }
 
     }
@@ -53,6 +53,7 @@ public class EventLineNotificationService {
             .build();
 
     }
+
     public void notifyLineAssigned(User user, EventLine line) {
         Notification toSave = Notification.builder()
                 .userId(user.getId())
