@@ -14,4 +14,5 @@ public class User {
     String firstname;
     String lastname;
     List<Notification> inbox;
+    List<Notification> notificationQueue;
 }

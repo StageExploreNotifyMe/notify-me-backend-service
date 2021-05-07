@@ -34,8 +34,9 @@ public class EventService {
             throw new IllegalArgumentException("Event cannot be created in the past");
         }
 
-        Event event = Event.builder().date(dateTime).venue(venue).eventStatus(EventStatus.CREATED).name(name).build();
-        return save(event);
+        Event event = save(Event.builder().date(dateTime).venue(venue).eventStatus(EventStatus.CREATED).name(name).build());
+        eventNotificationService.eventCreated(event);
+        return event;
     }
 
     public Page<Event> getEventsOfVenue(String venueId, int page) {

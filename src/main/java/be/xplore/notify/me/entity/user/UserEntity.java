@@ -29,4 +29,6 @@ public class UserEntity {
     private String lastname;
     @OneToMany
     private List<NotificationEntity> inbox = new ArrayList<>();
+    @OneToMany
+    private List<NotificationEntity> notificationQueue = new ArrayList<>();
 }

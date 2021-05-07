@@ -11,6 +11,7 @@ import be.xplore.notify.me.services.notification.NotificationService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -44,5 +45,37 @@ public class EventNotificationService {
             .type(NotificationType.EVENT_CANCELED)
             .userId(lineManager.getId())
             .build();
+    }
+    public void eventCreated(Event event) {
+        if (event.getVenue().getLineManagers().size() == 0) {
+            return;
+        }
+
+        String body = generateEventCreatedBody(event);
+        for (User lineManager : event.getVenue().getLineManagers()) {
+            sendEventCreatedNotificationToUser(lineManager, body);
+        }
+    }
+
+    private String generateEventCreatedBody(Event event) {
+        LocalDateTime eventDate = event.getDate();
+        return String.format("New Event: %s at %s on %s at %s",
+            event.getName(),
+            event.getVenue().getName(),
+            eventDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
+            eventDate.format(DateTimeFormatter.ISO_LOCAL_TIME)
+        );
+    }
+
+    private void sendEventCreatedNotificationToUser(User lineManager, String body) {
+        Notification notification = Notification.builder()
+                .userId(lineManager.getId())
+                .type(NotificationType.EVENT_CREATED)
+                .urgency(NotificationUrgency.NORMAL)
+                .creationDate(LocalDateTime.now())
+                .title("New event created")
+                .body(body)
+                .build();
+        notificationService.saveNotificationAndSendToQueue(notification);
     }
 }

@@ -7,7 +7,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface UserOrganizationRepo extends JpaRepository<UserOrganizationEntity, String> {
     Page<UserOrganizationEntity> getUserOrganisationByOrganizationEntity_IdAndStatusOrderByUserEntity(String organizationEntity_id, MemberRequestStatus status, Pageable pageable);
+
+    List<UserOrganizationEntity> getUserOrganizationEntityByOrganizationEntity_Id(String organizationEntity_id);
 }
