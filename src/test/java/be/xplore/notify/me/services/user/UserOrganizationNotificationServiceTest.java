@@ -38,7 +38,7 @@ class UserOrganizationNotificationServiceTest {
     private Notification sendNotification;
 
     private void setupMocking() {
-        given(notificationService.saveNotificationAndSendToInbox(any())).will(i -> {
+        given(notificationService.saveNotificationAndSendToInbox(any(), any())).will(i -> {
             sendNotification = i.getArgument(0);
             return sendNotification;
         });
@@ -68,5 +68,19 @@ class UserOrganizationNotificationServiceTest {
         UserOrganization userOrganization = userOrganizationBuilder.status(MemberRequestStatus.DECLINED).build();
         userOrganizationNotificationService.sendResolvedPendingRequestNotification(userOrganization);
         Assertions.assertEquals(NotificationType.USER_DECLINED, sendNotification.getType());
+    }
+
+    @Test
+    void sendOrganizationRoleChangeNotificationPromoted() {
+        UserOrganization userOrganization = userOrganizationBuilder.role(Role.ORGANIZATION_LEADER).build();
+        userOrganizationNotificationService.sendOrganizationRoleChangeNotification(userOrganization);
+        Assertions.assertEquals(NotificationType.USER_PROMOTED, sendNotification.getType());
+    }
+
+    @Test
+    void sendOrganizationRoleChangeNotificationDemoted() {
+        UserOrganization userOrganization = userOrganizationBuilder.role(Role.MEMBER).build();
+        userOrganizationNotificationService.sendOrganizationRoleChangeNotification(userOrganization);
+        Assertions.assertEquals(NotificationType.USER_DEMOTED, sendNotification.getType());
     }
 }

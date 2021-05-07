@@ -1,5 +1,6 @@
 package be.xplore.notify.me.api;
 
+import be.xplore.notify.me.api.util.Converters;
 import be.xplore.notify.me.domain.Organization;
 import be.xplore.notify.me.dto.OrganizationDto;
 import be.xplore.notify.me.dto.mappers.OrganizationDtoMapper;
@@ -21,10 +22,12 @@ import java.util.Optional;
 public class OrganizationController {
     private final OrganizationService organizationService;
     private final OrganizationDtoMapper organizationDtoMapper;
+    private final Converters converters;
 
-    public OrganizationController(OrganizationService organizationService, OrganizationDtoMapper organizationDtoMapper) {
+    public OrganizationController(OrganizationService organizationService, OrganizationDtoMapper organizationDtoMapper, Converters converters) {
         this.organizationService = organizationService;
         this.organizationDtoMapper = organizationDtoMapper;
+        this.converters = converters;
     }
 
     @GetMapping("/{id}")
@@ -38,11 +41,7 @@ public class OrganizationController {
 
     @GetMapping
     public ResponseEntity<Page<OrganizationDto>> getOrganizations(@RequestParam(required = false) Integer page) {
-        int pageNumber = 0;
-        if (page != null) {
-            pageNumber = page;
-        }
-        Page<Organization> organizationPage = organizationService.getOrganizations(pageNumber);
+        Page<Organization> organizationPage = organizationService.getOrganizations(converters.getPageNumber(page));
         return new ResponseEntity<>(organizationPage.map(organizationDtoMapper::toDto), HttpStatus.OK);
     }
 }

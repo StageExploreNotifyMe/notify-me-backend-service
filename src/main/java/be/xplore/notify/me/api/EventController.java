@@ -1,5 +1,6 @@
 package be.xplore.notify.me.api;
 
+import be.xplore.notify.me.api.util.Converters;
 import be.xplore.notify.me.domain.Venue;
 import be.xplore.notify.me.domain.event.Event;
 import be.xplore.notify.me.domain.exceptions.NotFoundException;
@@ -28,11 +29,13 @@ public class EventController {
     private final EventService eventService;
     private final VenueService venueService;
     private final EventDtoMapper eventDtoMapper;
+    private final Converters converters;
 
-    public EventController(EventService eventService, VenueService venueService, EventDtoMapper eventDtoMapper) {
+    public EventController(EventService eventService, VenueService venueService, EventDtoMapper eventDtoMapper, Converters converters) {
         this.eventService = eventService;
         this.venueService = venueService;
         this.eventDtoMapper = eventDtoMapper;
+        this.converters = converters;
     }
 
     @PostMapping
@@ -49,11 +52,7 @@ public class EventController {
 
     @GetMapping("/venue/{id}")
     public ResponseEntity<Page<EventDto>> getEventsOfVenue(@PathVariable String id, @RequestParam(required = false) Integer page) {
-        int pageNumber = 0;
-        if (page != null) {
-            pageNumber = page;
-        }
-        Page<Event> eventPage = eventService.getEventsOfVenue(id, pageNumber);
+        Page<Event> eventPage = eventService.getEventsOfVenue(id, converters.getPageNumber(page));
         Page<EventDto> eventDtoPage = eventPage.map(eventDtoMapper::toDto);
         return new ResponseEntity<>(eventDtoPage, HttpStatus.OK);
     }
