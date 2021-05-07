@@ -116,6 +116,7 @@ class EventLineServiceTest {
             .event(line.getEvent())
             .assignedUsers(users)
             .organization(line.getOrganization())
+            .lineManager(line.getLineManager())
             .build();
     }
 

@@ -10,12 +10,13 @@ import be.xplore.notify.me.entity.mappers.event.EventEntityMapper;
 import be.xplore.notify.me.entity.mappers.event.EventLineEntityMapper;
 import be.xplore.notify.me.entity.mappers.user.UserEntityMapper;
 import be.xplore.notify.me.entity.user.UserEntity;
-import be.xplore.notify.me.entity.mappers.user.UserEntityMapper;
 import be.xplore.notify.me.repositories.EventLineRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,12 +30,19 @@ public class EventLineService {
     private final EventLineEntityMapper eventLineEntityMapper;
     private final UserEntityMapper userEntityMapper;
     private final EventLineNotificationService eventLineNotificationService;
-    private final UserEntityMapper userEntityMapper;
     private final EventEntityMapper eventEntityMapper;
 
-    public EventLineService(EventLineRepo eventLineRepo, EventLineEntityMapper eventLineEntityMapper) {
+    public EventLineService(
+            EventLineRepo eventLineRepo,
+            EventLineEntityMapper eventLineEntityMapper,
+            UserEntityMapper userEntityMapper,
+            EventLineNotificationService eventLineNotificationService,
+            EventEntityMapper eventEntityMapper) {
         this.eventLineRepo = eventLineRepo;
         this.eventLineEntityMapper = eventLineEntityMapper;
+        this.userEntityMapper = userEntityMapper;
+        this.eventLineNotificationService = eventLineNotificationService;
+        this.eventEntityMapper = eventEntityMapper;
     }
 
     public Page<EventLine> getAllLinesOfEvent(String eventId, int page) {
@@ -59,6 +67,7 @@ public class EventLineService {
         return save(updatedLine);
     }
 
+    @Transactional
     public List<User> getLineManagersByEvent(Event event) {
         List<EventLineEntity> eventLineEntity = eventLineRepo.getAllByEvent(eventEntityMapper.toEntity(event));
         List<UserEntity> lineManagersEntity = eventLineEntity.stream().map(EventLineEntity::getLineManager).collect(Collectors.toList());
@@ -119,6 +128,7 @@ public class EventLineService {
             .event(line.getEvent())
             .assignedUsers(users)
             .organization(line.getOrganization())
+            .lineManager(line.getLineManager())
             .build();
     }
 }
