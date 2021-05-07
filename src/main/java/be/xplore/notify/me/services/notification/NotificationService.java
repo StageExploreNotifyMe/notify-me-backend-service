@@ -1,6 +1,7 @@
 package be.xplore.notify.me.services.notification;
 
 import be.xplore.notify.me.domain.notification.Notification;
+import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.entity.mappers.notification.NotificationEntityMapper;
 import be.xplore.notify.me.entity.notification.NotificationEntity;
 import be.xplore.notify.me.repositories.NotificationRepo;
@@ -26,9 +27,9 @@ public class NotificationService {
         this.notificationEntityMapper = notificationEntityMapper;
     }
 
-    public Notification saveNotificationAndSendToInbox(Notification notification) {
+    public Notification saveNotificationAndSendToInbox(Notification notification, User user) {
         Notification savedNotification = save(notification);
-        userService.addNotificationToInbox(savedNotification);
+        userService.addNotificationToInbox(savedNotification, user);
         return savedNotification;
     }
 

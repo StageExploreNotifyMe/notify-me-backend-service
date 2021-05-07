@@ -3,14 +3,12 @@ package be.xplore.notify.me.services.event;
 import be.xplore.notify.me.domain.Organization;
 import be.xplore.notify.me.domain.event.Event;
 import be.xplore.notify.me.domain.event.EventLine;
-import be.xplore.notify.me.domain.event.EventLineStatus;
 import be.xplore.notify.me.domain.event.Line;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.entity.event.EventLineEntity;
 import be.xplore.notify.me.entity.mappers.event.EventEntityMapper;
 import be.xplore.notify.me.entity.mappers.event.EventLineEntityMapper;
 import be.xplore.notify.me.entity.mappers.user.UserEntityMapper;
-import be.xplore.notify.me.entity.user.UserEntity;
 import be.xplore.notify.me.repositories.EventLineRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -20,7 +18,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -31,13 +28,7 @@ public class EventLineService {
     private final EventEntityMapper eventEntityMapper;
     private final EventLineNotificationService eventLineNotificationService;
 
-    public EventLineService(
-            EventLineRepo eventLineRepo,
-            EventLineEntityMapper eventLineEntityMapper,
-            UserEntityMapper userEntityMapper,
-            EventEntityMapper eventEntityMapper,
-            EventLineNotificationService eventLineNotificationService
-    ) {
+    public EventLineService(EventLineRepo eventLineRepo, EventLineEntityMapper eventLineEntityMapper, UserEntityMapper userEntityMapper, EventEntityMapper eventEntityMapper, EventLineNotificationService eventLineNotificationService) {
         this.eventLineRepo = eventLineRepo;
         this.eventLineEntityMapper = eventLineEntityMapper;
         this.userEntityMapper = userEntityMapper;
@@ -102,7 +93,9 @@ public class EventLineService {
         }
 
         assignedUsers.add(user);
-        return save(updateAssignedUsers(line, assignedUsers));
+        EventLine saved = save(updateAssignedUsers(line, assignedUsers));
+        eventLineNotificationService.notifyLineAssigned(user, saved);
+        return saved;
     }
 
     public Page<EventLine> getAllLinesOfOrganization(String id, int pageNumber) {
