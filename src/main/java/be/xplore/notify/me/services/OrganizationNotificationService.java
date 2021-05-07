@@ -35,7 +35,7 @@ public class OrganizationNotificationService {
         List<UserOrganization> userOrganizationLeaders = userOrganizationService.getAllOrganizationLeadersByOrganizationId(organization.getId());
         for (UserOrganization userOrganization : userOrganizationLeaders) {
             Notification notification = setOrganizationLineAssignmentNotificationDetails(organization, line, userOrganization.getUser());
-            notificationService.saveNotificationAndSendToInbox(notification);
+            notificationService.saveNotificationAndSendToInbox(notification, userOrganization.getUser());
             notificationSenderService.sendNotification(notification);
         }
 

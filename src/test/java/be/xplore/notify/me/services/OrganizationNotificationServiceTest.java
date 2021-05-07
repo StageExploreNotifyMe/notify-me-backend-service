@@ -35,7 +35,7 @@ class OrganizationNotificationServiceTest {
     private UserOrganization userOrganization;
 
     private void setupMocking() {
-        given(notificationService.saveNotificationAndSendToInbox(any())).will(i -> {
+        given(notificationService.saveNotificationAndSendToInbox(any(), any())).will(i -> {
             notification = i.getArgument(0);
             return notification;
         });

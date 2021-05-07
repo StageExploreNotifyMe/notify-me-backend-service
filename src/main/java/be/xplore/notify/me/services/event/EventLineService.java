@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -27,10 +28,16 @@ public class EventLineService {
     private final EventLineNotificationService eventLineNotificationService;
     private final OrganizationNotificationService organizationNotificationService;
 
-    public EventLineService(EventLineRepo eventLineRepo, EventLineEntityMapper eventLineEntityMapper, UserEntityMapper userEntityMapper, OrganizationNotificationService organizationNotificationService) {
+    public EventLineService(
+            EventLineRepo eventLineRepo,
+            EventLineEntityMapper eventLineEntityMapper,
+            UserEntityMapper userEntityMapper,
+            EventLineNotificationService eventLineNotificationService,
+            OrganizationNotificationService organizationNotificationService) {
         this.eventLineRepo = eventLineRepo;
         this.eventLineEntityMapper = eventLineEntityMapper;
         this.userEntityMapper = userEntityMapper;
+        this.eventLineNotificationService = eventLineNotificationService;
         this.organizationNotificationService = organizationNotificationService;
     }
 
