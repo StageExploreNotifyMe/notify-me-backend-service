@@ -110,6 +110,12 @@ public class EventLineController {
         return new ResponseEntity<>(eventLineDtoMapper.toDto(updatedLine), HttpStatus.OK);
     }
 
+    @PostMapping("{id}/cancel")
+    public ResponseEntity<EventLineDto> cancelEventLine(@PathVariable String id) {
+        EventLine eventLine = eventLineService.cancelEventLine(getEventLineById(id));
+        return new ResponseEntity<>(eventLineDtoMapper.toDto(eventLine), HttpStatus.OK);
+    }
+
     @PostMapping("{lineId}/cancel/member")
     public ResponseEntity<EventLineDto> cancelMemberEventLine(@PathVariable String lineId, @RequestBody LineMemberDto dto) {
         if (pathVarAndBodyMatch(lineId, dto.getEventLineId())) {

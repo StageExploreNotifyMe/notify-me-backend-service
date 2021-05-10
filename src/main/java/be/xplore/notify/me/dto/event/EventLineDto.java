@@ -1,5 +1,6 @@
 package be.xplore.notify.me.dto.event;
 
+import be.xplore.notify.me.domain.event.EventLineStatus;
 import be.xplore.notify.me.dto.OrganizationDto;
 import be.xplore.notify.me.dto.user.UserDto;
 import lombok.AllArgsConstructor;
@@ -19,5 +20,6 @@ public class EventLineDto {
     private EventDto event;
     private OrganizationDto organization;
     private List<UserDto> assignedUsers;
+    private EventLineStatus eventLineStatus;
 }
 

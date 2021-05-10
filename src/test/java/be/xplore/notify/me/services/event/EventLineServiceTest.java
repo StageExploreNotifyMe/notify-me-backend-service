@@ -2,6 +2,7 @@ package be.xplore.notify.me.services.event;
 
 import be.xplore.notify.me.domain.Organization;
 import be.xplore.notify.me.domain.event.EventLine;
+import be.xplore.notify.me.domain.event.EventLineStatus;
 import be.xplore.notify.me.domain.event.Line;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.entity.event.EventLineEntity;
@@ -81,6 +82,13 @@ class EventLineServiceTest {
     }
 
     @Test
+    void cancelEventLine() {
+        mockSave();
+        EventLine eventLine = eventLineService.cancelEventLine(this.eventLine);
+        assertEquals(eventLine.getEventLineStatus(), EventLineStatus.CANCELED);
+    }
+
+    @Test
     void assignUserToEventLine() {
         mockSave();
         EventLine eventLineWithUser = eventLineService.assignUserToEventLine(user, this.eventLine);
@@ -114,6 +122,8 @@ class EventLineServiceTest {
             .id(line.getId())
             .line(line.getLine())
             .event(line.getEvent())
+            .eventLineStatus(line.getEventLineStatus())
+            .lineManager(line.getLineManager())
             .assignedUsers(users)
             .organization(line.getOrganization())
             .lineManager(line.getLineManager())

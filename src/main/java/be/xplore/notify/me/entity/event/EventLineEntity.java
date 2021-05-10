@@ -1,5 +1,6 @@
 package be.xplore.notify.me.entity.event;
 
+import be.xplore.notify.me.domain.event.EventLineStatus;
 import be.xplore.notify.me.entity.OrganizationEntity;
 import be.xplore.notify.me.entity.user.UserEntity;
 import lombok.AllArgsConstructor;
@@ -27,6 +28,7 @@ public class EventLineEntity {
     private LineEntity line;
     @ManyToOne
     private EventEntity event;
+    private EventLineStatus eventLineStatus;
     @ManyToOne
     private OrganizationEntity organization;
     @ManyToMany

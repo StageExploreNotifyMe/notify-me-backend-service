@@ -3,6 +3,7 @@ package be.xplore.notify.me.api;
 import be.xplore.notify.me.domain.Organization;
 import be.xplore.notify.me.domain.event.Event;
 import be.xplore.notify.me.domain.event.EventLine;
+import be.xplore.notify.me.domain.event.EventLineStatus;
 import be.xplore.notify.me.domain.event.Line;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.dto.event.EventLineDto;
@@ -308,6 +309,20 @@ class EventLineControllerTest {
         }
     }
 
+    @Test
+    void cancelEventLine() {
+        try {
+            mockEverything();
+            mockCancelEventLine();
+            ResultActions resultActions = performPost("/line/" + eventLine.getId() + "/cancel", new EventLineDto());
+            expectResult(resultActions, HttpStatus.OK);
+            EventLineDto eventLineDto = mapper.readValue(getResponse(resultActions), EventLineDto.class);
+            assertEquals(EventLineStatus.CANCELED, eventLineDto.getEventLineStatus());
+        } catch (Exception e) {
+            failTest(e);
+        }
+    }
+
     private void mockEverything() {
         mockGetEventLinesByEvent();
         mockGetLinesByVenue();
@@ -366,6 +381,18 @@ class EventLineControllerTest {
             Organization org = i.getArgument(0);
             EventLine el = i.getArgument(1);
             return EventLine.builder().line(el.getLine()).event(el.getEvent()).id(el.getId()).organization(org).assignedUsers(el.getAssignedUsers()).build();
+        });
+    }
+
+    private void mockCancelEventLine() {
+        given(eventLineService.cancelEventLine(any())).will(i -> {
+            EventLine eventLine = i.getArgument(0);
+            return EventLine.builder()
+                .id(eventLine.getId())
+                .eventLineStatus(EventLineStatus.CANCELED)
+                .line(eventLine.getLine())
+                .event(eventLine.getEvent())
+                .assignedUsers(eventLine.getAssignedUsers()).build();
         });
     }
 

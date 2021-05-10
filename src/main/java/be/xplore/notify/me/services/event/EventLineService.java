@@ -3,6 +3,7 @@ package be.xplore.notify.me.services.event;
 import be.xplore.notify.me.domain.Organization;
 import be.xplore.notify.me.domain.event.Event;
 import be.xplore.notify.me.domain.event.EventLine;
+import be.xplore.notify.me.domain.event.EventLineStatus;
 import be.xplore.notify.me.domain.event.Line;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.entity.event.EventLineEntity;
@@ -39,8 +40,7 @@ public class EventLineService {
             EventLineEntityMapper eventLineEntityMapper,
             UserEntityMapper userEntityMapper,
             EventLineNotificationService eventLineNotificationService,
-            OrganizationNotificationService organizationNotificationService,
-            EventEntityMapper eventEntityMapper) {
+            OrganizationNotificationService organizationNotificationService, EventEntityMapper eventEntityMapper) {
         this.eventLineRepo = eventLineRepo;
         this.eventLineEntityMapper = eventLineEntityMapper;
         this.userEntityMapper = userEntityMapper;
@@ -56,7 +56,14 @@ public class EventLineService {
     }
 
     public EventLine addLineToEvent(Line line, Event event, User lineManager) {
-        return save(EventLine.builder().event(event).line(line).assignedUsers(new ArrayList<>()).lineManager(lineManager).build());
+        return save(EventLine.builder()
+            .event(event)
+            .line(line)
+            .assignedUsers(new ArrayList<>())
+            .eventLineStatus(EventLineStatus.CREATED)
+            .lineManager(lineManager)
+            .eventLineStatus(EventLineStatus.CREATED)
+            .build());
     }
 
     public EventLine assignOrganizationToLine(Organization organization, EventLine line) {
@@ -67,6 +74,7 @@ public class EventLineService {
                 .event(line.getEvent())
                 .assignedUsers(new ArrayList<>())
                 .lineManager(line.getLineManager())
+                .eventLineStatus(EventLineStatus.ASSIGNED)
                 .build();
         organizationNotificationService.sendOrganizationLineAssignmentNotification(organization, updatedLine);
         return save(updatedLine);
@@ -110,6 +118,24 @@ public class EventLineService {
         return eventLineEntityPage.map(eventLineEntityMapper::fromEntity);
     }
 
+    public EventLine cancelEventLine(EventLine eventLine) {
+        EventLine toSave = updateEventLineStatus(eventLine, EventLineStatus.CANCELED);
+        eventLineNotificationService.sendEventLineCanceledNotification(toSave);
+        return save(toSave);
+    }
+
+    private EventLine updateEventLineStatus(EventLine eventLine, EventLineStatus status) {
+        return EventLine.builder()
+            .id(eventLine.getId())
+            .line(eventLine.getLine())
+            .organization(eventLine.getOrganization())
+            .lineManager(eventLine.getLineManager())
+            .assignedUsers(eventLine.getAssignedUsers())
+            .eventLineStatus(status)
+            .event(eventLine.getEvent())
+            .build();
+    }
+
     public Page<EventLine> getAllLinesOfUser(User user, int pageNumber) {
         Page<EventLineEntity> eventLineEntityPage = eventLineRepo.getAllByAssignedUsersContainsOrderByEvent_date(userEntityMapper.toEntity(user), PageRequest.of(pageNumber, 20));
         return eventLineEntityPage.map(eventLineEntityMapper::fromEntity);
@@ -133,6 +159,7 @@ public class EventLineService {
             .event(line.getEvent())
             .assignedUsers(users)
             .organization(line.getOrganization())
+            .eventLineStatus(line.getEventLineStatus())
             .lineManager(line.getLineManager())
             .build();
     }
