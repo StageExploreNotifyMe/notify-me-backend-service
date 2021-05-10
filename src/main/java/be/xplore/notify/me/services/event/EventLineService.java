@@ -149,6 +149,7 @@ public class EventLineService {
         }
 
         assignedUsers.remove(userOptional.get());
+        eventLineNotificationService.sendMemberCanceledNotification(userId, line);
         return save(updateAssignedUsers(line, assignedUsers));
     }
 
