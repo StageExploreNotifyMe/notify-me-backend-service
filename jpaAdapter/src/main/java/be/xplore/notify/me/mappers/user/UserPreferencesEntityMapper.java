@@ -1,7 +1,7 @@
-package be.xplore.notify.me.entity.mappers.user;
+package be.xplore.notify.me.mappers.user;
 
 import be.xplore.notify.me.domain.user.UserPreferences;
-import be.xplore.notify.me.entity.mappers.EntityMapper;
+import be.xplore.notify.me.mappers.EntityMapper;
 import be.xplore.notify.me.entity.user.UserPreferencesEntity;
 import org.springframework.stereotype.Component;
 

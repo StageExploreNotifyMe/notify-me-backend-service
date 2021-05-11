@@ -2,7 +2,7 @@ package be.xplore.notify.me.adapters;
 
 import be.xplore.notify.me.domain.Organization;
 import be.xplore.notify.me.entity.OrganizationEntity;
-import be.xplore.notify.me.entity.mappers.OrganizationEntityMapper;
+import be.xplore.notify.me.mappers.OrganizationEntityMapper;
 import be.xplore.notify.me.repositories.JpaOrganizationRepo;
 import be.xplore.notify.me.persistence.OrganizationRepo;
 import lombok.extern.slf4j.Slf4j;

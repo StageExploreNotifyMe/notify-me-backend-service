@@ -1,4 +1,4 @@
-package be.xplore.notify.me.dto.mappers;
+package be.xplore.notify.me.mappers;
 
 public interface DtoMapper<Dt, Do> {
     Do fromDto(Dt d);

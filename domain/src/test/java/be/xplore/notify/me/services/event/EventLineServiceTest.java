@@ -6,6 +6,7 @@ import be.xplore.notify.me.domain.event.EventLineStatus;
 import be.xplore.notify.me.domain.event.Line;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.persistence.EventLineRepo;
+import be.xplore.notify.me.persistence.UserRepo;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,8 @@ class EventLineServiceTest {
 
     @MockBean
     private EventLineRepo eventLineRepo;
+    @MockBean
+    private UserRepo userRepo;
 
     @Test
     void getAllLinesOfEvent() {
@@ -81,6 +84,7 @@ class EventLineServiceTest {
     @Test
     void cancelEventLine() {
         mockSave();
+        mockSaveUsers();
         EventLine eventLine = eventLineService.cancelEventLine(this.eventLine);
         assertEquals(eventLine.getEventLineStatus(), EventLineStatus.CANCELED);
     }
@@ -166,5 +170,9 @@ class EventLineServiceTest {
 
     private void mockFindById() {
         given(eventLineRepo.findById(any())).will(i -> i.getArgument(0).equals(eventLine.getId()) ? Optional.of(eventLine) : Optional.empty());
+    }
+
+    private void mockSaveUsers() {
+        given(userRepo.save(any())).will(i -> i.getArgument(0));
     }
 }

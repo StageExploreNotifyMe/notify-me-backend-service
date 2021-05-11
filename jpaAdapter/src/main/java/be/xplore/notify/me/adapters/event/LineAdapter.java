@@ -2,7 +2,7 @@ package be.xplore.notify.me.adapters.event;
 
 import be.xplore.notify.me.domain.event.Line;
 import be.xplore.notify.me.entity.event.LineEntity;
-import be.xplore.notify.me.entity.mappers.event.LineEntityMapper;
+import be.xplore.notify.me.mappers.event.LineEntityMapper;
 import be.xplore.notify.me.repositories.JpaLineRepo;
 import be.xplore.notify.me.persistence.LineRepo;
 import lombok.extern.slf4j.Slf4j;

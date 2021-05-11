@@ -1,10 +1,10 @@
-package be.xplore.notify.me.dto.mappers.event;
+package be.xplore.notify.me.mappers.event;
 
 import be.xplore.notify.me.domain.event.EventLine;
 import be.xplore.notify.me.dto.event.EventLineDto;
-import be.xplore.notify.me.dto.mappers.DtoMapper;
-import be.xplore.notify.me.dto.mappers.OrganizationDtoMapper;
-import be.xplore.notify.me.dto.mappers.UserDtoMapper;
+import be.xplore.notify.me.mappers.DtoMapper;
+import be.xplore.notify.me.mappers.OrganizationDtoMapper;
+import be.xplore.notify.me.mappers.UserDtoMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.stream.Collectors;

@@ -1,11 +1,11 @@
 package be.xplore.notify.me.api;
 
-import be.xplore.notify.me.api.util.Converters;
+import be.xplore.notify.me.util.Converters;
 import be.xplore.notify.me.domain.Venue;
 import be.xplore.notify.me.domain.event.Line;
 import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.dto.event.LineDto;
-import be.xplore.notify.me.dto.mappers.event.LineDtoMapper;
+import be.xplore.notify.me.mappers.event.LineDtoMapper;
 import be.xplore.notify.me.services.VenueService;
 import be.xplore.notify.me.services.event.LineService;
 import org.springframework.data.domain.Page;

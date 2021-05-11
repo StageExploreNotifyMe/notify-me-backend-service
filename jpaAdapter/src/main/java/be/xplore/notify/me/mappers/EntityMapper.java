@@ -1,4 +1,4 @@
-package be.xplore.notify.me.entity.mappers;
+package be.xplore.notify.me.mappers;
 
 public interface EntityMapper<E, D> {
     D fromEntity(E e);

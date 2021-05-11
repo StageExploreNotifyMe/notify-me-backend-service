@@ -1,7 +1,7 @@
 package be.xplore.notify.me.adapters.notification;
 
 import be.xplore.notify.me.domain.notification.Notification;
-import be.xplore.notify.me.entity.mappers.notification.NotificationEntityMapper;
+import be.xplore.notify.me.mappers.notification.NotificationEntityMapper;
 import be.xplore.notify.me.entity.notification.NotificationEntity;
 import be.xplore.notify.me.repositories.JpaNotificationRepo;
 import be.xplore.notify.me.persistence.NotificationRepo;

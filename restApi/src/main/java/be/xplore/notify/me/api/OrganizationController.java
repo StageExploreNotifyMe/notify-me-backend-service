@@ -1,9 +1,9 @@
 package be.xplore.notify.me.api;
 
-import be.xplore.notify.me.api.util.Converters;
+import be.xplore.notify.me.util.Converters;
 import be.xplore.notify.me.domain.Organization;
 import be.xplore.notify.me.dto.OrganizationDto;
-import be.xplore.notify.me.dto.mappers.OrganizationDtoMapper;
+import be.xplore.notify.me.mappers.OrganizationDtoMapper;
 import be.xplore.notify.me.services.OrganizationService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;

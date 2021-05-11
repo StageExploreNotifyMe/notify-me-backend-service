@@ -79,39 +79,6 @@ class EventLineControllerTest {
     }
 
     @Test
-    void getLinesOfVenue() {
-        try {
-            mockEverything();
-            ResultActions resultActions = performGet("/line/venue/" + line.getVenue().getId());
-            expectResult(resultActions, HttpStatus.OK);
-        } catch (Exception e) {
-            failTest(e);
-        }
-    }
-
-    @Test
-    void getLinesOfVenueWithPage() {
-        try {
-            mockEverything();
-            ResultActions resultActions = performGet("/line/venue/" + line.getVenue().getId() + "?page=0");
-            expectResult(resultActions, HttpStatus.OK);
-        } catch (Exception e) {
-            failTest(e);
-        }
-    }
-
-    @Test
-    void getLinesOfVenueNotFound() {
-        try {
-            mockEverything();
-            ResultActions resultActions = performGet("/line/venue/mqldfkj");
-            expectResult(resultActions, HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            failTest(e);
-        }
-    }
-
-    @Test
     void getEventLines() {
         try {
             mockEverything();

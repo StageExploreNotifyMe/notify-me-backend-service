@@ -28,6 +28,8 @@ class EventServiceTest {
     private EventService eventService;
     @MockBean
     private EventRepo eventRepo;
+    @MockBean
+    private EventNotificationService eventNotificationService;
 
     @Autowired
     private Venue venue;

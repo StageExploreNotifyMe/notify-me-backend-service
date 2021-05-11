@@ -3,7 +3,7 @@ package be.xplore.notify.me.adapters.user;
 import be.xplore.notify.me.domain.user.MemberRequestStatus;
 import be.xplore.notify.me.domain.user.Role;
 import be.xplore.notify.me.domain.user.UserOrganization;
-import be.xplore.notify.me.entity.mappers.user.UserOrganizationEntityMapper;
+import be.xplore.notify.me.mappers.user.UserOrganizationEntityMapper;
 import be.xplore.notify.me.entity.user.UserOrganizationEntity;
 import be.xplore.notify.me.repositories.JpaUserOrganizationRepo;
 import be.xplore.notify.me.persistence.UserOrganizationRepo;

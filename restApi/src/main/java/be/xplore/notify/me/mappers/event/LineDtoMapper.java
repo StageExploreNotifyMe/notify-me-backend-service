@@ -1,9 +1,9 @@
-package be.xplore.notify.me.dto.mappers.event;
+package be.xplore.notify.me.mappers.event;
 
 import be.xplore.notify.me.domain.event.Line;
 import be.xplore.notify.me.dto.event.LineDto;
-import be.xplore.notify.me.dto.mappers.DtoMapper;
-import be.xplore.notify.me.dto.mappers.VenueDtoMapper;
+import be.xplore.notify.me.mappers.DtoMapper;
+import be.xplore.notify.me.mappers.VenueDtoMapper;
 import org.springframework.stereotype.Component;
 
 @Component

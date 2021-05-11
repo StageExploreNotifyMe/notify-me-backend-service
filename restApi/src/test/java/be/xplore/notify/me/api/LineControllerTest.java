@@ -1,6 +1,8 @@
 package be.xplore.notify.me.api;
 
+import be.xplore.notify.me.domain.Venue;
 import be.xplore.notify.me.domain.event.Line;
+import be.xplore.notify.me.services.VenueService;
 import be.xplore.notify.me.services.event.LineService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -31,9 +33,13 @@ class LineControllerTest {
 
     @Autowired
     private Line line;
+    @Autowired
+    private Venue venue;
 
     @MockBean
     private LineService lineService;
+    @MockBean
+    private VenueService venueService;
 
     @Test
     void getLinesOfVenue() {
@@ -71,6 +77,7 @@ class LineControllerTest {
     private void mockEverything() {
         mockGetLinesByVenue();
         mockGetLineById();
+        mockGetVenueById();
     }
 
     private void mockGetLinesByVenue() {
@@ -85,6 +92,10 @@ class LineControllerTest {
 
     private void mockGetLineById() {
         given(lineService.getById(any())).will(i -> i.getArgument(0).equals(line.getId()) ? Optional.of(line) : Optional.empty());
+    }
+
+    private void mockGetVenueById() {
+        given(venueService.getById(any())).will(i -> i.getArgument(0).equals(venue.getId()) ? Optional.of(venue) : Optional.empty());
     }
 
     private ResultActions performGet(String url) throws Exception {

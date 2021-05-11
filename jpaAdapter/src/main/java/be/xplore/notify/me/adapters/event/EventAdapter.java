@@ -2,7 +2,7 @@ package be.xplore.notify.me.adapters.event;
 
 import be.xplore.notify.me.domain.event.Event;
 import be.xplore.notify.me.entity.event.EventEntity;
-import be.xplore.notify.me.entity.mappers.event.EventEntityMapper;
+import be.xplore.notify.me.mappers.event.EventEntityMapper;
 import be.xplore.notify.me.persistence.EventRepo;
 import be.xplore.notify.me.repositories.JpaEventRepo;
 import lombok.extern.slf4j.Slf4j;

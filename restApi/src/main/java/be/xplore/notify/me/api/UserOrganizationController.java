@@ -1,12 +1,12 @@
 package be.xplore.notify.me.api;
 
-import be.xplore.notify.me.api.util.Converters;
+import be.xplore.notify.me.util.Converters;
 import be.xplore.notify.me.domain.Organization;
 import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.user.Role;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.domain.user.UserOrganization;
-import be.xplore.notify.me.dto.mappers.UserOrganizationDtoMapper;
+import be.xplore.notify.me.mappers.UserOrganizationDtoMapper;
 import be.xplore.notify.me.dto.user.UserOrganizationDto;
 import be.xplore.notify.me.dto.user.UserOrganizationIdsDto;
 import be.xplore.notify.me.dto.user.UserOrganizationProcessDto;

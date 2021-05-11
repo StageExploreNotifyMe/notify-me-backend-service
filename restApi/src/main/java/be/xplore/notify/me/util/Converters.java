@@ -1,4 +1,4 @@
-package be.xplore.notify.me.api.util;
+package be.xplore.notify.me.util;
 
 import org.springframework.stereotype.Component;
 

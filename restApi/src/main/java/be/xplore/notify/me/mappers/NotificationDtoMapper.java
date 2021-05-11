@@ -1,4 +1,4 @@
-package be.xplore.notify.me.dto.mappers;
+package be.xplore.notify.me.mappers;
 
 import be.xplore.notify.me.domain.notification.Notification;
 import be.xplore.notify.me.dto.NotificationDto;

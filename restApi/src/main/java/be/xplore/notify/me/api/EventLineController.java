@@ -1,6 +1,6 @@
 package be.xplore.notify.me.api;
 
-import be.xplore.notify.me.api.util.Converters;
+import be.xplore.notify.me.util.Converters;
 import be.xplore.notify.me.domain.Organization;
 import be.xplore.notify.me.domain.event.Event;
 import be.xplore.notify.me.domain.event.EventLine;
@@ -11,7 +11,7 @@ import be.xplore.notify.me.dto.event.EventLineDto;
 import be.xplore.notify.me.dto.event.LineAssignEventDto;
 import be.xplore.notify.me.dto.event.LineAssignOrganizationDto;
 import be.xplore.notify.me.dto.event.LineMemberDto;
-import be.xplore.notify.me.dto.mappers.event.EventLineDtoMapper;
+import be.xplore.notify.me.mappers.event.EventLineDtoMapper;
 import be.xplore.notify.me.services.OrganizationService;
 import be.xplore.notify.me.services.event.EventLineService;
 import be.xplore.notify.me.services.event.EventService;

@@ -2,7 +2,7 @@ package be.xplore.notify.me.adapters;
 
 import be.xplore.notify.me.domain.Venue;
 import be.xplore.notify.me.entity.VenueEntity;
-import be.xplore.notify.me.entity.mappers.VenueEntityMapper;
+import be.xplore.notify.me.mappers.VenueEntityMapper;
 import be.xplore.notify.me.repositories.JpaVenueRepo;
 import be.xplore.notify.me.persistence.VenueRepo;
 import lombok.extern.slf4j.Slf4j;

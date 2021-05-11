@@ -1,10 +1,10 @@
-package be.xplore.notify.me.entity.mappers.event;
+package be.xplore.notify.me.mappers.event;
 
 import be.xplore.notify.me.domain.event.EventLine;
 import be.xplore.notify.me.entity.event.EventLineEntity;
-import be.xplore.notify.me.entity.mappers.EntityMapper;
-import be.xplore.notify.me.entity.mappers.OrganizationEntityMapper;
-import be.xplore.notify.me.entity.mappers.user.UserEntityMapper;
+import be.xplore.notify.me.mappers.EntityMapper;
+import be.xplore.notify.me.mappers.OrganizationEntityMapper;
+import be.xplore.notify.me.mappers.user.UserEntityMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.stream.Collectors;

@@ -1,7 +1,7 @@
-package be.xplore.notify.me.entity.mappers.notification;
+package be.xplore.notify.me.mappers.notification;
 
 import be.xplore.notify.me.domain.notification.Notification;
-import be.xplore.notify.me.entity.mappers.EntityMapper;
+import be.xplore.notify.me.mappers.EntityMapper;
 import be.xplore.notify.me.entity.notification.NotificationEntity;
 import org.springframework.stereotype.Component;
 

@@ -1,9 +1,9 @@
-package be.xplore.notify.me.entity.mappers.event;
+package be.xplore.notify.me.mappers.event;
 
 import be.xplore.notify.me.domain.event.Event;
 import be.xplore.notify.me.entity.event.EventEntity;
-import be.xplore.notify.me.entity.mappers.EntityMapper;
-import be.xplore.notify.me.entity.mappers.VenueEntityMapper;
+import be.xplore.notify.me.mappers.EntityMapper;
+import be.xplore.notify.me.mappers.VenueEntityMapper;
 import org.springframework.stereotype.Component;
 
 @Component

@@ -1,4 +1,4 @@
-package be.xplore.notify.me.entity.mappers;
+package be.xplore.notify.me.mappers;
 
 import be.xplore.notify.me.domain.Organization;
 import be.xplore.notify.me.entity.OrganizationEntity;
