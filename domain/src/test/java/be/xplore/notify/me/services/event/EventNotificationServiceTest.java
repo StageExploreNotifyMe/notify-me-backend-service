@@ -45,6 +45,13 @@ class EventNotificationServiceTest {
         assertEquals(2, sendNotifications.size());
     }
 
+    @Test
+    void sendEventCanceledNotification() {
+        mockSaveNotificationToInbox();
+        eventNotificationService.sendEventCanceledNotification(generateEventCreatedTestData());
+        assertEquals(2, sendNotifications.size());
+    }
+
     private Event generateEventCreatedTestData() {
         List<User> users = new ArrayList<>();
         users.add(user);
@@ -56,6 +63,14 @@ class EventNotificationServiceTest {
 
     private void mockSaveNotificationToQueue() {
         given(notificationService.saveNotificationAndSendToQueue(any())).will(i -> {
+            Notification not = i.getArgument(0);
+            sendNotifications.add(not);
+            return not;
+        });
+    }
+
+    private void mockSaveNotificationToInbox() {
+        given(notificationService.saveNotificationAndSendToInbox(any(), any())).will(i -> {
             Notification not = i.getArgument(0);
             sendNotifications.add(not);
             return not;

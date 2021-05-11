@@ -1,6 +1,5 @@
 package be.xplore.notify.me.api;
 
-import be.xplore.notify.me.util.Converters;
 import be.xplore.notify.me.domain.Organization;
 import be.xplore.notify.me.domain.event.Event;
 import be.xplore.notify.me.domain.event.EventLine;
@@ -17,6 +16,7 @@ import be.xplore.notify.me.services.event.EventLineService;
 import be.xplore.notify.me.services.event.EventService;
 import be.xplore.notify.me.services.event.LineService;
 import be.xplore.notify.me.services.user.UserService;
+import be.xplore.notify.me.util.Converters;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

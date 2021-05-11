@@ -18,16 +18,14 @@ import java.util.List;
 public class EventNotificationService {
     private final NotificationSenderService notificationSenderService;
     private final NotificationService notificationService;
-    private final EventLineService eventLineService;
 
-    public EventNotificationService(NotificationSenderService notificationSenderService, NotificationService notificationService, EventLineService eventLineService) {
+    public EventNotificationService(NotificationSenderService notificationSenderService, NotificationService notificationService) {
         this.notificationSenderService = notificationSenderService;
         this.notificationService = notificationService;
-        this.eventLineService = eventLineService;
     }
 
     public void sendEventCanceledNotification(Event event) {
-        List<User> lineManagers = eventLineService.getLineManagersByEvent(event);
+        List<User> lineManagers = event.getVenue().getLineManagers();
         for (User lineManager : lineManagers) {
             Notification notification = setEventCanceledNotificationDetails(event, lineManager);
             notificationService.saveNotificationAndSendToInbox(notification, lineManager);

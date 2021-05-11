@@ -1,9 +1,9 @@
 package be.xplore.notify.me.mappers.user;
 
 import be.xplore.notify.me.domain.user.UserOrganization;
+import be.xplore.notify.me.entity.user.UserOrganizationEntity;
 import be.xplore.notify.me.mappers.EntityMapper;
 import be.xplore.notify.me.mappers.OrganizationEntityMapper;
-import be.xplore.notify.me.entity.user.UserOrganizationEntity;
 import org.springframework.stereotype.Component;
 
 @Component

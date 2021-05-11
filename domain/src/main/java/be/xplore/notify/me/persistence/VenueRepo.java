@@ -8,5 +8,6 @@ import java.util.Optional;
 @Repository
 public interface VenueRepo {
     Venue save(Venue venue);
+
     Optional<Venue> findById(String id);
 }

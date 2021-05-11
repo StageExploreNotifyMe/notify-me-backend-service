@@ -23,9 +23,10 @@ public class OrganizationNotificationService {
     private final UserOrganizationService userOrganizationService;
 
     public OrganizationNotificationService(
-        NotificationService notificationService,
-        NotificationSenderService notificationSenderService,
-        UserOrganizationService userOrganizationService) {
+            NotificationService notificationService,
+            NotificationSenderService notificationSenderService,
+            UserOrganizationService userOrganizationService
+    ) {
         this.notificationService = notificationService;
         this.notificationSenderService = notificationSenderService;
         this.userOrganizationService = userOrganizationService;

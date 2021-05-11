@@ -1,6 +1,5 @@
 package be.xplore.notify.me.api;
 
-import be.xplore.notify.me.util.Converters;
 import be.xplore.notify.me.domain.Venue;
 import be.xplore.notify.me.domain.event.Event;
 import be.xplore.notify.me.domain.exceptions.NotFoundException;
@@ -9,6 +8,7 @@ import be.xplore.notify.me.dto.event.EventDto;
 import be.xplore.notify.me.mappers.event.EventDtoMapper;
 import be.xplore.notify.me.services.VenueService;
 import be.xplore.notify.me.services.event.EventService;
+import be.xplore.notify.me.util.Converters;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

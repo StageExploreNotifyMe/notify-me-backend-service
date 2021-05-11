@@ -4,10 +4,10 @@ import be.xplore.notify.me.domain.event.Event;
 import be.xplore.notify.me.domain.event.EventLine;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.entity.event.EventLineEntity;
+import be.xplore.notify.me.entity.user.UserEntity;
 import be.xplore.notify.me.mappers.event.EventEntityMapper;
 import be.xplore.notify.me.mappers.event.EventLineEntityMapper;
 import be.xplore.notify.me.mappers.user.UserEntityMapper;
-import be.xplore.notify.me.entity.user.UserEntity;
 import be.xplore.notify.me.persistence.EventLineRepo;
 import be.xplore.notify.me.repositories.JpaEventLineRepo;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,7 +29,12 @@ public class EventLineAdapter implements EventLineRepo {
     private final UserEntityMapper userEntityMapper;
     private final EventEntityMapper eventEntityMapper;
 
-    public EventLineAdapter(JpaEventLineRepo jpaEventLineRepo, EventLineEntityMapper eventLineEntityMapper, UserEntityMapper userEntityMapper, EventEntityMapper eventEntityMapper) {
+    public EventLineAdapter(
+            JpaEventLineRepo jpaEventLineRepo,
+            EventLineEntityMapper eventLineEntityMapper,
+            UserEntityMapper userEntityMapper,
+            EventEntityMapper eventEntityMapper
+    ) {
         this.jpaEventLineRepo = jpaEventLineRepo;
         this.eventLineEntityMapper = eventLineEntityMapper;
         this.userEntityMapper = userEntityMapper;

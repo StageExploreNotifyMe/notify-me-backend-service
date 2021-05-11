@@ -4,8 +4,10 @@ import be.xplore.notify.me.domain.event.EventLine;
 import be.xplore.notify.me.domain.notification.Notification;
 import be.xplore.notify.me.domain.notification.NotificationType;
 import be.xplore.notify.me.domain.user.User;
+import be.xplore.notify.me.domain.user.UserOrganization;
 import be.xplore.notify.me.services.notification.NotificationSenderService;
 import be.xplore.notify.me.services.notification.NotificationService;
+import be.xplore.notify.me.services.user.UserOrganizationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,8 @@ class EventLineNotificationServiceTest {
     private User user;
     @Autowired
     private EventLine eventLine;
+    @Autowired
+    private UserOrganization userOrganization;
 
     private List<Notification> sendNotifications;
 
@@ -36,6 +40,8 @@ class EventLineNotificationServiceTest {
     private NotificationService notificationService;
     @MockBean
     private NotificationSenderService notificationSenderService;
+    @MockBean
+    private UserOrganizationService userOrganizationService;
 
     @BeforeEach
     void setUp() {
@@ -51,11 +57,38 @@ class EventLineNotificationServiceTest {
         assertEquals(NotificationType.LINE_ASSIGNED, sendNotification.getType());
     }
 
+    @Test
+    void sendMemberCanceledNotification() {
+        mockGetUserOrganizations();
+        mockSaveNotification();
+        eventLineNotificationService.sendMemberCanceledNotification(user.getId(), eventLine);
+        assertEquals(1, sendNotifications.size());
+        Notification sendNotification = sendNotifications.get(0);
+        assertEquals(NotificationType.USER_CANCELED, sendNotification.getType());
+    }
+
+    @Test
+    void sendEventLineCanceledNotification() {
+        mockSaveNotification();
+        eventLineNotificationService.sendEventLineCanceledNotification(eventLine);
+        assertEquals(1, sendNotifications.size());
+        Notification sendNotification = sendNotifications.get(0);
+        assertEquals(NotificationType.LINE_CANCELED, sendNotification.getType());
+    }
+
     private void mockSaveNotification() {
         given(notificationService.saveNotificationAndSendToInbox(any(), any())).will(i -> {
             Notification n = i.getArgument(0);
             sendNotifications.add(n);
             return n;
+        });
+    }
+
+    private void mockGetUserOrganizations() {
+        given(userOrganizationService.getAllOrganizationLeadersByOrganizationId(any())).will(i -> {
+            List<UserOrganization> userOrganizations = new ArrayList<>();
+            userOrganizations.add(userOrganization);
+            return userOrganizations;
         });
     }
 }

@@ -13,7 +13,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -36,7 +35,7 @@ public class EventLineService {
     }
 
     public Page<EventLine> getAllLinesOfEvent(String eventId, int page) {
-        return  eventLineRepo.getAllLinesOfEvent(eventId, PageRequest.of(page, 20));
+        return eventLineRepo.getAllLinesOfEvent(eventId, PageRequest.of(page, 20));
     }
 
     public EventLine addLineToEvent(Line line, Event event, User lineManager) {
@@ -64,7 +63,6 @@ public class EventLineService {
         return save(updatedLine);
     }
 
-    @Transactional
     public List<User> getLineManagersByEvent(Event event) {
         return eventLineRepo.getLineManagersByEvent(event);
     }
@@ -74,7 +72,7 @@ public class EventLineService {
     }
 
     public EventLine save(EventLine eventLine) {
-       return eventLineRepo.save(eventLine);
+        return eventLineRepo.save(eventLine);
     }
 
     public EventLine assignUserToEventLine(User user, EventLine line) {

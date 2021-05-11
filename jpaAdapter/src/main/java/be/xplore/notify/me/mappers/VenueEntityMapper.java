@@ -3,8 +3,8 @@ package be.xplore.notify.me.mappers;
 import be.xplore.notify.me.domain.Venue;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.entity.VenueEntity;
-import be.xplore.notify.me.mappers.user.UserEntityMapper;
 import be.xplore.notify.me.entity.user.UserEntity;
+import be.xplore.notify.me.mappers.user.UserEntityMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

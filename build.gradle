@@ -1,0 +1,75 @@
+allprojects {
+    apply plugin: 'jacoco'
+    apply plugin: 'java'
+    apply plugin: 'checkstyle'
+
+    repositories {
+        mavenCentral()
+    }
+
+    jacoco {
+        toolVersion = "0.8.6"
+    }
+}
+
+subprojects {
+    sourceCompatibility = '11'
+    group = 'be.xplore'
+    version = '0.0.1'
+
+    dependencies {
+        compileOnly 'org.projectlombok:lombok'
+        compileOnly 'org.springframework.boot:spring-boot-devtools'
+
+        annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+        annotationProcessor 'org.projectlombok:lombok'
+
+        testImplementation 'org.mockito:mockito-core:3.+'
+        testImplementation('org.springframework.boot:spring-boot-starter-test') {
+            exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+        }
+    }
+
+    test {
+        useJUnitPlatform()
+        finalizedBy jacocoTestReport
+        finalizedBy jacocoTestCoverageVerification
+    }
+
+    jacocoTestReport {
+        dependsOn test
+    }
+
+    check {
+        dependsOn jacocoTestCoverageVerification
+    }
+
+    jacocoTestCoverageVerification {
+        violationRules {
+            rule {
+                limit {
+                    minimum = 0.80
+                }
+            }
+        }
+    }
+
+    checkstyle {
+        toolVersion '8.41.1'
+        configFile file("../config/checkstyle/checkstyle.xml")
+    }
+
+    checkstyleMain {
+        source = 'src/main/java'
+    }
+    checkstyleTest {
+        source = 'src/test/java'
+    }
+
+    tasks.withType(Checkstyle) {
+        reports {
+            xml.enabled false
+            html.enabled true
+        }
+    }
+}

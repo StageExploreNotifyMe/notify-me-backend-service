@@ -12,7 +12,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,7 +52,6 @@ public class UserOrganizationService {
         return userOrganizationRepo.getUserByOrganizationAndStatus(organizationId, status, pageRequest);
     }
 
-    @Transactional
     public List<UserOrganization> getAllOrganizationLeadersByOrganizationId(String organizationId) {
         return userOrganizationRepo.getAllOrganizationLeadersByOrganizationId(organizationId);
     }

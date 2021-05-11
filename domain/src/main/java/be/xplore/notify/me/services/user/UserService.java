@@ -24,7 +24,6 @@ public class UserService {
         this.userPreferencesService = userPreferencesService;
     }
 
-
     public User addNotificationToInbox(Notification notification, User user) {
         user.getInbox().add(notification);
         return save(user);

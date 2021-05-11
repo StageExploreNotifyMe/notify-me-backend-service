@@ -1,14 +1,16 @@
 package be.xplore.notify.me.adapters.user;
 
 import be.xplore.notify.me.domain.user.User;
-import be.xplore.notify.me.mappers.user.UserEntityMapper;
 import be.xplore.notify.me.entity.user.UserEntity;
-import be.xplore.notify.me.repositories.JpaUserRepo;
+import be.xplore.notify.me.mappers.user.UserEntityMapper;
 import be.xplore.notify.me.persistence.UserRepo;
+import be.xplore.notify.me.repositories.JpaUserRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
+
+import javax.transaction.Transactional;
 
 import java.util.Optional;
 
@@ -40,6 +42,7 @@ public class UserAdapter implements UserRepo {
     }
 
     @Override
+    @Transactional
     public Page<User> findAll(PageRequest pageRequest) {
         Page<UserEntity> entityPage = jpaUserRepo.findAll(pageRequest);
         return entityPage.map(userEntityMapper::fromEntity);

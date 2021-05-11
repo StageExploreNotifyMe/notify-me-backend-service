@@ -5,7 +5,9 @@ import be.xplore.notify.me.domain.event.EventLine;
 import be.xplore.notify.me.domain.event.EventLineStatus;
 import be.xplore.notify.me.domain.event.Line;
 import be.xplore.notify.me.domain.user.User;
+import be.xplore.notify.me.domain.user.UserOrganization;
 import be.xplore.notify.me.persistence.EventLineRepo;
+import be.xplore.notify.me.persistence.UserOrganizationRepo;
 import be.xplore.notify.me.persistence.UserRepo;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -35,12 +37,16 @@ class EventLineServiceTest {
     @Autowired
     private User user;
     @Autowired
+    private UserOrganization userOrganization;
+    @Autowired
     private EventLine eventLine;
     @Autowired
     private Organization organization;
 
     @MockBean
     private EventLineRepo eventLineRepo;
+    @MockBean
+    private UserOrganizationRepo userOrganizationRepo;
     @MockBean
     private UserRepo userRepo;
 
@@ -61,6 +67,7 @@ class EventLineServiceTest {
     @Test
     void assignOrganizationToLine() {
         mockSave();
+        mockGetUserOrganizations();
         EventLine toAssingTo = EventLine.builder().id("qdf").line(line).event(eventLine.getEvent()).lineManager(user).build();
         EventLine saved = eventLineService.assignOrganizationToLine(organization, toAssingTo);
         assertEquals(organization.getId(), saved.getOrganization().getId());
@@ -174,5 +181,13 @@ class EventLineServiceTest {
 
     private void mockSaveUsers() {
         given(userRepo.save(any())).will(i -> i.getArgument(0));
+    }
+
+    private void mockGetUserOrganizations() {
+        given(userOrganizationRepo.getAllOrganizationLeadersByOrganizationId(any())).will(i -> {
+            List<UserOrganization> userOrganizationList = new ArrayList<>();
+            userOrganizationList.add(userOrganization);
+            return userOrganizationList;
+        });
     }
 }

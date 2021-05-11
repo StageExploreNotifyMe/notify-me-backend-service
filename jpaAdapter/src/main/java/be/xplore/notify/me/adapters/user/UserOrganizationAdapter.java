@@ -3,16 +3,17 @@ package be.xplore.notify.me.adapters.user;
 import be.xplore.notify.me.domain.user.MemberRequestStatus;
 import be.xplore.notify.me.domain.user.Role;
 import be.xplore.notify.me.domain.user.UserOrganization;
-import be.xplore.notify.me.mappers.user.UserOrganizationEntityMapper;
 import be.xplore.notify.me.entity.user.UserOrganizationEntity;
-import be.xplore.notify.me.repositories.JpaUserOrganizationRepo;
+import be.xplore.notify.me.mappers.user.UserOrganizationEntityMapper;
 import be.xplore.notify.me.persistence.UserOrganizationRepo;
+import be.xplore.notify.me.repositories.JpaUserOrganizationRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,8 +26,8 @@ public class UserOrganizationAdapter implements UserOrganizationRepo {
     private final UserOrganizationEntityMapper userOrganizationEntityMapper;
 
     public UserOrganizationAdapter(
-        JpaUserOrganizationRepo jpaUserOrganizationRepo,
-        UserOrganizationEntityMapper userOrganizationEntityMapper
+            JpaUserOrganizationRepo jpaUserOrganizationRepo,
+            UserOrganizationEntityMapper userOrganizationEntityMapper
     ) {
         this.jpaUserOrganizationRepo = jpaUserOrganizationRepo;
         this.userOrganizationEntityMapper = userOrganizationEntityMapper;
@@ -35,7 +36,7 @@ public class UserOrganizationAdapter implements UserOrganizationRepo {
     @Override
     public Page<UserOrganization> getUserByOrganizationAndStatus(String organizationId, MemberRequestStatus status, PageRequest pageRequest) {
         Page<UserOrganizationEntity> userOrganisationPage =
-            jpaUserOrganizationRepo.getUserOrganisationByOrganizationEntity_IdAndStatusOrderByUserEntity(organizationId, status, pageRequest);
+                jpaUserOrganizationRepo.getUserOrganisationByOrganizationEntity_IdAndStatusOrderByUserEntity(organizationId, status, pageRequest);
         return userOrganisationPage.map(userOrganizationEntityMapper::fromEntity);
     }
 
@@ -43,7 +44,7 @@ public class UserOrganizationAdapter implements UserOrganizationRepo {
     @Transactional
     public List<UserOrganization> getAllOrganizationLeadersByOrganizationId(String organizationId) {
         List<UserOrganizationEntity> userOrganizationEntities =
-            jpaUserOrganizationRepo.getUserOrganizationEntityByOrganizationEntity_Id(organizationId);
+                jpaUserOrganizationRepo.getUserOrganizationEntityByOrganizationEntity_Id(organizationId);
         return userOrganizationEntities
             .stream()
             .map(userOrganizationEntityMapper::fromEntity)
