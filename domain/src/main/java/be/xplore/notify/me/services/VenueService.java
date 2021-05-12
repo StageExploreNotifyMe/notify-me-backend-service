@@ -3,6 +3,8 @@ package be.xplore.notify.me.services;
 import be.xplore.notify.me.domain.Venue;
 import be.xplore.notify.me.persistence.VenueRepo;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -22,5 +24,9 @@ public class VenueService {
 
     public Venue save(Venue venue) {
         return repo.save(venue);
+    }
+
+    public Page<Venue> getAllVenues(int page) {
+        return repo.getAllVenues(PageRequest.of(page, 100));
     }
 }
