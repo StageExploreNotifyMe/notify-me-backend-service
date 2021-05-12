@@ -60,6 +60,7 @@ public class EventService {
 
     public Event cancelEvent(Event event) {
         Event toSave = updateEventStatus(event, EventStatus.CANCELED);
+        eventNotificationService.sendEventCanceledNotification(toSave);
         return save(toSave);
     }
 

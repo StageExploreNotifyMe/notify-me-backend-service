@@ -67,7 +67,7 @@ public class Testdata {
 
     @Bean
     EventLine testEventLine() {
-        return EventLine.builder().id("1").line(testLine()).assignedUsers(new ArrayList<>()).organization(testOrganization()).event(testEvent()).build();
+        return EventLine.builder().id("1").line(testLine()).assignedUsers(new ArrayList<>()).organization(testOrganization()).event(testEvent()).lineManager(testUser()).build();
     }
 
 }

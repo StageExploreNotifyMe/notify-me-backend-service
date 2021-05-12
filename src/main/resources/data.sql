@@ -20,3 +20,6 @@ INSERT INTO venue_entity_venue_managers (venue_entity_id, venue_managers_id) val
 INSERT INTO line_entity (id, description, name, venue_entity_id) values ('1', 'The bar at the main entrance of the venue', 'Main Entrance Bar', '1');
 INSERT INTO line_entity (id, description, name, venue_entity_id) values ('2', 'The bar in the VIP area', 'VIP Bar', '1');
 INSERT INTO line_entity (id, description, name, venue_entity_id) values ('3', 'People are needed to direct cars to where to park in the parking lot', 'Parking area', '1');
+
+INSERT INTO event_entity(id, date, event_status, name, venue_id) values ('1', CURRENT_TIMESTAMP, 1, 'testEvent', '1');
+INSERT INTO event_line_entity (id,event_id, line_id, line_manager_id, organization_id) values ('1','1','1','1','1');

@@ -12,4 +12,5 @@ import lombok.Setter;
 public class LineAssignEventDto {
     private String lineId;
     private String eventId;
+    private String lineManagerId;
 }

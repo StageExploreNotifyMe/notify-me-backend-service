@@ -6,8 +6,10 @@ import be.xplore.notify.me.domain.event.EventLine;
 import be.xplore.notify.me.domain.event.Line;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.entity.event.EventLineEntity;
+import be.xplore.notify.me.entity.mappers.event.EventEntityMapper;
 import be.xplore.notify.me.entity.mappers.event.EventLineEntityMapper;
 import be.xplore.notify.me.entity.mappers.user.UserEntityMapper;
+import be.xplore.notify.me.entity.user.UserEntity;
 import be.xplore.notify.me.repositories.EventLineRepo;
 import be.xplore.notify.me.services.OrganizationNotificationService;
 import lombok.extern.slf4j.Slf4j;
@@ -15,9 +17,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -25,20 +30,23 @@ public class EventLineService {
     private final EventLineRepo eventLineRepo;
     private final EventLineEntityMapper eventLineEntityMapper;
     private final UserEntityMapper userEntityMapper;
-    private final OrganizationNotificationService organizationNotificationService;
     private final EventLineNotificationService eventLineNotificationService;
+    private final EventEntityMapper eventEntityMapper;
+    private final OrganizationNotificationService organizationNotificationService;
 
     public EventLineService(
             EventLineRepo eventLineRepo,
             EventLineEntityMapper eventLineEntityMapper,
             UserEntityMapper userEntityMapper,
+            EventLineNotificationService eventLineNotificationService,
             OrganizationNotificationService organizationNotificationService,
-            EventLineNotificationService eventLineNotificationService) {
+            EventEntityMapper eventEntityMapper) {
         this.eventLineRepo = eventLineRepo;
         this.eventLineEntityMapper = eventLineEntityMapper;
         this.userEntityMapper = userEntityMapper;
-        this.organizationNotificationService = organizationNotificationService;
         this.eventLineNotificationService = eventLineNotificationService;
+        this.eventEntityMapper = eventEntityMapper;
+        this.organizationNotificationService = organizationNotificationService;
     }
 
     public Page<EventLine> getAllLinesOfEvent(String eventId, int page) {
@@ -47,8 +55,8 @@ public class EventLineService {
         return lineEntityPage.map(eventLineEntityMapper::fromEntity);
     }
 
-    public EventLine addLineToEvent(Line line, Event event) {
-        return save(EventLine.builder().event(event).line(line).assignedUsers(new ArrayList<>()).build());
+    public EventLine addLineToEvent(Line line, Event event, User lineManager) {
+        return save(EventLine.builder().event(event).line(line).assignedUsers(new ArrayList<>()).lineManager(lineManager).build());
     }
 
     public EventLine assignOrganizationToLine(Organization organization, EventLine line) {
@@ -58,9 +66,17 @@ public class EventLineService {
                 .organization(organization)
                 .event(line.getEvent())
                 .assignedUsers(new ArrayList<>())
+                .lineManager(line.getLineManager())
                 .build();
         organizationNotificationService.sendOrganizationLineAssignmentNotification(organization, updatedLine);
         return save(updatedLine);
+    }
+
+    @Transactional
+    public List<User> getLineManagersByEvent(Event event) {
+        List<EventLineEntity> eventLineEntity = eventLineRepo.getAllByEvent(eventEntityMapper.toEntity(event));
+        List<UserEntity> lineManagersEntity = eventLineEntity.stream().map(EventLineEntity::getLineManager).collect(Collectors.toList());
+        return lineManagersEntity.stream().map(userEntityMapper::fromEntity).collect(Collectors.toList());
     }
 
     public Optional<EventLine> getById(String id) {
@@ -118,6 +134,7 @@ public class EventLineService {
             .event(line.getEvent())
             .assignedUsers(users)
             .organization(line.getOrganization())
+            .lineManager(line.getLineManager())
             .build();
     }
 }
