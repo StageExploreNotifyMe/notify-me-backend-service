@@ -33,7 +33,6 @@ public class EventLineService {
     private final UserEntityMapper userEntityMapper;
     private final EventEntityMapper eventEntityMapper;
     private final EventLineNotificationService eventLineNotificationService;
-    private final EventEntityMapper eventEntityMapper;
     private final OrganizationNotificationService organizationNotificationService;
 
     public EventLineService(
