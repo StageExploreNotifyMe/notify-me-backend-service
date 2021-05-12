@@ -33,6 +33,7 @@ public class EventLineService {
     private final UserEntityMapper userEntityMapper;
     private final EventEntityMapper eventEntityMapper;
     private final EventLineNotificationService eventLineNotificationService;
+    private final EventEntityMapper eventEntityMapper;
     private final OrganizationNotificationService organizationNotificationService;
 
     public EventLineService(
@@ -40,13 +41,14 @@ public class EventLineService {
             EventLineEntityMapper eventLineEntityMapper,
             UserEntityMapper userEntityMapper,
             EventLineNotificationService eventLineNotificationService,
-            OrganizationNotificationService organizationNotificationService, EventEntityMapper eventEntityMapper) {
+            OrganizationNotificationService organizationNotificationService,
+            EventEntityMapper eventEntityMapper) {
         this.eventLineRepo = eventLineRepo;
         this.eventLineEntityMapper = eventLineEntityMapper;
         this.userEntityMapper = userEntityMapper;
         this.eventLineNotificationService = eventLineNotificationService;
-        this.organizationNotificationService = organizationNotificationService;
         this.eventEntityMapper = eventEntityMapper;
+        this.organizationNotificationService = organizationNotificationService;
     }
 
     public Page<EventLine> getAllLinesOfEvent(String eventId, int page) {
