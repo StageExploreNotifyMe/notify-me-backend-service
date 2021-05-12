@@ -4,11 +4,17 @@ import be.xplore.notify.me.domain.notification.Notification;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.persistence.NotificationRepo;
 import be.xplore.notify.me.services.user.UserService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,6 +41,20 @@ class NotificationServiceTest {
     private void mockGetById() {
         given(notificationRepo.findById(any()))
                 .will(i -> i.getArgument(0).equals(notification.getId()) ? Optional.of(notification) : Optional.empty());
+    }
+
+    private void mockGetAll() {
+        given(notificationRepo.getAll(any())).will(i -> getPageOfNotification());
+    }
+
+    private void mockGetAllByUserId() {
+        given(notificationRepo.getAllByUserId(any(), any())).will(i -> getPageOfNotification());
+    }
+
+    private Object getPageOfNotification() {
+        List<Notification> notifications = new ArrayList<>();
+        notifications.add(notification);
+        return new PageImpl<>(notifications);
     }
 
     private void mockAddNotificationToInbox() {
@@ -88,5 +108,19 @@ class NotificationServiceTest {
         mockGetById();
         Optional<Notification> notificationOptional = notificationService.getById("qdsf");
         assertTrue(notificationOptional.isEmpty());
+    }
+
+    @Test
+    void getAllNotifications() {
+        mockGetAll();
+        Page<Notification> notifications = notificationService.getAllNotifications(PageRequest.of(0, 20));
+        Assertions.assertEquals(1, notifications.getContent().size());
+    }
+
+    @Test
+    void getAllNotificationsByUserId() {
+        mockGetAllByUserId();
+        Page<Notification> notifications = notificationService.getAllNotificationsByUserId(user.getId(), PageRequest.of(0, 20));
+        Assertions.assertEquals(1, notifications.getContent().size());
     }
 }
