@@ -12,10 +12,12 @@ import be.xplore.notify.me.services.notification.NotificationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
 @Slf4j
+@Service
 public class LineStaffingScheduledService {
 
     private final EventService eventService;
@@ -24,10 +26,10 @@ public class LineStaffingScheduledService {
     private final NotificationSenderService notificationSenderService;
 
     public LineStaffingScheduledService(
-        EventService eventService,
-        EventLineService eventLineService,
-        NotificationService notificationService,
-        NotificationSenderService notificationSenderService
+            EventService eventService,
+            EventLineService eventLineService,
+            NotificationService notificationService,
+            NotificationSenderService notificationSenderService
     ) {
         this.eventService = eventService;
         this.eventLineService = eventLineService;
@@ -62,22 +64,21 @@ public class LineStaffingScheduledService {
         switch (eventLine.getEventLineStatus()) {
             case CANCELED:
                 break;
-            case CREATED: {
+            case CREATED:
                 sendNoOrgAssignNotification(eventLine);
                 break;
-            }
-            case ASSIGNED: {
-                if (eventLine.getAssignedUsers().size() < eventLine.getLine().getNumberOfRequiredPeople()) {
-                    sendStaffingIncompleteNotification(eventLine);
-                }
+            case ASSIGNED:
+                sendStaffingIncompleteNotification(eventLine);
                 break;
-            }
             default:
                 log.warn("Unknown eventline status in line staffing scheduled service: " + eventLine.getEventLineStatus());
         }
     }
 
     private void sendStaffingIncompleteNotification(EventLine eventLine) {
+        if (eventLine.getAssignedUsers().size() >= eventLine.getLine().getNumberOfRequiredPeople()) {
+            return;
+        }
         User user = eventLine.getLineManager();
         String body = String.format(
                 "Hi %s %s\n\nEvent %s has a line %s with incomplete staffing: %s/%s.  Assigned organization is %s.  Event is due to start at %s on %s",
@@ -110,13 +111,13 @@ public class LineStaffingScheduledService {
 
     private void sendNotification(User user, String body, String title) {
         Notification notification = Notification.builder()
-            .type(NotificationType.STAFFING_REMINDER)
-            .title(title)
-            .creationDate(LocalDateTime.now())
-            .userId(user.getId())
-            .usedChannel(user.getUserPreferences().getUrgentChannel())
-            .body(body)
-            .build();
+                .type(NotificationType.STAFFING_REMINDER)
+                .title(title)
+                .creationDate(LocalDateTime.now())
+                .userId(user.getId())
+                .usedChannel(user.getUserPreferences().getUrgentChannel())
+                .body(body)
+                .build();
 
         notificationService.saveNotificationAndSendToInbox(notification, user);
         notificationSenderService.sendNotification(notification);
