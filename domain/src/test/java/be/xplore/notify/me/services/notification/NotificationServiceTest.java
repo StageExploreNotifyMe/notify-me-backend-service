@@ -1,6 +1,7 @@
 package be.xplore.notify.me.services.notification;
 
 import be.xplore.notify.me.domain.notification.Notification;
+import be.xplore.notify.me.domain.notification.NotificationType;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.persistence.NotificationRepo;
 import be.xplore.notify.me.services.user.UserService;
@@ -49,6 +50,28 @@ class NotificationServiceTest {
 
     private void mockGetAllByUserId() {
         given(notificationRepo.getAllByUserId(any(), any())).will(i -> getPageOfNotification());
+    }
+
+    private void mockGetAllByNotificationType() {
+        given(notificationRepo.getAllByNotificationType(any(), any())).will(i -> getPageOfNotification());
+    }
+
+    private void mockGetAllByTypeAndEvent() {
+        given(notificationRepo.getAllByTypeAndEvent(any(), any(), any())).will(i -> getPageOfNotification());
+    }
+
+    private void MockGetAllByEventId() {
+        given(notificationRepo.getAllByEventId(any(), any())).will(i -> getPageOfNotification());
+    }
+
+    private void mockgetAllEventIds() {
+        given(notificationRepo.getAllEventIds()).will(i -> getEventsOfNotifications());
+    }
+
+    private List<String> getEventsOfNotifications() {
+        List<String> events = new ArrayList<>();
+        events.add(notification.getEventId());
+        return events;
     }
 
     private Object getPageOfNotification() {
@@ -122,5 +145,33 @@ class NotificationServiceTest {
         mockGetAllByUserId();
         Page<Notification> notifications = notificationService.getAllNotificationsByUserId(user.getId(), PageRequest.of(0, 20));
         Assertions.assertEquals(1, notifications.getContent().size());
+    }
+
+    @Test
+    void getAllNotificationsByType() {
+        mockGetAllByNotificationType();
+        Page<Notification> notifications = notificationService.getAllNotificationsByType(NotificationType.EVENT_CANCELED, PageRequest.of(0, 20));
+        Assertions.assertEquals(1, notifications.getContent().size());
+    }
+
+    @Test
+    void getAllNotificationsByEvent() {
+        MockGetAllByEventId();
+        Page<Notification> notifications = notificationService.getAllNotificationsByEventId("1", PageRequest.of(0, 20));
+        Assertions.assertEquals(1, notifications.getContent().size());
+    }
+
+    @Test
+    void getAllNotificationsByTypeAndEvent() {
+        mockGetAllByTypeAndEvent();
+        Page<Notification> notifications = notificationService.getAllByTypeAndEvent("1", NotificationType.EVENT_CANCELED, PageRequest.of(0, 20));
+        Assertions.assertEquals(1, notifications.getContent().size());
+    }
+
+    @Test
+    void getAllEventIds() {
+        mockgetAllEventIds();
+        List<String> events = notificationService.getAllEventIds();
+        Assertions.assertEquals(1, events.size());
     }
 }

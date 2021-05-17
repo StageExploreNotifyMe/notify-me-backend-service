@@ -13,6 +13,6 @@ public class NotificationDtoMapper implements DtoMapper<NotificationDto, Notific
 
     @Override
     public NotificationDto toDto(Notification d) {
-        return new NotificationDto(d.getId(), d.getUserId(), d.getTitle(), d.getBody(), d.getUsedChannel(), d.getType(), d.getUrgency(), d.getCreationDate());
+        return new NotificationDto(d.getId(), d.getUserId(), d.getTitle(), d.getBody(), d.getEventId(), d.getUsedChannel(), d.getType(), d.getUrgency(), d.getCreationDate());
     }
 }
