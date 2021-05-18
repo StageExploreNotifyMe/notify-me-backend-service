@@ -32,13 +32,11 @@ class UserOrganizationNotificationServiceTest {
     @MockBean
     private NotificationService notificationService;
 
-    private User user;
-    private Organization organization;
     private UserOrganization.UserOrganizationBuilder userOrganizationBuilder;
     private Notification sendNotification;
 
     private void setupMocking() {
-        given(notificationService.saveNotificationAndSendToInbox(any(), any())).will(i -> {
+        given(notificationService.sendNotification(any(), any())).will(i -> {
             sendNotification = i.getArgument(0);
             return sendNotification;
         });
@@ -47,8 +45,8 @@ class UserOrganizationNotificationServiceTest {
     @BeforeEach
     void setUp() {
         UserPreferences userPreferences = UserPreferences.builder().id("1").normalChannel(NotificationChannel.EMAIL).urgentChannel(NotificationChannel.SMS).build();
-        user = User.builder().id("1").userPreferences(userPreferences).firstname("John").lastname("Doe").build();
-        organization = Organization.builder().id("1").name("Example Organization").build();
+        User user = User.builder().id("1").userPreferences(userPreferences).firstname("John").lastname("Doe").build();
+        Organization organization = Organization.builder().id("1").name("Example Organization").build();
         userOrganizationBuilder = UserOrganization.builder().id("1").user(user).organization(organization).role(Role.MEMBER);
 
         sendNotification = null;

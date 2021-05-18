@@ -5,7 +5,6 @@ import be.xplore.notify.me.domain.notification.NotificationChannel;
 import be.xplore.notify.me.domain.notification.NotificationType;
 import be.xplore.notify.me.domain.notification.NotificationUrgency;
 import be.xplore.notify.me.domain.user.User;
-import be.xplore.notify.me.services.notification.NotificationSenderService;
 import be.xplore.notify.me.services.notification.NotificationService;
 import be.xplore.notify.me.services.user.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -26,12 +25,10 @@ public class EmailScheduledService {
 
     private final UserService userService;
     private final NotificationService notificationService;
-    private final NotificationSenderService notificationSenderService;
 
-    public EmailScheduledService(UserService userService, NotificationService notificationService, NotificationSenderService notificationSenderService) {
+    public EmailScheduledService(UserService userService, NotificationService notificationService) {
         this.userService = userService;
         this.notificationService = notificationService;
-        this.notificationSenderService = notificationSenderService;
     }
 
     @Scheduled(cron = "${notify.me.scheduled.email.cron:0 12 * * * 0}")
@@ -52,7 +49,7 @@ public class EmailScheduledService {
             return;
         }
         Notification notification = collectNotifications(user);
-        sendCollectedNotification(notification, user);
+        notificationService.sendNotification(notification, user);
         userService.clearUserQueue(user);
     }
 
@@ -67,11 +64,6 @@ public class EmailScheduledService {
             .title("Weekly email")
             .body(generateBody(groupedNotifications, user))
             .build();
-    }
-
-    private void sendCollectedNotification(Notification notification, User user) {
-        Notification savedNot = notificationService.saveNotificationAndSendToInbox(notification, user);
-        notificationSenderService.sendNotification(savedNot);
     }
 
     private Map<NotificationType, List<Notification>> groupNotifications(List<Notification> notificationQueue) {

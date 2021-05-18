@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Value;
 
 import java.time.LocalDateTime;
+import java.util.Currency;
 
 @Value
 @Builder
@@ -16,9 +17,7 @@ public class Notification {
     NotificationType type;
     NotificationUrgency urgency;
     LocalDateTime creationDate;
-
-    @Override
-    public String toString() {
-        return "Notification: " + title + ": " + body + "(" + usedChannel + ", " + type + ", " + urgency + ")";
-    }
+    LocalDateTime sentDate;
+    Double price;
+    Currency priceCurrency;
 }

@@ -71,7 +71,7 @@ class UserServiceTest {
     void addNotificationToQueue() {
         mockGetById();
         mockSave();
-        User userWithQueue = userService.addNotificationToQueue(notification);
+        User userWithQueue = userService.addNotificationToQueue(notification, user);
         assertTrue(userWithQueue.getNotificationQueue().contains(notification));
     }
 
@@ -79,7 +79,7 @@ class UserServiceTest {
     void clearUserQueue() {
         mockGetById();
         mockSave();
-        User userWithQueue = userService.addNotificationToQueue(notification);
+        User userWithQueue = userService.addNotificationToQueue(notification, user);
         assertTrue(userWithQueue.getNotificationQueue().contains(notification));
         User userWithoutQueue = userService.clearUserQueue(userWithQueue);
         assertTrue(userWithoutQueue.getNotificationQueue().isEmpty());

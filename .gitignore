@@ -7,6 +7,8 @@ build/
 *.log
 *.log*.gz
 
+application-auth.properties
+
 ### STS ###
 .apt_generated
 .classpath

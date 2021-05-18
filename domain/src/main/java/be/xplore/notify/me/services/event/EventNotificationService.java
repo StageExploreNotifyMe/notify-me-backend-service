@@ -6,7 +6,6 @@ import be.xplore.notify.me.domain.notification.NotificationChannel;
 import be.xplore.notify.me.domain.notification.NotificationType;
 import be.xplore.notify.me.domain.notification.NotificationUrgency;
 import be.xplore.notify.me.domain.user.User;
-import be.xplore.notify.me.services.notification.NotificationSenderService;
 import be.xplore.notify.me.services.notification.NotificationService;
 import org.springframework.stereotype.Service;
 
@@ -16,11 +15,9 @@ import java.util.List;
 
 @Service
 public class EventNotificationService {
-    private final NotificationSenderService notificationSenderService;
     private final NotificationService notificationService;
 
-    public EventNotificationService(NotificationSenderService notificationSenderService, NotificationService notificationService) {
-        this.notificationSenderService = notificationSenderService;
+    public EventNotificationService(NotificationService notificationService) {
         this.notificationService = notificationService;
     }
 
@@ -28,8 +25,7 @@ public class EventNotificationService {
         List<User> lineManagers = event.getVenue().getLineManagers();
         for (User lineManager : lineManagers) {
             Notification notification = setEventCanceledNotificationDetails(event, lineManager);
-            notificationService.saveNotificationAndSendToInbox(notification, lineManager);
-            notificationSenderService.sendNotification(notification);
+            notificationService.sendNotification(notification, lineManager);
         }
     }
 
@@ -75,6 +71,6 @@ public class EventNotificationService {
                 .title("New event created")
                 .body(body)
                 .build();
-        notificationService.saveNotificationAndSendToQueue(notification);
+        notificationService.queueNotification(notification, lineManager);
     }
 }

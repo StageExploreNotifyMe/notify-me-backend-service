@@ -19,6 +19,9 @@ public class NotificationEntityMapper implements EntityMapper<NotificationEntity
             .title(notificationEntity.getTitle())
             .usedChannel(notificationEntity.getUsedChannel())
             .creationDate(notificationEntity.getCreationDate())
+            .sentDate(notificationEntity.getSentDate())
+            .price(notificationEntity.getPrice())
+            .priceCurrency(notificationEntity.getPriceCurrency())
             .build();
     }
 
@@ -32,7 +35,10 @@ public class NotificationEntityMapper implements EntityMapper<NotificationEntity
                 notification.getUsedChannel(),
                 notification.getType(),
                 notification.getUrgency(),
-                notification.getCreationDate()
+                notification.getCreationDate(),
+                notification.getSentDate(),
+                notification.getPrice(),
+                notification.getPriceCurrency()
         );
     }
 }

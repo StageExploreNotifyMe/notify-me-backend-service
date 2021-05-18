@@ -17,21 +17,28 @@ public class NotificationService {
 
     private final UserService userService;
     private final NotificationRepo notificationRepo;
+    private final NotificationSenderService senderService;
 
-    public NotificationService(UserService userService, NotificationRepo notificationRepo) {
+    public NotificationService(
+            UserService userService,
+            NotificationRepo notificationRepo,
+            NotificationSenderService notificationSenderService
+    ) {
         this.userService = userService;
         this.notificationRepo = notificationRepo;
+        this.senderService = notificationSenderService;
     }
 
-    public Notification saveNotificationAndSendToInbox(Notification notification, User user) {
-        Notification savedNotification = save(notification);
+    public Notification sendNotification(Notification notification, User user) {
+        Notification sendNotification = senderService.sendNotification(notification, user);
+        Notification savedNotification = save(sendNotification);
         userService.addNotificationToInbox(savedNotification, user);
         return savedNotification;
     }
 
-    public Notification saveNotificationAndSendToQueue(Notification notification) {
+    public Notification queueNotification(Notification notification, User user) {
         Notification savedNotification = save(notification);
-        userService.addNotificationToQueue(savedNotification);
+        userService.addNotificationToQueue(savedNotification, user);
         return savedNotification;
     }
 

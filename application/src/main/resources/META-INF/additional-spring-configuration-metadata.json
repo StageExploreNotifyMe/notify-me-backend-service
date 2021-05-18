@@ -4,6 +4,41 @@
             "name": "notify.me.scheduled.email.cron",
             "type": "java.lang.String",
             "description": "Cron expression that determines when the collected emails should be send.  Default '0 12 * * * 0', every wednesday at midday."
+        },
+        {
+            "name": "notify.me.twilio.accountSid",
+            "type": "java.lang.String",
+            "description": "Twilio account SID."
+        },
+        {
+            "name": "notify.me.twilio.authToken",
+            "type": "java.lang.String",
+            "description": "Twilio account token."
+        },
+        {
+            "name": "notify.me.twilio.fromNumber",
+            "type": "java.lang.String",
+            "description": "The twilio number to use to send text messages to users."
+        },
+        {
+            "name": "notify.me.twilio.whatsAppFromNumber",
+            "type": "java.lang.String",
+            "description": "The twilio number to use to send whatsapp messages to users."
+        },
+        {
+            "name": "notify.me.sendgrid.apiKey",
+            "type": "java.lang.String",
+            "description": "Sendgrid (to send emails) API key."
+        },
+        {
+            "name": "notify.me.sendgrid.fromEmail",
+            "type": "java.lang.String",
+            "description": "Sendgrid from email."
+        },
+        {
+            "name": "notify.me.sandbox",
+            "type": "java.lang.String",
+            "description": "Whether or not to run the application in sandbox mode (no actual emails will be send in sandbox mode)."
         }
     ]
 }
