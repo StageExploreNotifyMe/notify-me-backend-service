@@ -25,9 +25,9 @@ public class EventLineService {
     private final OrganizationNotificationService organizationNotificationService;
 
     public EventLineService(
-        EventLineRepo eventLineRepo,
-        EventLineNotificationService eventLineNotificationService,
-        OrganizationNotificationService organizationNotificationService
+            EventLineRepo eventLineRepo,
+            EventLineNotificationService eventLineNotificationService,
+            OrganizationNotificationService organizationNotificationService
     ) {
         this.eventLineRepo = eventLineRepo;
         this.eventLineNotificationService = eventLineNotificationService;
