@@ -2,6 +2,7 @@ package be.xplore.notify.me.api;
 
 import be.xplore.notify.me.domain.notification.Notification;
 import be.xplore.notify.me.domain.notification.NotificationType;
+import be.xplore.notify.me.dto.NotificationChannelAmountDto;
 import be.xplore.notify.me.dto.NotificationDto;
 import be.xplore.notify.me.dto.NotificationTypeDto;
 import be.xplore.notify.me.mappers.NotificationDtoMapper;
@@ -65,6 +66,13 @@ public class AdminController {
         NotificationTypeDto notificationTypes = new NotificationTypeDto();
         notificationTypes.setNotificationTypes(Arrays.asList(NotificationType.values()));
         return new ResponseEntity<>(notificationTypes, HttpStatus.OK);
+    }
+
+    @GetMapping("/channelAmount")
+    public ResponseEntity<NotificationChannelAmountDto> getAmountOfNotificationChannels() {
+        NotificationChannelAmountDto channelAmountDto = new NotificationChannelAmountDto();
+        channelAmountDto.setNotificationAmounts(notificationService.getChannelAmount());
+        return new ResponseEntity<>(channelAmountDto, HttpStatus.OK);
     }
 
     @GetMapping("/eventId")

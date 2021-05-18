@@ -102,6 +102,16 @@ class AdminControllerTest {
         }
     }
 
+    @Test
+    void getAmountOfNotificationChannels() {
+        try {
+            ResultActions request = mockMvc.perform(get("/admin/channelAmount").contentType(MediaType.APPLICATION_JSON));
+            request.andExpect(status().is(HttpStatus.OK.value()));
+        } catch (Exception e) {
+            failTest(e);
+        }
+    }
+
     private void mockSave() {
         given(notificationService.save(any())).will(i -> i.getArgument(0));
     }

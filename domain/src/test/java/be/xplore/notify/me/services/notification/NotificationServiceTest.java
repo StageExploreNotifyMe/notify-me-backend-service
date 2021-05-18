@@ -1,6 +1,7 @@
 package be.xplore.notify.me.services.notification;
 
 import be.xplore.notify.me.domain.notification.Notification;
+import be.xplore.notify.me.domain.notification.NotificationChannel;
 import be.xplore.notify.me.domain.notification.NotificationType;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.persistence.NotificationRepo;
@@ -64,8 +65,18 @@ class NotificationServiceTest {
         given(notificationRepo.getAllByEventId(any(), any())).will(i -> getPageOfNotification());
     }
 
-    private void mockgetAllEventIds() {
+    private void mockGetAllEventIds() {
         given(notificationRepo.getAllEventIds()).will(i -> getEventsOfNotifications());
+    }
+
+    private void mockGetChannelAmount() {
+        given(notificationRepo.getChannelAmount()).will(i -> getAllChannelAmount());
+    }
+
+    private List<Object[]> getAllChannelAmount() {
+        List<Object[]> list = new ArrayList<>();
+        list.add(0, NotificationChannel.values());
+        return list;
     }
 
     private List<String> getEventsOfNotifications() {
@@ -170,8 +181,16 @@ class NotificationServiceTest {
 
     @Test
     void getAllEventIds() {
-        mockgetAllEventIds();
+        mockGetAllEventIds();
         List<String> events = notificationService.getAllEventIds();
         Assertions.assertEquals(1, events.size());
+    }
+
+    @Test
+    void getChannelAmount() {
+        mockGetChannelAmount();
+        List<Object[]> amounts = notificationService.getChannelAmount();
+        Assertions.assertEquals(1, amounts.size());
+
     }
 }
