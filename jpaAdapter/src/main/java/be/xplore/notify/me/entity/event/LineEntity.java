@@ -23,4 +23,5 @@ public class LineEntity {
     private String description;
     @ManyToOne
     private VenueEntity venueEntity;
+    private int numberOfRequiredPeople;
 }

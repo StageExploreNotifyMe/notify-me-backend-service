@@ -6,8 +6,10 @@ import be.xplore.notify.me.domain.event.EventLine;
 import be.xplore.notify.me.domain.event.EventLineStatus;
 import be.xplore.notify.me.domain.event.Line;
 import be.xplore.notify.me.domain.user.User;
+import be.xplore.notify.me.domain.user.UserOrganization;
 import be.xplore.notify.me.persistence.EventLineRepo;
 import be.xplore.notify.me.services.OrganizationNotificationService;
+import be.xplore.notify.me.services.user.UserOrganizationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -23,15 +26,18 @@ public class EventLineService {
     private final EventLineRepo eventLineRepo;
     private final EventLineNotificationService eventLineNotificationService;
     private final OrganizationNotificationService organizationNotificationService;
+    private final UserOrganizationService userOrganizationService;
 
     public EventLineService(
             EventLineRepo eventLineRepo,
             EventLineNotificationService eventLineNotificationService,
-            OrganizationNotificationService organizationNotificationService
+            OrganizationNotificationService organizationNotificationService,
+            UserOrganizationService userOrganizationService
     ) {
         this.eventLineRepo = eventLineRepo;
         this.eventLineNotificationService = eventLineNotificationService;
         this.organizationNotificationService = organizationNotificationService;
+        this.userOrganizationService = userOrganizationService;
     }
 
     public Page<EventLine> getAllLinesOfEvent(String eventId, int page) {
@@ -135,5 +141,19 @@ public class EventLineService {
             .eventLineStatus(line.getEventLineStatus())
             .lineManager(line.getLineManager())
             .build();
+    }
+
+    public void sendStaffingReminder(EventLine eventLine, String customText) {
+        List<UserOrganization> organizationLeaders = userOrganizationService.getAllOrganizationLeadersByOrganizationId(eventLine.getOrganization().getId());
+
+        eventLineNotificationService.sendOrganizationLeadersStaffingReminder(
+                eventLine,
+                organizationLeaders.stream().map(UserOrganization::getUser).collect(Collectors.toList()),
+                customText
+        );
+    }
+
+    public List<EventLine> getAllActiveEventLinesOfLineManager(User user) {
+        return eventLineRepo.getAllActiveEventLinesOfLineManager(user.getId());
     }
 }

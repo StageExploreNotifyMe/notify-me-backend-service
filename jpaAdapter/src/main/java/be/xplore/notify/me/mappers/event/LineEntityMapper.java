@@ -17,21 +17,29 @@ public class LineEntityMapper implements EntityMapper<LineEntity, Line> {
 
     @Override
     public Line fromEntity(LineEntity lineEntity) {
+        if (lineEntity == null) {
+            return null;
+        }
         return Line.builder()
                 .id(lineEntity.getId())
                 .name(lineEntity.getName())
                 .description(lineEntity.getDescription())
                 .venue(venueEntityMapper.fromEntity(lineEntity.getVenueEntity()))
+                .numberOfRequiredPeople(lineEntity.getNumberOfRequiredPeople())
                 .build();
     }
 
     @Override
     public LineEntity toEntity(Line line) {
+        if (line == null) {
+            return null;
+        }
         return new LineEntity(
                 line.getId(),
                 line.getName(),
                 line.getDescription(),
-                venueEntityMapper.toEntity(line.getVenue())
+                venueEntityMapper.toEntity(line.getVenue()),
+                line.getNumberOfRequiredPeople()
         );
     }
 }

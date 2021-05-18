@@ -1,5 +1,7 @@
 package be.xplore.notify.me.repositories;
 
+import be.xplore.notify.me.domain.event.EventLineStatus;
+import be.xplore.notify.me.domain.event.EventStatus;
 import be.xplore.notify.me.entity.event.EventEntity;
 import be.xplore.notify.me.entity.event.EventLineEntity;
 import be.xplore.notify.me.entity.user.UserEntity;
@@ -17,4 +19,8 @@ public interface JpaEventLineRepo extends JpaRepository<EventLineEntity, String>
     Page<EventLineEntity> getAllByAssignedUsersContainsOrderByEvent_date(UserEntity assignedUsers, Pageable pageable);
 
     List<EventLineEntity> getAllByEvent(EventEntity event);
+
+    List<EventLineEntity> getAllByLineManager_IdAndEventLineStatusNotAndEvent_EventStatusNotOrderByEvent_date(
+            String lineManager_id, EventLineStatus eventLineStatus, EventStatus event_eventStatus
+    );
 }

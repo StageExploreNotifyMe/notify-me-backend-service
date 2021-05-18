@@ -10,6 +10,7 @@ import be.xplore.notify.me.dto.event.EventLineDto;
 import be.xplore.notify.me.dto.event.LineAssignEventDto;
 import be.xplore.notify.me.dto.event.LineAssignOrganizationDto;
 import be.xplore.notify.me.dto.event.LineMemberDto;
+import be.xplore.notify.me.dto.event.StaffingReminderDto;
 import be.xplore.notify.me.services.OrganizationService;
 import be.xplore.notify.me.services.event.EventLineService;
 import be.xplore.notify.me.services.event.EventService;
@@ -285,6 +286,19 @@ class EventLineControllerTest {
             expectResult(resultActions, HttpStatus.OK);
             EventLineDto eventLineDto = mapper.readValue(getResponse(resultActions), EventLineDto.class);
             assertEquals(EventLineStatus.CANCELED, eventLineDto.getEventLineStatus());
+        } catch (Exception e) {
+            failTest(e);
+        }
+    }
+
+    @Test
+    void sendStaffingReminder() {
+        try {
+            mockEverything();
+            ResultActions resultActions = performPost("/line/" + eventLine.getId() + "/staffingreminder", new StaffingReminderDto(eventLine.getId(), null));
+            expectResult(resultActions, HttpStatus.OK);
+            StaffingReminderDto dto = mapper.readValue(getResponse(resultActions), StaffingReminderDto.class);
+            assertEquals(eventLine.getId(), dto.getEventLineId());
         } catch (Exception e) {
             failTest(e);
         }

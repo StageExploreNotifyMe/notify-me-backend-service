@@ -24,32 +24,48 @@ public class UserEntityMapper implements EntityMapper<UserEntity, User> {
 
     @Override
     public User fromEntity(UserEntity userEntity) {
+        if (userEntity == null) {
+            return null;
+        }
         List<Notification> notificationQueue = new ArrayList<>();
         if (userEntity.getNotificationQueue() != null) {
             notificationQueue = userEntity.getNotificationQueue().stream().map(notificationEntityMapper::fromEntity).collect(Collectors.toList());
         }
+        List<Notification> inbox = new ArrayList<>();
+        if (userEntity.getInbox() != null) {
+            inbox = userEntity.getInbox().stream().map(notificationEntityMapper::fromEntity).collect(Collectors.toList());
+        }
+
         return User.builder()
             .id(userEntity.getId())
             .firstname(userEntity.getFirstname())
             .lastname(userEntity.getLastname())
             .userPreferences(userPreferencesEntityMapper.fromEntity(userEntity.getUserPreferences()))
-            .inbox(userEntity.getInbox().stream().map(notificationEntityMapper::fromEntity).collect(Collectors.toList()))
+            .inbox(inbox)
             .notificationQueue(notificationQueue)
             .build();
     }
 
     @Override
     public UserEntity toEntity(User user) {
+        if (user == null) {
+            return null;
+        }
         List<NotificationEntity> notificationQueue = new ArrayList<>();
         if (user.getNotificationQueue() != null) {
             notificationQueue = user.getNotificationQueue().stream().map(notificationEntityMapper::toEntity).collect(Collectors.toList());
+        }
+
+        List<NotificationEntity> inbox = new ArrayList<>();
+        if (user.getInbox() != null) {
+            inbox = user.getInbox().stream().map(notificationEntityMapper::toEntity).collect(Collectors.toList());
         }
 
         return new UserEntity(user.getId(), userPreferencesEntityMapper.toEntity(
             user.getUserPreferences()),
             user.getFirstname(),
             user.getLastname(),
-            user.getInbox().stream().map(notificationEntityMapper::toEntity).collect(Collectors.toList()),
+            inbox,
             notificationQueue
         );
     }
