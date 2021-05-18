@@ -1,1 +1,5 @@
 rootProject.name = 'notifyme'
+include 'domain'
+include 'jpaAdapter'
+include 'restApi'
+include 'application'

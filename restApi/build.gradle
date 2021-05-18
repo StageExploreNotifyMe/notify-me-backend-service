@@ -1,0 +1,19 @@
+plugins {
+    id 'org.springframework.boot' version '2.4.5'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+}
+
+jar {
+    enabled = true
+}
+bootJar {
+    enabled = false
+}
+
+dependencies {
+    implementation project(':domain')
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.data:spring-data-commons'
+    implementation 'org.modelmapper:modelmapper:2.3.8'
+}
+
