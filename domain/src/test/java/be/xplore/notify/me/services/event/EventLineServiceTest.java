@@ -147,6 +147,11 @@ class EventLineServiceTest {
         assertTrue(eventLine.getAssignedUsers().stream().noneMatch(u -> u.getId().equals(user.getId())));
     }
 
+    @Test
+    void sendStaffingReminder() {
+        eventLineService.sendStaffingReminder(eventLine, null);
+    }
+
     private void mockGetEventLinesOfUser() {
         given(eventLineRepo.getAllLinesOfUser(any(), any())).will(i -> getPageOfEventLine());
     }

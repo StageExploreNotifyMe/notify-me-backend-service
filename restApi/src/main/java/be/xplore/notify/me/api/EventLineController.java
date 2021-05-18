@@ -10,6 +10,7 @@ import be.xplore.notify.me.dto.event.EventLineDto;
 import be.xplore.notify.me.dto.event.LineAssignEventDto;
 import be.xplore.notify.me.dto.event.LineAssignOrganizationDto;
 import be.xplore.notify.me.dto.event.LineMemberDto;
+import be.xplore.notify.me.dto.event.StaffingReminderDto;
 import be.xplore.notify.me.mappers.event.EventLineDtoMapper;
 import be.xplore.notify.me.services.OrganizationService;
 import be.xplore.notify.me.services.event.EventLineService;
@@ -64,6 +65,12 @@ public class EventLineController {
     @GetMapping("/{id}")
     public ResponseEntity<EventLineDto> getEventLine(@PathVariable String id) {
         return new ResponseEntity<>(eventLineDtoMapper.toDto(getEventLineById(id)), HttpStatus.OK);
+    }
+
+    @PostMapping("/{id}/staffingreminder")
+    public ResponseEntity<StaffingReminderDto> sendStaffingReminder(@PathVariable String id, @RequestBody StaffingReminderDto dto) {
+        eventLineService.sendStaffingReminder(getEventLineById(dto.getEventLineId()), dto.getCustomText());
+        return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
     @GetMapping("/event/{id}")
