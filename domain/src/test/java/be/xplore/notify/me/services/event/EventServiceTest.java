@@ -77,6 +77,14 @@ class EventServiceTest {
         assertEquals(event.getId(), updatedEvent.getId());
     }
 
+    @Test
+    void makeEventPrivate() {
+        mockSave();
+        Event updatedEvent = eventService.makeEventPrivate(this.event);
+        assertEquals(EventStatus.PRIVATE, updatedEvent.getEventStatus());
+        assertEquals(event.getId(), updatedEvent.getId());
+    }
+
     private void mockGetEventsByVenueId() {
         given(eventRepo.getEventsOfVenue(any(), any())).will(i -> {
             List<Event> entityList = new ArrayList<>();
