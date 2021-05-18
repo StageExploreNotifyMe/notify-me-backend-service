@@ -68,4 +68,10 @@ public class EventService {
             .eventStatus(status)
             .build();
     }
+
+    public Page<Event> getUpcomingEvents(int numberOfDays, int page) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime endDate = now.plusDays(numberOfDays);
+        return eventRepo.getAllEventsBetween(now, endDate, PageRequest.of(page, 20));
+    }
 }

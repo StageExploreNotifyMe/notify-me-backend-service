@@ -46,5 +46,4 @@ public class NotificationService {
     public Page<Notification> getAllNotifications(String userId, PageRequest pageRequest) {
         return notificationRepo.getAllByUserId(userId, pageRequest);
     }
-
 }
