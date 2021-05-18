@@ -29,7 +29,7 @@ public class SendgridEmailService {
     private final boolean sandbox;
 
     public SendgridEmailService(
-            @Value("${notify.me.sendgrid.fromEmail}") String fromEmail,
+            @Value("${notify.me.sendgrid.fromEmail:}") String fromEmail,
             SendGridConfig sendGrid,
             @Value("${notify.me.sandbox:false}") boolean sandbox
     ) {
@@ -98,7 +98,7 @@ public class SendgridEmailService {
 
     @Component
     public static class SendGridConfig {
-        @Value("${notify.me.sendgrid.apiKey}")
+        @Value("${notify.me.sendgrid.apiKey:}")
         private String sendGridApiKey;
 
         public SendGrid getSendGrid() {

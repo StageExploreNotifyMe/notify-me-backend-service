@@ -6,12 +6,14 @@ import be.xplore.notify.me.domain.user.User;
 import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 @Service
 public class TwilioTextService {
     private final PhoneNumber fromNumber;
@@ -19,10 +21,10 @@ public class TwilioTextService {
     private final TwilioTextSender twilioTextSender;
 
     public TwilioTextService(
-            @Value("${notify.me.twilio.accountSid}") String accountSid,
-            @Value("${notify.me.twilio.authToken}") String authToken,
-            @Value("${notify.me.twilio.fromNumber}") String fromNumber,
-            @Value("${notify.me.twilio.whatsAppFromNumber}") String whatsAppFromNumber,
+            @Value("${notify.me.twilio.accountSid:}") String accountSid,
+            @Value("${notify.me.twilio.authToken:}") String authToken,
+            @Value("${notify.me.twilio.fromNumber:}") String fromNumber,
+            @Value("${notify.me.twilio.whatsAppFromNumber:}") String whatsAppFromNumber,
             TwilioTextSender twilioTextSender
     ) {
         this.fromNumber = new PhoneNumber(fromNumber);
