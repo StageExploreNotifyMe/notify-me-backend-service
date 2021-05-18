@@ -17,6 +17,9 @@ public class LineEntityMapper implements EntityMapper<LineEntity, Line> {
 
     @Override
     public Line fromEntity(LineEntity lineEntity) {
+        if (lineEntity == null) {
+            return null;
+        }
         return Line.builder()
                 .id(lineEntity.getId())
                 .name(lineEntity.getName())
@@ -28,6 +31,9 @@ public class LineEntityMapper implements EntityMapper<LineEntity, Line> {
 
     @Override
     public LineEntity toEntity(Line line) {
+        if (line == null) {
+            return null;
+        }
         return new LineEntity(
                 line.getId(),
                 line.getName(),

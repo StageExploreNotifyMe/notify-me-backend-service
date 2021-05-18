@@ -17,16 +17,22 @@ public class EventEntityMapper implements EntityMapper<EventEntity, Event> {
 
     @Override
     public Event fromEntity(EventEntity eventEntity) {
+        if (eventEntity == null) {
+            return null;
+        }
         return Event.builder().id(eventEntity.getId())
-                .date(eventEntity.getDate())
-                .eventStatus(eventEntity.getEventStatus())
-                .venue(venueEntityMapper.fromEntity(eventEntity.getVenue()))
-                .name(eventEntity.getName())
-                .build();
+            .date(eventEntity.getDate())
+            .eventStatus(eventEntity.getEventStatus())
+            .venue(venueEntityMapper.fromEntity(eventEntity.getVenue()))
+            .name(eventEntity.getName())
+            .build();
     }
 
     @Override
     public EventEntity toEntity(Event event) {
+        if (event == null) {
+            return null;
+        }
         return new EventEntity(event.getId(), event.getName(), event.getDate(), event.getEventStatus(), venueEntityMapper.toEntity(event.getVenue()));
     }
 }
