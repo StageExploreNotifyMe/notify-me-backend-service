@@ -136,4 +136,8 @@ public class EventLineService {
             .lineManager(line.getLineManager())
             .build();
     }
+
+    public List<EventLine> getAllActiveEventLinesOfLineManager(User user) {
+        return eventLineRepo.getAllActiveEventLinesOfLineManager(user.getId());
+    }
 }

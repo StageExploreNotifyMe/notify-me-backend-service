@@ -11,4 +11,5 @@ public class Line {
     String name;
     String description;
     Venue venue;
+    int numberOfRequiredPeople;
 }

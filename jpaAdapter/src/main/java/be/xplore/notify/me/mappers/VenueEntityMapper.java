@@ -22,6 +22,9 @@ public class VenueEntityMapper implements EntityMapper<VenueEntity, Venue> {
 
     @Override
     public Venue fromEntity(VenueEntity venueEntity) {
+        if (venueEntity == null) {
+            return null;
+        }
         List<User> venueManagers = new ArrayList<>();
         if (venueEntity.getVenueManagers() != null) {
             venueManagers = venueEntity.getVenueManagers().stream().map(userEntityMapper::fromEntity).collect(Collectors.toList());
@@ -35,6 +38,9 @@ public class VenueEntityMapper implements EntityMapper<VenueEntity, Venue> {
 
     @Override
     public VenueEntity toEntity(Venue venue) {
+        if (venue == null) {
+            return null;
+        }
         List<UserEntity> venueManagers = new ArrayList<>();
         if (venue.getVenueManagers() != null) {
             venueManagers = venue.getVenueManagers().stream().map(userEntityMapper::toEntity).collect(Collectors.toList());
