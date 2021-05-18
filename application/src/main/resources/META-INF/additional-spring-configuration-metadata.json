@@ -1,9 +1,14 @@
 {
-    "properties": [
-        {
-            "name": "notify.me.scheduled.email.cron",
-            "type": "java.lang.String",
-            "description": "Cron expression that determines when the collected emails should be send.  Default '0 12 * * * 0', every wednesday at midday."
-        }
+  "properties": [
+    {
+      "name": "notify.me.scheduled.email.cron",
+      "type": "java.lang.String",
+      "description": "Cron expression that determines when the collected emails should be send.  Default '0 12 * * * 0', every sunday at midday."
+    },
+    {
+      "name": "notify.me.scheduled.staffing.incomplete.cron",
+      "type": "java.lang.String",
+      "description": "Cron expression that determines when the check for incomplete staffing of eventlines should run.  Default 0 4 * * * ?, every day at 4 in the morning."
+      }
     ]
 }
