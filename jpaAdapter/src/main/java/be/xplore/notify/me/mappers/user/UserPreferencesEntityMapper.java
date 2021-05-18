@@ -10,6 +10,9 @@ public class UserPreferencesEntityMapper implements EntityMapper<UserPreferences
 
     @Override
     public UserPreferences fromEntity(UserPreferencesEntity userPreferencesEntity) {
+        if (userPreferencesEntity == null) {
+            return null;
+        }
         return UserPreferences.builder()
                 .id(userPreferencesEntity.getId())
                 .normalChannel(userPreferencesEntity.getNormalChannel())
@@ -19,6 +22,9 @@ public class UserPreferencesEntityMapper implements EntityMapper<UserPreferences
 
     @Override
     public UserPreferencesEntity toEntity(UserPreferences userPreferences) {
+        if (userPreferences == null) {
+            return null;
+        }
         return new UserPreferencesEntity(userPreferences.getId(), userPreferences.getNormalChannel(), userPreferences.getUrgentChannel());
     }
 }
