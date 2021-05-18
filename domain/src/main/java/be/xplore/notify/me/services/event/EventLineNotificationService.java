@@ -37,7 +37,6 @@ public class EventLineNotificationService {
             notificationSenderService.sendNotification(notification);
             notificationService.saveNotificationAndSendToInbox(notification, userOrganization.getUser());
         }
-
     }
 
     private Notification MemberCanceledDetails(String userId, EventLine line, User organizationLeader) {
@@ -96,5 +95,33 @@ public class EventLineNotificationService {
             eventDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
             eventDate.format(DateTimeFormatter.ISO_LOCAL_TIME)
         );
+    }
+
+    public void sendOrganizationLeadersStaffingReminder(EventLine eventLine, List<User> leaders, String customText) {
+        for (User leader : leaders) {
+            sendOrganizationLeaderStaffingReminder(eventLine, leader, customText);
+        }
+    }
+
+    private void sendOrganizationLeaderStaffingReminder(EventLine eventLine, User leader, String customText) {
+        String body = String.format(
+                "Hi %s %s.  A line manager wishes to remind you that the staffing for line %s to which your organization is assigned " +
+                "is incomplete and would like to request you to complete this staffing.",
+                leader.getFirstname(),
+                leader.getLastname(),
+                eventLine.getLine().getName()
+        );
+
+        Notification notification = Notification.builder()
+                .type(NotificationType.STAFFING_REMINDER)
+                .creationDate(LocalDateTime.now())
+                .urgency(NotificationUrgency.NORMAL)
+                .userId(leader.getId())
+                .title(String.format("Staffing reminder %s", eventLine.getLine().getName()))
+                .body(customText == null ? body : customText)
+                .build();
+
+        notificationSenderService.sendNotification(notification);
+        notificationService.saveNotificationAndSendToInbox(notification, leader);
     }
 }
