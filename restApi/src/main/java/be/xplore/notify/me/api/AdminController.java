@@ -15,22 +15,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = "/user", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-public class NotificationController {
+@RequestMapping(value = "/admin", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+public class AdminController {
+
     private final NotificationService notificationService;
     private final NotificationDtoMapper notificationDtoMapper;
 
-    public NotificationController(NotificationService notificationService, NotificationDtoMapper notificationDtoMapper) {
+    public AdminController(NotificationService notificationService, NotificationDtoMapper notificationDtoMapper) {
         this.notificationService = notificationService;
-
         this.notificationDtoMapper = notificationDtoMapper;
     }
 
-    @GetMapping("/inbox/{userId}/pending/{page}")
-    public ResponseEntity<Page<NotificationDto>> getUserNotification(@PathVariable String userId, @PathVariable int page) {
-        Page<Notification> notifications = notificationService.getAllNotificationsByUserId(userId, PageRequest.of(page, 20));
+    @GetMapping("/notifications/{page}")
+    public ResponseEntity<Page<NotificationDto>> getAllNotifications(@PathVariable int page) {
+        Page<Notification> notifications = notificationService.getAllNotifications(PageRequest.of(page, 20));
         Page<NotificationDto> notificationDtos = notifications.map(notificationDtoMapper::toDto);
         return new ResponseEntity<>(notificationDtos, HttpStatus.OK);
     }
-
 }

@@ -46,4 +46,10 @@ public class NotificationAdapter implements NotificationRepo {
         return Optional.of(notification);
     }
 
+    @Override
+    public Page<Notification> getAll(Pageable pageable) {
+        Page<NotificationEntity> notifications = jpaNotificationRepo.findAll(pageable);
+        return notifications.map(notificationEntityMapper::fromEntity);
+    }
+
 }

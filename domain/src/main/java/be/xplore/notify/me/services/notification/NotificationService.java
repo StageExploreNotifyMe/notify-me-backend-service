@@ -43,7 +43,12 @@ public class NotificationService {
         return notificationRepo.save(notification);
     }
 
-    public Page<Notification> getAllNotifications(String userId, PageRequest pageRequest) {
+    public Page<Notification> getAllNotificationsByUserId(String userId, PageRequest pageRequest) {
         return notificationRepo.getAllByUserId(userId, pageRequest);
     }
+
+    public Page<Notification> getAllNotifications(PageRequest pageRequest) {
+        return notificationRepo.getAll(pageRequest);
+    }
+
 }
