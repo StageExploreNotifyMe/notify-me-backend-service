@@ -1,5 +1,6 @@
 package be.xplore.notify.me.services.event;
 
+import be.xplore.notify.me.domain.Organization;
 import be.xplore.notify.me.domain.event.Event;
 import be.xplore.notify.me.domain.event.EventLine;
 import be.xplore.notify.me.domain.event.EventLineStatus;
@@ -8,8 +9,10 @@ import be.xplore.notify.me.domain.notification.NotificationChannel;
 import be.xplore.notify.me.domain.notification.NotificationType;
 import be.xplore.notify.me.domain.notification.NotificationUrgency;
 import be.xplore.notify.me.domain.user.User;
+import be.xplore.notify.me.domain.user.UserOrganization;
 import be.xplore.notify.me.services.notification.NotificationSenderService;
 import be.xplore.notify.me.services.notification.NotificationService;
+import be.xplore.notify.me.services.user.UserOrganizationService;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -22,19 +25,26 @@ public class EventNotificationService {
     private final NotificationSenderService notificationSenderService;
     private final NotificationService notificationService;
     private final EventLineService eventLineService;
+    private final UserOrganizationService userOrganizationService;
 
-    public EventNotificationService(NotificationSenderService notificationSenderService, NotificationService notificationService, EventLineService eventLineService) {
+    public EventNotificationService(
+            NotificationSenderService notificationSenderService,
+            NotificationService notificationService,
+            EventLineService eventLineService,
+            UserOrganizationService userOrganizationService
+    ) {
         this.notificationSenderService = notificationSenderService;
         this.notificationService = notificationService;
         this.eventLineService = eventLineService;
+        this.userOrganizationService = userOrganizationService;
     }
 
     public void sendEventCanceledNotification(Event event) {
         sendLineManagerCancelNotification(event);
-        sendAssignedMembersCancelNotification(event);
+        sendAssignedOrganizationsCancelNotification(event);
     }
 
-    private void sendAssignedMembersCancelNotification(Event event) {
+    private void sendAssignedOrganizationsCancelNotification(Event event) {
         boolean hasNext;
         int page = 0;
         do {
@@ -51,10 +61,32 @@ public class EventNotificationService {
         if (eventLine.getEventLineStatus() == EventLineStatus.CANCELED
                 || eventLine.getAssignedUsers() == null
                 || eventLine.getAssignedUsers().size() == 0
+                || eventLine.getOrganization() == null
         ) {
             return;
         }
+        sendOrganizationLeadersCancelNotification(eventLine.getOrganization(), eventLine);
         eventLine.getAssignedUsers().forEach(user -> sendMemberCancelNotification(user, eventLine));
+    }
+
+    private void sendOrganizationLeadersCancelNotification(Organization organization, EventLine eventLine) {
+        List<UserOrganization> leaders = userOrganizationService.getAllOrganizationLeadersByOrganizationId(organization.getId());
+        leaders.forEach(leader -> sendOrganizationLeaderCancelNotification(leader, eventLine));
+    }
+
+    private void sendOrganizationLeaderCancelNotification(UserOrganization leader, EventLine eventLine) {
+        User user = leader.getUser();
+        String body = String.format(
+                "Hello %s %s\n\nEvent %s on %s for which your organization was assigned to %s has been canceled." +
+                "Your organization's services are no longer required and any member you may have had assigned have been notified.",
+                user.getFirstname(),
+                user.getLastname(),
+                eventLine.getEvent().getName(),
+                eventLine.getEvent().getDate().toLocalDate(),
+                eventLine.getLine().getName()
+        );
+
+        sendOrganizationMemberCanceledNotification(user, body);
     }
 
     private void sendMemberCancelNotification(User user, EventLine eventLine) {
@@ -66,12 +98,16 @@ public class EventNotificationService {
                 eventLine.getLine().getName()
         );
 
+        sendOrganizationMemberCanceledNotification(user, body);
+    }
+
+    private void sendOrganizationMemberCanceledNotification(User user, String body) {
         Notification notification = Notification.builder()
                 .userId(user.getId())
                 .type(NotificationType.EVENT_CANCELED)
                 .urgency(NotificationUrgency.NORMAL)
                 .creationDate(LocalDateTime.now())
-                .title("New event created")
+                .title("Event canceled")
                 .body(body)
                 .build();
         saveAndSendNotification(user, notification);

@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Slf4j
@@ -44,6 +45,12 @@ public class EventAdapter implements EventRepo {
     public Event save(Event event) {
         EventEntity eventEntity = jpaEventRepo.save(eventEntityMapper.toEntity(event));
         return eventEntityMapper.fromEntity(eventEntity);
+    }
+
+    @Override
+    public Page<Event> getAllEventsBetween(LocalDateTime dateTimeStart, LocalDateTime dateTimeEnd, PageRequest pageRequest) {
+        Page<EventEntity> eventEntitiesPage = jpaEventRepo.getAllByDateBetweenOrderByDate(dateTimeStart, dateTimeEnd, pageRequest);
+        return eventEntitiesPage.map(eventEntityMapper::fromEntity);
     }
 
 }

@@ -5,7 +5,9 @@ import be.xplore.notify.me.domain.event.Event;
 import be.xplore.notify.me.domain.event.EventLine;
 import be.xplore.notify.me.domain.notification.Notification;
 import be.xplore.notify.me.domain.user.User;
+import be.xplore.notify.me.domain.user.UserOrganization;
 import be.xplore.notify.me.services.notification.NotificationService;
+import be.xplore.notify.me.services.user.UserOrganizationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,9 +32,13 @@ class EventNotificationServiceTest {
     private NotificationService notificationService;
     @MockBean
     private EventLineService eventLineService;
+    @MockBean
+    private UserOrganizationService userOrganizationService;
 
     @Autowired
     private User user;
+    @Autowired
+    private UserOrganization userOrganization;
     @Autowired
     private EventLine eventLine;
     private EventLine eventLineWithAssignedUser;
@@ -67,8 +73,17 @@ class EventNotificationServiceTest {
     void sendEventCanceledNotification() {
         mockGetEventLines();
         mockSaveNotificationToInbox();
+        mockGetOrganizationLeaders();
         eventNotificationService.sendEventCanceledNotification(generateEventCreatedTestData());
-        assertEquals(3, sendNotifications.size());
+        assertEquals(4, sendNotifications.size());
+    }
+
+    private void mockGetOrganizationLeaders() {
+        given(userOrganizationService.getAllOrganizationLeadersByOrganizationId(any())).will(invocation -> {
+            List<UserOrganization> users = new ArrayList<>();
+            users.add(userOrganization);
+            return users;
+        });
     }
 
     private void mockGetEventLines() {
