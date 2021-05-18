@@ -2,6 +2,8 @@ package be.xplore.notify.me.adapters.event;
 
 import be.xplore.notify.me.domain.event.Event;
 import be.xplore.notify.me.domain.event.EventLine;
+import be.xplore.notify.me.domain.event.EventLineStatus;
+import be.xplore.notify.me.domain.event.EventStatus;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.entity.event.EventLineEntity;
 import be.xplore.notify.me.entity.user.UserEntity;
@@ -81,5 +83,14 @@ public class EventLineAdapter implements EventLineRepo {
     public Page<EventLine> getAllLinesOfEvent(String eventId, PageRequest pageRequest) {
         Page<EventLineEntity> lineEntityPage = jpaEventLineRepo.getAllByEvent_IdOrderByLine(eventId, pageRequest);
         return lineEntityPage.map(eventLineEntityMapper::fromEntity);
+    }
+
+    @Override
+    public List<EventLine> getAllActiveEventLinesOfLineManager(String lineManagerId) {
+        List<EventLineEntity> eventLines =
+                jpaEventLineRepo.getAllByLineManager_IdAndEventLineStatusNotAndEvent_EventStatusNotOrderByEvent_date(
+                    lineManagerId, EventLineStatus.CANCELED, EventStatus.CANCELED
+                );
+        return eventLines.stream().map(eventLineEntityMapper::fromEntity).collect(Collectors.toList());
     }
 }
