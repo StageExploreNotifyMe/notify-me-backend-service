@@ -21,4 +21,6 @@ public interface EventLineRepo {
     Page<EventLine> getAllLinesOfUser(User user, PageRequest pageRequest);
 
     Page<EventLine> getAllLinesOfEvent(String eventId, PageRequest pageRequest);
+
+    List<EventLine> getAllActiveEventLinesOfLineManager(String lineManagerId);
 }
