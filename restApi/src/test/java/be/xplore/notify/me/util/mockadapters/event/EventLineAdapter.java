@@ -43,4 +43,9 @@ public class EventLineAdapter implements EventLineRepo {
     public Page<EventLine> getAllLinesOfEvent(String eventId, PageRequest pageRequest) {
         return null;
     }
+
+    @Override
+    public List<EventLine> getAllActiveEventLinesOfLineManager(String lineManagerId) {
+        return null;
+    }
 }

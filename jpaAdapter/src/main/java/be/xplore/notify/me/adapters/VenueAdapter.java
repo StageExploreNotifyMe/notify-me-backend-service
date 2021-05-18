@@ -6,6 +6,8 @@ import be.xplore.notify.me.mappers.VenueEntityMapper;
 import be.xplore.notify.me.persistence.VenueRepo;
 import be.xplore.notify.me.repositories.JpaVenueRepo;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -29,6 +31,12 @@ public class VenueAdapter implements VenueRepo {
         }
         Venue venue = entityMapper.fromEntity(optional.get());
         return Optional.of(venue);
+    }
+
+    @Override
+    public Page<Venue> getAllVenues(PageRequest pageRequest) {
+        Page<VenueEntity> entityPage = repo.findAll(pageRequest);
+        return entityPage.map(entityMapper::fromEntity);
     }
 
     public Venue save(Venue venue) {

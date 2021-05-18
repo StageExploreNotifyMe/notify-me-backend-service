@@ -25,6 +25,7 @@ public class LineEntityMapper implements EntityMapper<LineEntity, Line> {
                 .name(lineEntity.getName())
                 .description(lineEntity.getDescription())
                 .venue(venueEntityMapper.fromEntity(lineEntity.getVenueEntity()))
+                .numberOfRequiredPeople(lineEntity.getNumberOfRequiredPeople())
                 .build();
     }
 
@@ -37,7 +38,8 @@ public class LineEntityMapper implements EntityMapper<LineEntity, Line> {
                 line.getId(),
                 line.getName(),
                 line.getDescription(),
-                venueEntityMapper.toEntity(line.getVenue())
+                venueEntityMapper.toEntity(line.getVenue()),
+                line.getNumberOfRequiredPeople()
         );
     }
 }

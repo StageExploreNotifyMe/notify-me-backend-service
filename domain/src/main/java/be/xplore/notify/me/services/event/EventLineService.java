@@ -152,4 +152,8 @@ public class EventLineService {
                 customText
         );
     }
+
+    public List<EventLine> getAllActiveEventLinesOfLineManager(User user) {
+        return eventLineRepo.getAllActiveEventLinesOfLineManager(user.getId());
+    }
 }
