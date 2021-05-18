@@ -14,4 +14,6 @@ public interface NotificationRepo {
     Notification save(Notification notification);
 
     Optional<Notification> findById(String id);
+
+    Page<Notification> getAll(Pageable pageable);
 }

@@ -21,6 +21,7 @@ public class LineDtoMapper implements DtoMapper<LineDto, Line> {
                 .name(d.getName())
                 .description(d.getDescription())
                 .venue(venueDtoMapper.fromDto(d.getVenueDto()))
+                .numberOfRequiredPeople(d.getNumberOfRequiredPeople())
                 .build();
     }
 
@@ -30,7 +31,8 @@ public class LineDtoMapper implements DtoMapper<LineDto, Line> {
                 d.getId(),
                 d.getName(),
                 d.getDescription(),
-                venueDtoMapper.toDto(d.getVenue())
+                venueDtoMapper.toDto(d.getVenue()),
+                d.getNumberOfRequiredPeople()
         );
     }
 }

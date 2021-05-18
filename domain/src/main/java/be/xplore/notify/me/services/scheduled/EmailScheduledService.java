@@ -33,7 +33,7 @@ public class EmailScheduledService {
 
     @Scheduled(cron = "${notify.me.scheduled.email.cron:0 12 * * * 0}")
     public void sendQueuedEmails() {
-        log.trace("Scheduled email task ran");
+        log.trace("Scheduled sending of all queued notifications started.");
         int page = 0;
         boolean hasNext;
         do {

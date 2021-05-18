@@ -35,6 +35,7 @@ public class UserOrganizationNotificationService {
             .urgency(NotificationUrgency.NORMAL)
             .usedChannel(user.getUserPreferences().getNormalChannel())
             .userId(user.getId())
+            .creationDate(LocalDateTime.now())
             .build();
     }
 

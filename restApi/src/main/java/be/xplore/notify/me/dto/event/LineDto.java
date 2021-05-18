@@ -15,4 +15,5 @@ public class LineDto {
     private String name;
     private String description;
     private VenueDto venueDto;
+    private int numberOfRequiredPeople;
 }

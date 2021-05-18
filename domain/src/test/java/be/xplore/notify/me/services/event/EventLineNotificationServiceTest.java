@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -74,6 +75,30 @@ class EventLineNotificationServiceTest {
         assertEquals(1, sendNotifications.size());
         Notification sendNotification = sendNotifications.get(0);
         assertEquals(NotificationType.LINE_CANCELED, sendNotification.getType());
+    }
+
+    @Test
+    void sendOrganizationLeadersStaffingReminder() {
+        mockSaveNotification();
+        eventLineNotificationService.sendOrganizationLeadersStaffingReminder(eventLine, createUserList(), "test");
+        assertEquals(1, sendNotifications.size());
+        assertEquals("test", sendNotifications.get(0).getBody());
+        assertEquals(user.getId(), sendNotifications.get(0).getUserId());
+    }
+
+    @Test
+    void sendOrganizationLeadersStaffingReminderWithoutBody() {
+        mockSaveNotification();
+        eventLineNotificationService.sendOrganizationLeadersStaffingReminder(eventLine, createUserList(), null);
+        assertEquals(1, sendNotifications.size());
+        assertTrue(sendNotifications.get(0).getBody().contains("Hi " + user.getFirstname()));
+        assertEquals(user.getId(), sendNotifications.get(0).getUserId());
+    }
+
+    private List<User> createUserList() {
+        List<User> users = new ArrayList<>();
+        users.add(user);
+        return users;
     }
 
     private void mockSaveNotification() {
