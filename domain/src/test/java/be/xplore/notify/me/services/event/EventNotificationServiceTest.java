@@ -2,6 +2,7 @@ package be.xplore.notify.me.services.event;
 
 import be.xplore.notify.me.domain.Venue;
 import be.xplore.notify.me.domain.event.Event;
+import be.xplore.notify.me.domain.event.EventLine;
 import be.xplore.notify.me.domain.notification.Notification;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.services.notification.NotificationService;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -26,15 +28,31 @@ class EventNotificationServiceTest {
     private EventNotificationService eventNotificationService;
     @MockBean
     private NotificationService notificationService;
+    @MockBean
+    private EventLineService eventLineService;
 
     @Autowired
     private User user;
+    @Autowired
+    private EventLine eventLine;
+    private EventLine eventLineWithAssignedUser;
 
     private List<Notification> sendNotifications;
 
     @BeforeEach
     void setUp() {
         sendNotifications = new ArrayList<>();
+        List<User> assignedUsers = new ArrayList<>();
+        assignedUsers.add(user);
+        eventLineWithAssignedUser = EventLine.builder()
+            .id(eventLine.getId() + "-withUsers")
+            .eventLineStatus(eventLine.getEventLineStatus())
+            .assignedUsers(assignedUsers)
+            .lineManager(eventLine.getLineManager())
+            .event(eventLine.getEvent())
+            .line(eventLine.getLine())
+            .organization(eventLine.getOrganization())
+            .build();
     }
 
     @Test
@@ -47,9 +65,19 @@ class EventNotificationServiceTest {
 
     @Test
     void sendEventCanceledNotification() {
+        mockGetEventLines();
         mockSaveNotificationToInbox();
         eventNotificationService.sendEventCanceledNotification(generateEventCreatedTestData());
-        assertEquals(2, sendNotifications.size());
+        assertEquals(3, sendNotifications.size());
+    }
+
+    private void mockGetEventLines() {
+        given(eventLineService.getAllLinesOfEvent(any(), any(int.class))).will(i -> {
+            List<EventLine> eventLines = new ArrayList<>();
+            eventLines.add(eventLine);
+            eventLines.add(eventLineWithAssignedUser);
+            return new PageImpl<>(eventLines);
+        });
     }
 
     private Event generateEventCreatedTestData() {
