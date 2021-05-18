@@ -10,7 +10,6 @@ import be.xplore.notify.me.domain.notification.NotificationUrgency;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.services.VenueService;
 import be.xplore.notify.me.services.event.EventLineService;
-import be.xplore.notify.me.services.notification.NotificationSenderService;
 import be.xplore.notify.me.services.notification.NotificationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -30,18 +29,15 @@ public class LineStatusScheduledService {
     private final VenueService venueService;
     private final EventLineService eventLineService;
     private final NotificationService notificationService;
-    private final NotificationSenderService notificationSenderService;
 
     public LineStatusScheduledService(
             VenueService venueService,
             EventLineService eventLineService,
-            NotificationService notificationService,
-            NotificationSenderService notificationSenderService
+            NotificationService notificationService
     ) {
         this.venueService = venueService;
         this.eventLineService = eventLineService;
         this.notificationService = notificationService;
-        this.notificationSenderService = notificationSenderService;
     }
 
     @Scheduled(cron = "${notify.me.scheduled.email.cron:0 12 * * * 0}")
@@ -74,8 +70,7 @@ public class LineStatusScheduledService {
                 .title("Weekly line staffing email")
                 .body(generateLineMangerNotificationBody(user, venue, groupedEventLines))
                 .build();
-        Notification savedNotification = notificationService.saveNotificationAndSendToInbox(notification, user);
-        notificationSenderService.sendNotification(savedNotification);
+        notificationService.sendNotification(notification, user);
     }
 
     private String generateLineMangerNotificationBody(User user, Venue venue, Map<Event, List<EventLine>> groupedEventLines) {

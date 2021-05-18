@@ -25,4 +25,9 @@ public class NotificationAdapter implements NotificationRepo {
     public Optional<Notification> findById(String id) {
         return Optional.empty();
     }
+
+    @Override
+    public Page<Notification> getAll(Pageable pageable) {
+        return null;
+    }
 }

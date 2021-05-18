@@ -116,7 +116,6 @@ public class EventLineNotificationService {
                 .body(customText == null ? body : customText)
                 .build();
 
-        notificationSenderService.sendNotification(notification);
-        notificationService.saveNotificationAndSendToInbox(notification, leader);
+        notificationService.sendNotification(notification, leader);
     }
 }

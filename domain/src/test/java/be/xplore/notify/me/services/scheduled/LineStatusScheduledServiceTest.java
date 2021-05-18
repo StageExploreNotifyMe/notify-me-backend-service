@@ -87,7 +87,7 @@ class LineStatusScheduledServiceTest {
     private void mockEverything() {
         given(venueService.getAllVenues(any(int.class))).will(i -> new PageImpl<>(venues));
         given(eventLineService.getAllActiveEventLinesOfLineManager(any())).will(i -> eventLines);
-        given(notificationService.saveNotificationAndSendToInbox(any(), any())).will(i -> {
+        given(notificationService.sendNotification(any(), any())).will(i -> {
             Notification n = i.getArgument(0);
             sendNotifications.add(n);
             return n;
