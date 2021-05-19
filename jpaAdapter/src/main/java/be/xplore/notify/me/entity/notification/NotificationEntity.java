@@ -28,6 +28,7 @@ public class NotificationEntity {
     private String userId;
     private String title;
     private String body;
+    private String eventId;
     private NotificationChannel usedChannel;
     private NotificationType type;
     private NotificationUrgency urgency;

@@ -142,6 +142,19 @@ class EventControllerTest {
     }
 
     @Test
+    void makeEventPrivate() {
+        try {
+            mockServices();
+            ResultActions resultActions = performPost(new EventDto(), "/event/" + event.getId() + "/private");
+            expectResult(resultActions, HttpStatus.OK);
+            EventDto eventDto = mapper.readValue(getResult(resultActions), EventDto.class);
+            assertEquals(EventStatus.PRIVATE, eventDto.getEventStatus());
+        } catch (Exception e) {
+            failTest(e);
+        }
+    }
+
+    @Test
     void getEventById() {
         try {
             mockServices();
@@ -180,6 +193,7 @@ class EventControllerTest {
         given(eventService.getById(any())).will(i -> i.getArgument(0).equals(event.getId()) ? Optional.of(event) : Optional.empty());
         mockCancelEvent();
         mockPublishEvent();
+        mockMakeEventPrivate();
     }
 
     private void mockCancelEvent() {
@@ -193,6 +207,13 @@ class EventControllerTest {
         given(eventService.publishEvent(any())).will(i -> {
             Event e = i.getArgument(0);
             return Event.builder().id(e.getId()).date(e.getDate()).eventStatus(EventStatus.PUBLIC).venue(e.getVenue()).name(e.getName()).build();
+        });
+    }
+
+    private void mockMakeEventPrivate() {
+        given(eventService.makeEventPrivate(any())).will(i -> {
+            Event e = i.getArgument(0);
+            return Event.builder().id(e.getId()).date(e.getDate()).eventStatus(EventStatus.PRIVATE).venue(e.getVenue()).name(e.getName()).build();
         });
     }
 

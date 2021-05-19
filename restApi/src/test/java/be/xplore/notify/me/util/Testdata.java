@@ -41,7 +41,7 @@ public class Testdata {
     @Bean
     Notification testNotification() {
         return Notification.builder().id("1").userId(testUser().getId()).title("Test").body("This is a test")
-            .usedChannel(NotificationChannel.EMAIL).type(NotificationType.USER_JOINED).urgency(NotificationUrgency.NORMAL)
+            .usedChannel(NotificationChannel.EMAIL).type(NotificationType.USER_JOINED).urgency(NotificationUrgency.NORMAL).eventId("1")
             .build();
     }
 

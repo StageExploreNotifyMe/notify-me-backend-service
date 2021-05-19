@@ -10,6 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
+import javax.transaction.Transactional;
+
 import java.util.Optional;
 
 @Slf4j
@@ -33,6 +35,7 @@ public class VenueAdapter implements VenueRepo {
         return Optional.of(venue);
     }
 
+    @Transactional
     @Override
     public Page<Venue> getAllVenues(PageRequest pageRequest) {
         Page<VenueEntity> entityPage = repo.findAll(pageRequest);

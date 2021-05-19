@@ -1,6 +1,7 @@
 package be.xplore.notify.me.services.notification;
 
 import be.xplore.notify.me.domain.notification.Notification;
+import be.xplore.notify.me.domain.notification.NotificationType;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.persistence.NotificationRepo;
 import be.xplore.notify.me.services.user.UserService;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -58,4 +60,23 @@ public class NotificationService {
         return notificationRepo.getAll(pageRequest);
     }
 
+    public Page<Notification> getAllNotificationsByType(NotificationType notificationType, PageRequest pageRequest) {
+        return notificationRepo.getAllByNotificationType(notificationType, pageRequest);
+    }
+
+    public Page<Notification> getAllNotificationsByEventId(String eventId, PageRequest pageRequest) {
+        return notificationRepo.getAllByEventId(eventId, pageRequest);
+    }
+
+    public Page<Notification> getAllByTypeAndEvent(String eventId, NotificationType notificationType, PageRequest pageRequest) {
+        return notificationRepo.getAllByTypeAndEvent(notificationType, eventId, pageRequest);
+    }
+
+    public List<String> getAllEventIds() {
+        return notificationRepo.getAllEventIds();
+    }
+
+    public List<Object[]> getChannelAmount() {
+        return notificationRepo.getChannelAmount();
+    }
 }

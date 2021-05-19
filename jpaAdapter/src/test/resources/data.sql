@@ -20,3 +20,4 @@ INSERT INTO event_entity(id, date, event_status, name, venue_id) values ('1', CU
 INSERT INTO event_line_entity (id, event_line_status, event_id, line_id, line_manager_id, organization_id) values ('1', 0, '1','1','1','1');
 
 INSERT INTO notification_entity(id, body, creation_date, title, type, urgency, used_channel, user_id) values ('1', 'test', CURRENT_TIMESTAMP, 'test', 0, 0, 0, '1');
+INSERT INTO notification_entity(id, body, creation_date, event_id, title, type, urgency, used_channel, user_id) values ('2', 'test', CURRENT_TIMESTAMP, '1', 'test', 7, 0, 0, '1');
