@@ -90,4 +90,8 @@ public class UserOrganizationService {
     public Optional<UserOrganization> getById(String id) {
         return userOrganizationRepo.findById(id);
     }
+
+    public List<UserOrganization> getAllUserOrganizationsByUserId(String userId) {
+        return userOrganizationRepo.getAllUserOrganizationsByUserId(userId);
+    }
 }

@@ -124,4 +124,19 @@ class UserOrganizationServiceTest {
         UserOrganization updated2 = userOrganizationService.changeOrganizationMemberRole(updated, Role.ORGANIZATION_LEADER);
         assertEquals(Role.ORGANIZATION_LEADER, updated2.getRole());
     }
+
+    @Test
+    void getAllUserOrganizationsByUserId() {
+        mockGetUserOrganizationsByUserId();
+        List<UserOrganization> allUserOrganizationsByUserId = userOrganizationService.getAllUserOrganizationsByUserId(user.getId());
+        assertNotNull(allUserOrganizationsByUserId);
+    }
+
+    private void mockGetUserOrganizationsByUserId() {
+        given(userOrganizationRepo.getAllUserOrganizationsByUserId(any())).will(i -> {
+            List<UserOrganization> uos = new ArrayList<>();
+            uos.add(userOrganization);
+            return uos;
+        });
+    }
 }

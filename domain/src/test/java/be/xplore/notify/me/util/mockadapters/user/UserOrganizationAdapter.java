@@ -32,4 +32,9 @@ public class UserOrganizationAdapter implements UserOrganizationRepo {
     public Optional<UserOrganization> findById(String userOrganizationId) {
         return Optional.empty();
     }
+
+    @Override
+    public List<UserOrganization> getAllUserOrganizationsByUserId(String userId) {
+        return null;
+    }
 }
