@@ -2,6 +2,7 @@ package be.xplore.notify.me.services;
 
 import be.xplore.notify.me.domain.Organization;
 import be.xplore.notify.me.domain.exceptions.AlreadyExistsException;
+import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.persistence.OrganizationRepo;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,5 +104,21 @@ class OrganizationServiceTest {
         mockGetOrgByName(true);
         mockSave();
         assertThrows(AlreadyExistsException.class, () -> organizationService.createOrganization("qdsfqsdf"));
+    }
+
+    @Test
+    void updateOrganization() {
+        mockSave();
+        mockFetchById();
+        String newName = "updatedName";
+        Organization updatedOrg = organizationService.updateOrganization(Organization.builder().id(this.organization.getId()).name(newName).build());
+        assertEquals(organization.getId(), updatedOrg.getId());
+        assertEquals(newName, updatedOrg.getName());
+    }
+
+    @Test
+    void updateOrganizationNotFound() {
+        given(organizationRepo.findById(any())).willReturn(Optional.empty());
+        assertThrows(NotFoundException.class, () -> organizationService.updateOrganization(Organization.builder().id(this.organization.getId()).name("qdsf").build()));
     }
 }

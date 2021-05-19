@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -75,5 +76,11 @@ public class OrganizationController {
             throw new NotFoundException("No user with id " + id + " found");
         }
         return optionalUser.get();
+    }
+
+    @PatchMapping
+    public ResponseEntity<OrganizationDto> updateOrganization(@RequestBody OrganizationDto dto) {
+        Organization organization = organizationService.updateOrganization(organizationDtoMapper.fromDto(dto));
+        return new ResponseEntity<>(organizationDtoMapper.toDto(organization), HttpStatus.OK);
     }
 }
