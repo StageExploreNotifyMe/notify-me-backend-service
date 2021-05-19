@@ -78,4 +78,8 @@ public class NotificationAdapter implements NotificationRepo {
         return jpaNotificationRepo.findAll().stream().map(NotificationEntity::getEventId).collect(Collectors.toList());
     }
 
+    @Override
+    public List<Object[]> getChannelAmount() {
+        return jpaNotificationRepo.getChannelAmount();
+    }
 }

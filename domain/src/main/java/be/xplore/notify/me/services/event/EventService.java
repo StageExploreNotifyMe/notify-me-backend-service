@@ -59,6 +59,11 @@ public class EventService {
         return save(toSave);
     }
 
+    public Event makeEventPrivate(Event event) {
+        Event toSave = updateEventStatus(event, EventStatus.PRIVATE);
+        return save(toSave);
+    }
+
     private Event updateEventStatus(Event event, EventStatus status) {
         return Event.builder()
             .id(event.getId())

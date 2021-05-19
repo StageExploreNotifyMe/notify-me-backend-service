@@ -39,7 +39,7 @@ public class NotificationAdapter implements NotificationRepo {
     }
 
     @Override
-    public Page<Notification> getAllByEventId(String eventId, Pageable pageabl) {
+    public Page<Notification> getAllByEventId(String eventId, Pageable pageable) {
         return null;
     }
 
@@ -52,4 +52,10 @@ public class NotificationAdapter implements NotificationRepo {
     public List<String> getAllEventIds() {
         return null;
     }
+
+    @Override
+    public List<Object[]> getChannelAmount() {
+        return null;
+    }
+
 }

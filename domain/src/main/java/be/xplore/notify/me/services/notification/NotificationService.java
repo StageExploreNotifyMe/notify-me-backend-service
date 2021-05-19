@@ -68,4 +68,8 @@ public class NotificationService {
     public List<String> getAllEventIds() {
         return notificationRepo.getAllEventIds();
     }
+
+    public List<Object[]> getChannelAmount() {
+        return notificationRepo.getChannelAmount();
+    }
 }

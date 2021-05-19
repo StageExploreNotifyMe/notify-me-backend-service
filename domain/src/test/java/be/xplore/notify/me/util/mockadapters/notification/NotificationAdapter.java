@@ -52,4 +52,9 @@ public class NotificationAdapter implements NotificationRepo {
     public List<String> getAllEventIds() {
         return null;
     }
+
+    @Override
+    public List<Object[]> getChannelAmount() {
+        return null;
+    }
 }

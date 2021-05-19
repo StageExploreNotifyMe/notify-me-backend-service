@@ -26,4 +26,6 @@ public interface NotificationRepo {
     Page<Notification> getAllByTypeAndEvent(NotificationType notificationType, String eventId, Pageable pageable);
 
     List<String> getAllEventIds();
+
+    List<Object[]> getChannelAmount();
 }
