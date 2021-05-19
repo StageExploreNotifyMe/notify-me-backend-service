@@ -48,6 +48,7 @@ public class EventLineNotificationService {
             .urgency(NotificationUrgency.NORMAL)
             .creationDate(LocalDateTime.now())
             .usedChannel(NotificationChannel.EMAIL)
+            .eventId(line.getEvent().getId())
             .build();
 
     }
@@ -67,6 +68,7 @@ public class EventLineNotificationService {
             .usedChannel(NotificationChannel.EMAIL)
             .type(NotificationType.LINE_CANCELED)
             .userId(eventLine.getLineManager().getId())
+            .eventId(eventLine.getEvent().getId())
             .build();
     }
 
@@ -79,6 +81,7 @@ public class EventLineNotificationService {
                 .urgency(NotificationUrgency.NORMAL)
                 .usedChannel(user.getUserPreferences().getNormalChannel())
                 .type(NotificationType.LINE_ASSIGNED)
+                .eventId(line.getEvent().getId())
                 .build();
 
         Notification notification = notificationService.saveNotificationAndSendToInbox(toSave, user);

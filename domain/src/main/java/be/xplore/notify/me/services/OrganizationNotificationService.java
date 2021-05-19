@@ -52,6 +52,7 @@ public class OrganizationNotificationService {
             .usedChannel(NotificationChannel.EMAIL)
             .creationDate(LocalDateTime.now())
             .type(NotificationType.LINE_ASSIGNED)
+            .eventId(line.getEvent().getId())
             .build();
     }
 }
