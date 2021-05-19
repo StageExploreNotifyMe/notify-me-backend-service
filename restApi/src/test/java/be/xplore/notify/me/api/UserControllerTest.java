@@ -97,8 +97,8 @@ class UserControllerTest {
         try {
             mockEverything();
             UserPreferences userPreferences = user.getUserPreferences();
-            String requestBody = mapper.writeValueAsString(new UserPreferencesDto(userPreferences.getId(), userPreferences.getNormalChannel(), userPreferences.getUrgentChannel()));
-            ResultActions request = mockMvc.perform(post("/user/1/preferences/channel").content(requestBody).contentType(MediaType.APPLICATION_JSON));
+            Object dto = new UserPreferencesDto(userPreferences.getId(), userPreferences.getNormalChannel(), userPreferences.getUrgentChannel());
+            ResultActions request = performPost("/user/1/preferences/channel", dto);
             request.andExpect(status().is(HttpStatus.OK.value()));
         } catch (Exception e) {
             failTest(e);
@@ -108,16 +108,32 @@ class UserControllerTest {
     @Test
     void getUserPreferencesNotificationChannel() {
         try {
-            ResultActions request = mockMvc.perform(get("/user/preferences").contentType(MediaType.APPLICATION_JSON));
-            request.andExpect(status().is(HttpStatus.OK.value()));
+            ResultActions request = performGet("/user/preferences");
+            expectResult(request, HttpStatus.OK);
         } catch (Exception e) {
             failTest(e);
         }
     }
 
+    @Test
+    void getAllUsers() {
+        try {
+            mockEverything();
+            ResultActions request = performGet("/user");
+            expectResult(request, HttpStatus.OK);
+        } catch (Exception e) {
+            failTest(e);
+        }
+    }
+
+    private ResultActions performPost(String url, Object dto) throws Exception {
+        return mockMvc.perform(post(url).content(mapper.writeValueAsString(dto)).contentType(MediaType.APPLICATION_JSON));
+    }
+
     private void mockEverything() {
         given(userService.getById(any())).will(i -> i.getArgument(0).equals(user.getId()) ? Optional.of(user) : Optional.empty());
         given(eventLineService.getAllLinesOfUser(any(), anyInt())).will(i -> new PageImpl<>(Collections.singletonList(eventLine)));
+        given(userService.getUsersPage(any())).will(i -> new PageImpl<>(Collections.singletonList(user)));
     }
 
     private ResultActions performGet(String url) throws Exception {
@@ -132,5 +148,4 @@ class UserControllerTest {
         e.printStackTrace();
         Assertions.fail("Exception was thrown in test.");
     }
-
 }

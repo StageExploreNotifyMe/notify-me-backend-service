@@ -46,4 +46,10 @@ class OrganizationAdapterTest {
         Optional<Organization> organization = organizationAdapter.findById("rkqdsf");
         assertTrue(organization.isEmpty());
     }
+
+    @Test
+    void findByName() {
+        Optional<Organization> organization = organizationAdapter.findByName("KdG");
+        assertTrue(organization.isPresent());
+    }
 }

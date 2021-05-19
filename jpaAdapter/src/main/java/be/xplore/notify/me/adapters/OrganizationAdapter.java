@@ -39,6 +39,16 @@ public class OrganizationAdapter implements OrganizationRepo {
     @Override
     public Optional<Organization> findById(String id) {
         Optional<OrganizationEntity> optional = jpaOrganizationRepo.findById(id);
+        return parseOptional(optional);
+    }
+
+    @Override
+    public Optional<Organization> findByName(String name) {
+        Optional<OrganizationEntity> optional = jpaOrganizationRepo.findOrganizationEntityByName(name);
+        return parseOptional(optional);
+    }
+
+    private Optional<Organization> parseOptional(Optional<OrganizationEntity> optional) {
         if (optional.isEmpty()) {
             return Optional.empty();
         }

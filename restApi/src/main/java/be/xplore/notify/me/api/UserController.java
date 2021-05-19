@@ -7,12 +7,14 @@ import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.domain.user.UserPreferences;
 import be.xplore.notify.me.dto.NotificationChannelDto;
 import be.xplore.notify.me.dto.event.EventLineDto;
+import be.xplore.notify.me.dto.user.UserDto;
 import be.xplore.notify.me.dto.user.UserPreferencesDto;
+import be.xplore.notify.me.mappers.UserDtoMapper;
 import be.xplore.notify.me.mappers.event.EventLineDtoMapper;
 import be.xplore.notify.me.services.event.EventLineService;
 import be.xplore.notify.me.services.user.UserService;
-import be.xplore.notify.me.util.Converters;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,19 +29,28 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Arrays;
 import java.util.Optional;
 
+import static be.xplore.notify.me.util.Converters.getPageNumber;
+
 @RestController
 @RequestMapping(value = "/user", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 public class UserController {
+
     private final UserService userService;
+    private final UserDtoMapper userDtoMapper;
     private final EventLineDtoMapper eventLineDtoMapper;
     private final EventLineService eventLineService;
-    private final Converters converters;
 
-    public UserController(UserService userService, EventLineDtoMapper eventLineDtoMapper, EventLineService eventLineService, Converters converters) {
+    public UserController(UserService userService, UserDtoMapper userDtoMapper, EventLineDtoMapper eventLineDtoMapper, EventLineService eventLineService) {
         this.userService = userService;
+        this.userDtoMapper = userDtoMapper;
         this.eventLineDtoMapper = eventLineDtoMapper;
         this.eventLineService = eventLineService;
-        this.converters = converters;
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<UserDto>> getAllUsers(@RequestParam(required = false) Integer page) {
+        Page<User> usersPage = userService.getUsersPage(PageRequest.of(getPageNumber(page), 20));
+        return new ResponseEntity<>(usersPage.map(userDtoMapper::toDto), HttpStatus.OK);
     }
 
     @GetMapping("/{id}/lines")
@@ -49,7 +60,7 @@ public class UserController {
             throw new NotFoundException("No user found with id " + id);
         }
 
-        Page<EventLine> allLinesOfUser = eventLineService.getAllLinesOfUser(userOptional.get(), converters.getPageNumber(page));
+        Page<EventLine> allLinesOfUser = eventLineService.getAllLinesOfUser(userOptional.get(), getPageNumber(page));
         return new ResponseEntity<>(allLinesOfUser.map(eventLineDtoMapper::toDto), HttpStatus.OK);
 
     }

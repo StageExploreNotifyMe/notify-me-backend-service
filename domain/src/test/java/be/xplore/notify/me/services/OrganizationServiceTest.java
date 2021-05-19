@@ -1,6 +1,7 @@
 package be.xplore.notify.me.services;
 
 import be.xplore.notify.me.domain.Organization;
+import be.xplore.notify.me.domain.exceptions.AlreadyExistsException;
 import be.xplore.notify.me.persistence.OrganizationRepo;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -49,6 +52,16 @@ class OrganizationServiceTest {
         });
     }
 
+    private void mockGetOrgByName(boolean returnSomething) {
+        given(organizationRepo.findByName(any())).will(i -> {
+            if (returnSomething) {
+                return Optional.of(organization);
+            } else {
+                return Optional.empty();
+            }
+        });
+    }
+
     private void mockSave() {
         given(organizationRepo.save(any())).will(i -> i.getArgument(0));
     }
@@ -73,5 +86,22 @@ class OrganizationServiceTest {
         mockSave();
         Organization saved = organizationService.save(organization);
         assertEquals(organization.getId(), saved.getId());
+    }
+
+    @Test
+    void createOrganization() {
+        mockGetOrgByName(false);
+        mockSave();
+        String name = "testCreateOrganization";
+        Organization testCreateOrganization = organizationService.createOrganization(name);
+        assertNotNull(testCreateOrganization);
+        assertEquals(name, testCreateOrganization.getName());
+    }
+
+    @Test
+    void createOrganizationAlreadyExists() {
+        mockGetOrgByName(true);
+        mockSave();
+        assertThrows(AlreadyExistsException.class, () -> organizationService.createOrganization("qdsfqsdf"));
     }
 }
