@@ -1,6 +1,8 @@
 package be.xplore.notify.me.services;
 
 import be.xplore.notify.me.domain.Organization;
+import be.xplore.notify.me.domain.exceptions.AlreadyExistsException;
+import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.persistence.OrganizationRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -24,10 +26,34 @@ public class OrganizationService {
 
     public Optional<Organization> getById(String id) {
         return organizationRepo.findById(id);
+    }
 
+    public Optional<Organization> getOrganizationByName(String name) {
+        return organizationRepo.findByName(name);
     }
 
     public Organization save(Organization organization) {
         return organizationRepo.save(organization);
+    }
+
+    public Organization updateOrganization(Organization toUpdate) {
+        Optional<Organization> optional = getById(toUpdate.getId());
+        if (optional.isEmpty()) {
+            throw new NotFoundException("No organization with id " + toUpdate.getId() + " found.");
+        }
+        Organization updated = Organization.builder()
+                .id(optional.get().getId())
+                .name(toUpdate.getName())
+                .build();
+        return save(updated);
+    }
+
+    public Organization createOrganization(String name) {
+        if (getOrganizationByName(name).isPresent()) {
+            throw new AlreadyExistsException("An organization with the name " + name + " already exists");
+        }
+
+        Organization organization = Organization.builder().name(name).build();
+        return save(organization);
     }
 }

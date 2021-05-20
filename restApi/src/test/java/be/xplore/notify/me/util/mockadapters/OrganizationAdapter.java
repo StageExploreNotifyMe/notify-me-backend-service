@@ -25,4 +25,9 @@ public class OrganizationAdapter implements OrganizationRepo {
     public Optional<Organization> findById(String id) {
         return Optional.empty();
     }
+
+    @Override
+    public Optional<Organization> findByName(String name) {
+        return Optional.empty();
+    }
 }

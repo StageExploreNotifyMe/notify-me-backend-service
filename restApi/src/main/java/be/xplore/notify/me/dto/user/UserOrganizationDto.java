@@ -2,7 +2,7 @@ package be.xplore.notify.me.dto.user;
 
 import be.xplore.notify.me.domain.user.MemberRequestStatus;
 import be.xplore.notify.me.domain.user.Role;
-import be.xplore.notify.me.dto.OrganizationDto;
+import be.xplore.notify.me.dto.organization.OrganizationDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
