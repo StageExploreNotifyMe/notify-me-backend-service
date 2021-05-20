@@ -85,6 +85,7 @@ public class EventLineAdapter implements EventLineRepo {
         return lineEntityPage.map(eventLineEntityMapper::fromEntity);
     }
 
+    @Transactional
     @Override
     public List<EventLine> getAllActiveEventLinesOfLineManager(String lineManagerId) {
         List<EventLineEntity> eventLines =

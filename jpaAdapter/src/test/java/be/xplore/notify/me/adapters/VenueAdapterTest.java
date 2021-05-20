@@ -4,6 +4,8 @@ import be.xplore.notify.me.domain.Venue;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import javax.transaction.Transactional;
 
@@ -36,5 +38,23 @@ class VenueAdapterTest {
         Venue venue = Venue.builder().name("Test").build();
         Venue saved = venueAdapter.save(venue);
         assertEquals(venue.getName(), saved.getName());
+    }
+
+    @Test
+    void getAllVenues() {
+        Page<Venue> venues = venueAdapter.getAllVenues(PageRequest.of(0, 20));
+        assertTrue(venues.hasContent());
+    }
+
+    @Test
+    void findVenueEntityByName() {
+        Optional<Venue> optional = venueAdapter.findVenueEntityByName("Groenplaats");
+        assertTrue(optional.isPresent());
+    }
+
+    @Test
+    void findVenueEntityByNameNotFound() {
+        Optional<Venue> optional = venueAdapter.findVenueEntityByName("sdfqs");
+        assertTrue(optional.isEmpty());
     }
 }

@@ -1,4 +1,4 @@
-package be.xplore.notify.me.dto;
+package be.xplore.notify.me.dto.venue;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class VenueDto {
-    private String id;
+public class CreateVenueDto {
     private String name;
+    private String venueManagerId;
+
 }

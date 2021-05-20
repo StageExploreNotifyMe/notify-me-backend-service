@@ -47,7 +47,7 @@ public class VenueEntityMapper implements EntityMapper<VenueEntity, Venue> {
         }
 
         List<UserEntity> lineManagers = new ArrayList<>();
-        if (venue.getVenueManagers() != null) {
+        if (venue.getLineManagers() != null) {
             lineManagers = venue.getLineManagers().stream().map(userEntityMapper::toEntity).collect(Collectors.toList());
         }
         return new VenueEntity(venue.getId(), venue.getName(), venueManagers, lineManagers);
