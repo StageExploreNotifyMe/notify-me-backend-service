@@ -1,6 +1,7 @@
 package be.xplore.notify.me.services.event;
 
 import be.xplore.notify.me.domain.event.Line;
+import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.persistence.LineRepo;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -64,6 +66,22 @@ class LineServiceTest {
         mockSave();
         Line save = lineService.createLine(line);
         assertEquals(line.getId(), save.getId());
+    }
+
+    @Test
+    void updateLine() {
+        mockFindById();
+        mockSave();
+        Line updated = lineService.updateLine(Line.builder().id(line.getId()).name("update").description("update").build());
+        assertEquals(line.getId(), updated.getId());
+        assertEquals("update", updated.getName());
+        assertEquals(line.getVenue().getId(), updated.getVenue().getId());
+    }
+
+    @Test
+    void updateLineNotFound() {
+        given(lineRepo.findById(any())).willReturn(Optional.empty());
+        assertThrows(NotFoundException.class, () -> lineService.updateLine(line));
     }
 
     private void mockFindById() {

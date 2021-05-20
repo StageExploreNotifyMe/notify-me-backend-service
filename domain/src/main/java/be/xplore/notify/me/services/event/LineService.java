@@ -1,6 +1,7 @@
 package be.xplore.notify.me.services.event;
 
 import be.xplore.notify.me.domain.event.Line;
+import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.persistence.LineRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -34,5 +35,25 @@ public class LineService {
 
     public Line createLine(Line line) {
         return save(line);
+    }
+
+    public Line updateLine(Line fromDto) {
+        Line original = lineById(fromDto.getId());
+        Line newLine = Line.builder()
+                .id(original.getId())
+                .name(fromDto.getName())
+                .description(fromDto.getDescription())
+                .numberOfRequiredPeople(fromDto.getNumberOfRequiredPeople())
+                .venue(original.getVenue())
+                .build();
+        return save(newLine);
+    }
+
+    private Line lineById(String id) {
+        Optional<Line> optionalLine = getById(id);
+        if (optionalLine.isEmpty()) {
+            throw new NotFoundException("No line with id " + id + " found");
+        }
+        return optionalLine.get();
     }
 }

@@ -4,6 +4,7 @@ import be.xplore.notify.me.domain.Venue;
 import be.xplore.notify.me.domain.event.Line;
 import be.xplore.notify.me.dto.line.LineCreationDto;
 import be.xplore.notify.me.dto.line.LineDto;
+import be.xplore.notify.me.mappers.event.LineDtoMapper;
 import be.xplore.notify.me.services.VenueService;
 import be.xplore.notify.me.services.event.LineService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -43,6 +45,8 @@ class LineControllerTest {
     private Line line;
     @Autowired
     private Venue venue;
+    @Autowired
+    private LineDtoMapper lineDtoMapper;
 
     @MockBean
     private LineService lineService;
@@ -53,8 +57,7 @@ class LineControllerTest {
     void getLinesOfVenue() {
         try {
             mockEverything();
-            ResultActions resultActions = performGet("/line/venue/" + line.getVenue().getId());
-            expectResult(resultActions, HttpStatus.OK);
+            performGet("/line/venue/" + line.getVenue().getId(), HttpStatus.OK);
         } catch (Exception e) {
             failTest(e);
         }
@@ -64,8 +67,7 @@ class LineControllerTest {
     void getLinesOfVenueWithPage() {
         try {
             mockEverything();
-            ResultActions resultActions = performGet("/line/venue/" + line.getVenue().getId() + "?page=0");
-            expectResult(resultActions, HttpStatus.OK);
+            performGet("/line/venue/" + line.getVenue().getId() + "?page=0", HttpStatus.OK);
         } catch (Exception e) {
             failTest(e);
         }
@@ -75,8 +77,7 @@ class LineControllerTest {
     void getLinesOfVenueNotFound() {
         try {
             mockEverything();
-            ResultActions resultActions = performGet("/line/venue/mqldfkj");
-            expectResult(resultActions, HttpStatus.NOT_FOUND);
+            performGet("/line/venue/mqldfkj", HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             failTest(e);
         }
@@ -86,9 +87,11 @@ class LineControllerTest {
     void createLine() {
         try {
             mockEverything();
-            ResultActions resultActions = performPost("/line/create",
-                    new LineCreationDto(line.getName(), line.getDescription(), line.getVenue().getId(), line.getNumberOfRequiredPeople()));
-            expectResult(resultActions, HttpStatus.CREATED);
+            ResultActions resultActions = performPost(
+                    "/line/create",
+                    new LineCreationDto(line.getName(), line.getDescription(), line.getVenue().getId(), line.getNumberOfRequiredPeople()),
+                    HttpStatus.CREATED
+            );
             LineDto lineDto = mapper.readValue(getResult(resultActions), LineDto.class);
             assertEquals(line.getName(), lineDto.getName());
         } catch (Exception e) {
@@ -100,9 +103,11 @@ class LineControllerTest {
     void createLineBadRequest() {
         try {
             mockEverything();
-            ResultActions resultActions = performPost("/line/create",
-                    new LineCreationDto("", line.getDescription(), line.getVenue().getId(), line.getNumberOfRequiredPeople()));
-            expectResult(resultActions, HttpStatus.BAD_REQUEST);
+            performPost(
+                    "/line/create",
+                        new LineCreationDto("", line.getDescription(), line.getVenue().getId(), line.getNumberOfRequiredPeople()),
+                        HttpStatus.BAD_REQUEST
+            );
         } catch (Exception e) {
             failTest(e);
         }
@@ -112,9 +117,27 @@ class LineControllerTest {
     void createLineBadRequest2() {
         try {
             mockEverything();
-            ResultActions resultActions = performPost("/line/create",
-                    new LineCreationDto(line.getName(), line.getDescription(), line.getVenue().getId(), -1));
-            expectResult(resultActions, HttpStatus.BAD_REQUEST);
+            performPost(
+                    "/line/create",
+                        new LineCreationDto(line.getName(), line.getDescription(), line.getVenue().getId(), -1),
+                        HttpStatus.BAD_REQUEST
+            );
+        } catch (Exception e) {
+            failTest(e);
+        }
+    }
+
+    @Test
+    void editLine() {
+        try {
+            mockEverything();
+            ResultActions resultActions = performPatch(
+                    "/line/edit",
+                        lineDtoMapper.toDto(line),
+                        HttpStatus.OK
+            );
+            LineDto lineDto = mapper.readValue(getResult(resultActions), LineDto.class);
+            assertEquals(line.getId(), lineDto.getId());
         } catch (Exception e) {
             failTest(e);
         }
@@ -125,6 +148,7 @@ class LineControllerTest {
         mockGetLineById();
         mockGetVenueById();
         given(lineService.createLine(any())).will(i -> i.getArgument(0));
+        given(lineService.updateLine(any())).will(i -> i.getArgument(0));
     }
 
     private void mockGetLinesByVenue() {
@@ -145,12 +169,22 @@ class LineControllerTest {
         given(venueService.getById(any())).will(i -> i.getArgument(0).equals(venue.getId()) ? Optional.of(venue) : Optional.empty());
     }
 
-    private ResultActions performGet(String url) throws Exception {
-        return mockMvc.perform(get(url).contentType(MediaType.APPLICATION_JSON));
+    private ResultActions performGet(String url, HttpStatus status) throws Exception {
+        ResultActions perform = mockMvc.perform(get(url).contentType(MediaType.APPLICATION_JSON));
+        expectResult(perform, status);
+        return perform;
     }
 
-    private ResultActions performPost(String url, Object dto) throws Exception {
-        return mockMvc.perform(post(url).contentType(MediaType.APPLICATION_JSON).content(mapper.writeValueAsString(dto)));
+    private ResultActions performPost(String url, Object dto, HttpStatus status) throws Exception {
+        ResultActions perform = mockMvc.perform(post(url).contentType(MediaType.APPLICATION_JSON).content(mapper.writeValueAsString(dto)));
+        expectResult(perform, status);
+        return perform;
+    }
+
+    private ResultActions performPatch(String url, Object dto, HttpStatus status) throws Exception {
+        ResultActions perform = mockMvc.perform(patch(url).contentType(MediaType.APPLICATION_JSON).content(mapper.writeValueAsString(dto)));
+        expectResult(perform, status);
+        return perform;
     }
 
     private String getResult(ResultActions resultActions) throws UnsupportedEncodingException {
