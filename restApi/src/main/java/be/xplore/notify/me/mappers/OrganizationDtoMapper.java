@@ -1,7 +1,7 @@
 package be.xplore.notify.me.mappers;
 
 import be.xplore.notify.me.domain.Organization;
-import be.xplore.notify.me.dto.OrganizationDto;
+import be.xplore.notify.me.dto.organization.OrganizationDto;
 import org.springframework.stereotype.Component;
 
 @Component

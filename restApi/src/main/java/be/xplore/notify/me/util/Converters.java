@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class Converters {
-    public int getPageNumber(Integer page) {
+    public static int getPageNumber(Integer page) {
         int pageNumber = 0;
         if (page != null) {
             pageNumber = page;

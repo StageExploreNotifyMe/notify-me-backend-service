@@ -90,4 +90,14 @@ public class UserOrganizationService {
     public Optional<UserOrganization> getById(String id) {
         return userOrganizationRepo.findById(id);
     }
+
+    public UserOrganization addOrganizationLeaderToOrganization(Organization organization, User user) {
+        UserOrganization userOrganization = UserOrganization.builder()
+                .user(user)
+                .organization(organization)
+                .status(MemberRequestStatus.ACCEPTED)
+                .role(Role.ORGANIZATION_LEADER)
+                .build();
+        return userOrganizationRepo.save(userOrganization);
+    }
 }
