@@ -31,4 +31,8 @@ public class LineService {
         return lineRepo.save(line);
 
     }
+
+    public Line createLine(Line line) {
+        return save(line);
+    }
 }
