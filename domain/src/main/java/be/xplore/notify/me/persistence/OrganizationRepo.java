@@ -14,4 +14,6 @@ public interface OrganizationRepo {
     Organization save(Organization organization);
 
     Optional<Organization> findById(String id);
+
+    Optional<Organization> findByName(String name);
 }

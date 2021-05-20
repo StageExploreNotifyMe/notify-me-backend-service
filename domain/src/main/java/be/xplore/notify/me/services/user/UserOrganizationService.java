@@ -94,4 +94,14 @@ public class UserOrganizationService {
     public List<UserOrganization> getAllUserOrganizationsByUserId(String userId) {
         return userOrganizationRepo.getAllUserOrganizationsByUserId(userId);
     }
+
+    public UserOrganization addOrganizationLeaderToOrganization(Organization organization, User user) {
+        UserOrganization userOrganization = UserOrganization.builder()
+                .user(user)
+                .organization(organization)
+                .status(MemberRequestStatus.ACCEPTED)
+                .role(Role.ORGANIZATION_LEADER)
+                .build();
+        return userOrganizationRepo.save(userOrganization);
+    }
 }

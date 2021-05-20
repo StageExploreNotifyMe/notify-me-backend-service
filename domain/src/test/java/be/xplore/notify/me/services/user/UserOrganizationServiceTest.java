@@ -23,6 +23,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -123,6 +124,23 @@ class UserOrganizationServiceTest {
         assertEquals(Role.MEMBER, updated.getRole());
         UserOrganization updated2 = userOrganizationService.changeOrganizationMemberRole(updated, Role.ORGANIZATION_LEADER);
         assertEquals(Role.ORGANIZATION_LEADER, updated2.getRole());
+    }
+
+    @Test
+    void getById() {
+        mockFindById();
+        Optional<UserOrganization> byId = userOrganizationService.getById(userOrganization.getId());
+        assertTrue(byId.isPresent());
+        assertEquals(userOrganization.getId(), byId.get().getId());
+    }
+
+    @Test
+    void addOrganizationLeaderToOrganization() {
+        mockSave();
+        UserOrganization userOrganization = userOrganizationService.addOrganizationLeaderToOrganization(organization, user);
+        assertEquals(user.getId(), userOrganization.getUser().getId());
+        assertEquals(organization.getId(), userOrganization.getOrganization().getId());
+        assertEquals(Role.ORGANIZATION_LEADER, userOrganization.getRole());
     }
 
     @Test

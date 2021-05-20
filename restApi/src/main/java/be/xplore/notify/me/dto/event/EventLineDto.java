@@ -1,7 +1,7 @@
 package be.xplore.notify.me.dto.event;
 
 import be.xplore.notify.me.domain.event.EventLineStatus;
-import be.xplore.notify.me.dto.OrganizationDto;
+import be.xplore.notify.me.dto.organization.OrganizationDto;
 import be.xplore.notify.me.dto.user.UserDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

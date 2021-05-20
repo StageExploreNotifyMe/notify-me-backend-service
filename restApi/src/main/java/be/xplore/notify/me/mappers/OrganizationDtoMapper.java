@@ -1,7 +1,7 @@
 package be.xplore.notify.me.mappers;
 
 import be.xplore.notify.me.domain.Organization;
-import be.xplore.notify.me.dto.OrganizationDto;
+import be.xplore.notify.me.dto.organization.OrganizationDto;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -11,7 +11,7 @@ public class OrganizationDtoMapper implements DtoMapper<OrganizationDto, Organiz
         if (d == null) {
             return null;
         }
-        return Organization.builder().id(d.getId()).build();
+        return Organization.builder().id(d.getId()).name(d.getName()).build();
     }
 
     @Override
