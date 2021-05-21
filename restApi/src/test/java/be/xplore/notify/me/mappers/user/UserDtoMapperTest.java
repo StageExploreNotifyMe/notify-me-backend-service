@@ -1,7 +1,7 @@
 package be.xplore.notify.me.mappers.user;
 
 import be.xplore.notify.me.domain.Venue;
-import be.xplore.notify.me.dto.VenueDto;
+import be.xplore.notify.me.dto.venue.VenueDto;
 import be.xplore.notify.me.mappers.VenueDtoMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
