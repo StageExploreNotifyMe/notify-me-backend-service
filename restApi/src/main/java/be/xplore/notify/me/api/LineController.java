@@ -3,7 +3,8 @@ package be.xplore.notify.me.api;
 import be.xplore.notify.me.domain.Venue;
 import be.xplore.notify.me.domain.event.Line;
 import be.xplore.notify.me.domain.exceptions.NotFoundException;
-import be.xplore.notify.me.dto.event.LineDto;
+import be.xplore.notify.me.dto.line.LineCreationDto;
+import be.xplore.notify.me.dto.line.LineDto;
 import be.xplore.notify.me.mappers.event.LineDtoMapper;
 import be.xplore.notify.me.services.VenueService;
 import be.xplore.notify.me.services.event.LineService;
@@ -14,6 +15,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,6 +37,25 @@ public class LineController {
         this.lineDtoMapper = lineDtoMapper;
         this.venueService = venueService;
         this.converters = converters;
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<LineDto> createLine(@RequestBody LineCreationDto dto) {
+        if (dto.getName().isBlank()) {
+            throw new IllegalArgumentException("A line must have a name");
+        }
+        if (dto.getNumberOfRequiredPeople() < 0) {
+            throw new IllegalArgumentException("The number of required people for a line cannot be negative");
+        }
+        Line line = Line.builder()
+                .name(dto.getName())
+                .description(dto.getDescription())
+                .numberOfRequiredPeople(dto.getNumberOfRequiredPeople())
+                .venue(getVenueById(dto.getVenueId()))
+                .build();
+
+        Line created = lineService.createLine(line);
+        return new ResponseEntity<>(lineDtoMapper.toDto(created), HttpStatus.CREATED);
     }
 
     @GetMapping("/venue/{id}")
