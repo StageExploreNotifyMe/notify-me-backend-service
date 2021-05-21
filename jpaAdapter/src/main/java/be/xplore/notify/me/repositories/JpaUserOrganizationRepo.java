@@ -14,4 +14,6 @@ public interface JpaUserOrganizationRepo extends JpaRepository<UserOrganizationE
     Page<UserOrganizationEntity> getUserOrganisationByOrganizationEntity_IdAndStatusOrderByUserEntity(String organizationEntity_id, MemberRequestStatus status, Pageable pageable);
 
     List<UserOrganizationEntity> getUserOrganizationEntityByOrganizationEntity_Id(String organizationEntity_id);
+
+    List<UserOrganizationEntity> getUserOrganizationEntitiesByUserEntity_Id(String userEntity_Id);
 }
