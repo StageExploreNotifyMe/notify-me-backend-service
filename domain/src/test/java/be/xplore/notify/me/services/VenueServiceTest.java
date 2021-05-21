@@ -2,6 +2,7 @@ package be.xplore.notify.me.services;
 
 import be.xplore.notify.me.domain.Venue;
 import be.xplore.notify.me.domain.exceptions.AlreadyExistsException;
+import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.persistence.VenueRepo;
 import org.junit.jupiter.api.Test;
@@ -99,8 +100,24 @@ class VenueServiceTest {
     @Test
     void addVenueManager() {
         setUpMocks();
-        Venue v = venueService.addVenueManagerToVenue(venue, user);
+        List<User> users = new ArrayList<>();
+        users.add(user);
+        Venue v = venueService.addVenueManagerToVenue(venue, users);
         assertEquals(v.getId(), venue.getId());
         assertTrue(v.getVenueManagers().contains(user));
+    }
+
+    @Test
+    void updateVenue() {
+        setUpMocks();
+        String name = "updated name";
+        Venue updatedVenue = venueService.updateVenue(Venue.builder().id(venue.getId()).name(name).build());
+        assertEquals(updatedVenue.getName(), name);
+    }
+
+    @Test
+    void updateVenueNotFound() {
+        given(venueRepo.findById(any())).willReturn(Optional.empty());
+        assertThrows(NotFoundException.class, () -> venueService.updateVenue(venueService.updateVenue(Venue.builder().id(venue.getId()).name("name").build())));
     }
 }

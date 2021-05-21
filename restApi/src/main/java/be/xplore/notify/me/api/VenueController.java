@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static be.xplore.notify.me.util.Converters.getPageNumber;
@@ -43,17 +45,27 @@ public class VenueController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<VenueDto> createVenue(@RequestBody CreateVenueDto createVenueDto) {
+    public ResponseEntity<Venue> createVenue(@RequestBody CreateVenueDto createVenueDto) {
         Venue venue = venueService.createVenue(createVenueDto.getName());
         venueService.addVenueManagerToVenue(venue, getUser(createVenueDto));
-        return new ResponseEntity<>(venueDtoMapper.toDto(venue), HttpStatus.CREATED);
+        return new ResponseEntity<>(venue, HttpStatus.CREATED);
     }
 
-    private User getUser(CreateVenueDto createVenueDto) {
-        Optional<User> optionalUser = userService.getById(createVenueDto.getVenueManagerId());
-        if (optionalUser.isEmpty()) {
-            throw new NotFoundException("No user with id: " + createVenueDto.getVenueManagerId() + "found");
+    @PostMapping("/edit")
+    public ResponseEntity<VenueDto> updateVenue(@RequestBody VenueDto venueDto) {
+        Venue venue = venueService.updateVenue(venueDtoMapper.fromDto(venueDto));
+        return new ResponseEntity<>(venueDtoMapper.toDto(venue), HttpStatus.OK);
+    }
+
+    private List<User> getUser(CreateVenueDto createVenueDto) {
+        List<User> users = new ArrayList<>();
+        for (String id : createVenueDto.getVenueManagerIds()) {
+            Optional<User> user = userService.getById(id);
+            if (user.isEmpty()) {
+                throw new NotFoundException("No user with id: " + id + "found");
+            }
+            users.add(user.get());
         }
-        return optionalUser.get();
+        return users;
     }
 }
