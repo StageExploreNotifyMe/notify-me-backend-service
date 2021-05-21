@@ -60,5 +60,6 @@ class UserOrganizationAdapterTest {
     void getAllOrganizationLeadersByUserId() {
         List<UserOrganization> userOrganizationList = userOrganizationAdapter.getAllUserOrganizationsByUserId("1");
         assertEquals(1, userOrganizationList.size());
+        assertEquals("1", userOrganizationList.get(0).getId());
     }
 }
