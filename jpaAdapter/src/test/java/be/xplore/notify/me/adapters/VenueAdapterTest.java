@@ -45,4 +45,16 @@ class VenueAdapterTest {
         Page<Venue> allVenues = venueAdapter.getAllVenues(PageRequest.of(0, 20));
         assertEquals("1", allVenues.getContent().get(0).getId());
     }
+
+    @Test
+    void findVenueEntityByName() {
+        Optional<Venue> optional = venueAdapter.findVenueEntityByName("Groenplaats");
+        assertTrue(optional.isPresent());
+    }
+
+    @Test
+    void findVenueEntityByNameNotFound() {
+        Optional<Venue> optional = venueAdapter.findVenueEntityByName("sdfqs");
+        assertTrue(optional.isEmpty());
+    }
 }
