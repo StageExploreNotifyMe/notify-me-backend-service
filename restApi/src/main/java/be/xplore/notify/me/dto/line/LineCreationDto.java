@@ -1,6 +1,5 @@
-package be.xplore.notify.me.dto.event;
+package be.xplore.notify.me.dto.line;
 
-import be.xplore.notify.me.dto.venue.VenueDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,10 +9,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class LineDto {
-    private String id;
+public class LineCreationDto {
     private String name;
     private String description;
-    private VenueDto venueDto;
+    private String venueId;
     private int numberOfRequiredPeople;
 }

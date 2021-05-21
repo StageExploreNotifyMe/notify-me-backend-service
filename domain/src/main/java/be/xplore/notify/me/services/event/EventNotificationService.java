@@ -135,6 +135,7 @@ public class EventNotificationService {
             .usedChannel(NotificationChannel.EMAIL)
             .type(NotificationType.EVENT_CANCELED)
             .userId(lineManager.getId())
+            .eventId(event.getId())
             .build();
     }
 
@@ -145,7 +146,7 @@ public class EventNotificationService {
 
         String body = generateEventCreatedBody(event);
         for (User lineManager : event.getVenue().getLineManagers()) {
-            sendEventCreatedNotificationToUser(lineManager, body);
+            sendEventCreatedNotificationToUser(lineManager, body, event);
         }
     }
 
@@ -159,14 +160,16 @@ public class EventNotificationService {
         );
     }
 
-    private void sendEventCreatedNotificationToUser(User lineManager, String body) {
+    private void sendEventCreatedNotificationToUser(User lineManager, String body, Event event) {
         Notification notification = Notification.builder()
                 .userId(lineManager.getId())
                 .type(NotificationType.EVENT_CREATED)
                 .urgency(NotificationUrgency.NORMAL)
+                .usedChannel(NotificationChannel.EMAIL)
                 .creationDate(LocalDateTime.now())
                 .title("New event created")
                 .body(body)
+                .eventId(event.getId())
                 .build();
         notificationService.saveNotificationAndSendToQueue(notification);
     }

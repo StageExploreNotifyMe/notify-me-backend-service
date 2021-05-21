@@ -1,16 +1,16 @@
-package be.xplore.notify.me.dto.event;
+package be.xplore.notify.me.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class LineAssignEventDto {
-    private String lineId;
-    private String eventId;
-    private String lineManagerId;
+public class NotificationChannelAmountDto {
+    List<Object[]> notificationAmounts;
 }

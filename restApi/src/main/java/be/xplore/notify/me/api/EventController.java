@@ -74,6 +74,12 @@ public class EventController {
         return new ResponseEntity<>(eventDtoMapper.toDto(event), HttpStatus.OK);
     }
 
+    @PostMapping("/{id}/private")
+    public ResponseEntity<EventDto> makeEventPrivate(@PathVariable String id) {
+        Event event = eventService.makeEventPrivate(findEventById(id));
+        return new ResponseEntity<>(eventDtoMapper.toDto(event), HttpStatus.OK);
+    }
+
     private Event findEventById(String id) {
         Optional<Event> eventOptional = eventService.getById(id);
         if (eventOptional.isEmpty()) {

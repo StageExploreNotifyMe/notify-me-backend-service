@@ -11,7 +11,7 @@ public class OrganizationDtoMapper implements DtoMapper<OrganizationDto, Organiz
         if (d == null) {
             return null;
         }
-        return Organization.builder().id(d.getId()).build();
+        return Organization.builder().id(d.getId()).name(d.getName()).build();
     }
 
     @Override

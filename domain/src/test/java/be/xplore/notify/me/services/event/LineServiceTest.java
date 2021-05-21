@@ -23,6 +23,7 @@ class LineServiceTest {
 
     @Autowired
     private LineService lineService;
+
     @Autowired
     private Line line;
 
@@ -34,16 +35,6 @@ class LineServiceTest {
         mockGetLinesByVenueId();
         Page<Line> allByVenue = lineService.getAllByVenue(line.getVenue().getId(), 0);
         assertEquals(line.getId(), allByVenue.getContent().get(0).getId());
-    }
-
-    private void mockGetLinesByVenueId() {
-        given(lineRepo.getAllByVenue(any(), any())).will(i -> {
-            List<Line> lines = new ArrayList<>();
-            if (i.getArgument(0).equals(line.getVenue().getId())) {
-                lines.add(line);
-            }
-            return new PageImpl<>(lines);
-        });
     }
 
     @Test
@@ -61,14 +52,35 @@ class LineServiceTest {
         assertTrue(lineOptional.isEmpty());
     }
 
+    @Test
+    void save() {
+        mockSave();
+        Line save = lineService.save(line);
+        assertEquals(line.getId(), save.getId());
+    }
+
+    @Test
+    void createLine() {
+        mockSave();
+        Line save = lineService.createLine(line);
+        assertEquals(line.getId(), save.getId());
+    }
+
     private void mockFindById() {
         given(lineRepo.findById(any())).will(i -> i.getArgument(0).equals(line.getId()) ? Optional.of(line) : Optional.empty());
     }
 
-    @Test
-    void save() {
+    private void mockSave() {
         given(lineRepo.save(any())).will(i -> i.getArgument(0));
-        Line save = lineService.save(line);
-        assertEquals(line.getId(), save.getId());
+    }
+
+    private void mockGetLinesByVenueId() {
+        given(lineRepo.getAllByVenue(any(), any())).will(i -> {
+            List<Line> lines = new ArrayList<>();
+            if (i.getArgument(0).equals(line.getVenue().getId())) {
+                lines.add(line);
+            }
+            return new PageImpl<>(lines);
+        });
     }
 }
