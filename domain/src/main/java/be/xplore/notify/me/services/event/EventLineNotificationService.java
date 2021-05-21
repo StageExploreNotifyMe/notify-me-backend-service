@@ -114,6 +114,7 @@ public class EventLineNotificationService {
                 .type(NotificationType.STAFFING_REMINDER)
                 .creationDate(LocalDateTime.now())
                 .urgency(NotificationUrgency.NORMAL)
+                .usedChannel(leader.getUserPreferences().getNormalChannel())
                 .userId(leader.getId())
                 .title(String.format("Staffing reminder %s", eventLine.getLine().getName()))
                 .body(customText == null ? body : customText)

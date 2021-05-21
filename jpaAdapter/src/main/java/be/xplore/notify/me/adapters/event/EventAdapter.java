@@ -10,6 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
+import javax.transaction.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -47,6 +49,7 @@ public class EventAdapter implements EventRepo {
         return eventEntityMapper.fromEntity(eventEntity);
     }
 
+    @Transactional
     @Override
     public Page<Event> getAllEventsBetween(LocalDateTime dateTimeStart, LocalDateTime dateTimeEnd, PageRequest pageRequest) {
         Page<EventEntity> eventEntitiesPage = jpaEventRepo.getAllByDateBetweenOrderByDate(dateTimeStart, dateTimeEnd, pageRequest);

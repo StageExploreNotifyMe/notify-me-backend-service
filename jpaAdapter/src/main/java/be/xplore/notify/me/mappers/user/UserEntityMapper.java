@@ -43,6 +43,8 @@ public class UserEntityMapper implements EntityMapper<UserEntity, User> {
             .userPreferences(userPreferencesEntityMapper.fromEntity(userEntity.getUserPreferences()))
             .inbox(inbox)
             .notificationQueue(notificationQueue)
+            .mobileNumber(userEntity.getMobileNumber())
+            .email(userEntity.getEmail())
             .build();
     }
 
@@ -65,6 +67,8 @@ public class UserEntityMapper implements EntityMapper<UserEntity, User> {
             user.getUserPreferences()),
             user.getFirstname(),
             user.getLastname(),
+            user.getMobileNumber(),
+            user.getEmail(),
             inbox,
             notificationQueue
         );

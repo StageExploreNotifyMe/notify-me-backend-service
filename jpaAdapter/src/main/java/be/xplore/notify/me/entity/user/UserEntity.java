@@ -27,6 +27,8 @@ public class UserEntity {
     private UserPreferencesEntity userPreferences;
     private String firstname;
     private String lastname;
+    private String mobileNumber;
+    private String email;
     @OneToMany
     private List<NotificationEntity> inbox = new ArrayList<>();
     @OneToMany
