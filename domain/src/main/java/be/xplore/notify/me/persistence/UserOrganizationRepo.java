@@ -19,4 +19,6 @@ public interface UserOrganizationRepo {
     UserOrganization save(UserOrganization userOrganization);
 
     Optional<UserOrganization> findById(String userOrganizationId);
+
+    List<UserOrganization> getAllUserOrganizationsByUserId(String userId);
 }

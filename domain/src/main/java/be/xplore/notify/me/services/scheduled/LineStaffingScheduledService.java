@@ -7,7 +7,6 @@ import be.xplore.notify.me.domain.notification.NotificationType;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.services.event.EventLineService;
 import be.xplore.notify.me.services.event.EventService;
-import be.xplore.notify.me.services.notification.NotificationSenderService;
 import be.xplore.notify.me.services.notification.NotificationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -23,18 +22,15 @@ public class LineStaffingScheduledService {
     private final EventService eventService;
     private final EventLineService eventLineService;
     private final NotificationService notificationService;
-    private final NotificationSenderService notificationSenderService;
 
     public LineStaffingScheduledService(
             EventService eventService,
             EventLineService eventLineService,
-            NotificationService notificationService,
-            NotificationSenderService notificationSenderService
+            NotificationService notificationService
     ) {
         this.eventService = eventService;
         this.eventLineService = eventLineService;
         this.notificationService = notificationService;
-        this.notificationSenderService = notificationSenderService;
     }
 
     @Scheduled(cron = "${notify.me.scheduled.staffing.incomplete.cron:0 4 * * * ?}")
@@ -119,8 +115,7 @@ public class LineStaffingScheduledService {
                 .body(body)
                 .build();
 
-        notificationService.saveNotificationAndSendToInbox(notification, user);
-        notificationSenderService.sendNotification(notification);
+        notificationService.sendNotification(notification, user);
     }
 
 }

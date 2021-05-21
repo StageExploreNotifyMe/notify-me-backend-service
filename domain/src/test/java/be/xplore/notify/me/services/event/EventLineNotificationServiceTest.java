@@ -102,7 +102,7 @@ class EventLineNotificationServiceTest {
     }
 
     private void mockSaveNotification() {
-        given(notificationService.saveNotificationAndSendToInbox(any(), any())).will(i -> {
+        given(notificationService.sendNotification(any(), any())).will(i -> {
             Notification n = i.getArgument(0);
             sendNotifications.add(n);
             return n;

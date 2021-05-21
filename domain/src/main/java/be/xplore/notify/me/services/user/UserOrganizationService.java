@@ -91,6 +91,10 @@ public class UserOrganizationService {
         return userOrganizationRepo.findById(id);
     }
 
+    public List<UserOrganization> getAllUserOrganizationsByUserId(String userId) {
+        return userOrganizationRepo.getAllUserOrganizationsByUserId(userId);
+    }
+
     public UserOrganization addOrganizationLeaderToOrganization(Organization organization, User user) {
         UserOrganization userOrganization = UserOrganization.builder()
                 .user(user)

@@ -106,7 +106,7 @@ class LineStaffingScheduledServiceTest {
     }
 
     private void mockSaveAndSendNotification() {
-        given(notificationService.saveNotificationAndSendToInbox(any(), any())).will(i -> {
+        given(notificationService.sendNotification(any(), any())).will(i -> {
             Notification sendNotification = i.getArgument(0);
             sendNotifications.add(sendNotification);
             return sendNotification;

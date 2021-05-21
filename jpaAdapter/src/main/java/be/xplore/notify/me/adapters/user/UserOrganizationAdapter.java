@@ -67,4 +67,10 @@ public class UserOrganizationAdapter implements UserOrganizationRepo {
         UserOrganization userOrganization = userOrganizationEntityMapper.fromEntity(optional.get());
         return Optional.of(userOrganization);
     }
+
+    @Override
+    public List<UserOrganization> getAllUserOrganizationsByUserId(String userId) {
+        List<UserOrganizationEntity> entities = jpaUserOrganizationRepo.getUserOrganizationEntitiesByUserEntity_Id(userId);
+        return entities.stream().map(userOrganizationEntityMapper::fromEntity).collect(Collectors.toList());
+    }
 }
