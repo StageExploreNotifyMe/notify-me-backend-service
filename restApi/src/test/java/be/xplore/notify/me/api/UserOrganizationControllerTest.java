@@ -7,6 +7,7 @@ import be.xplore.notify.me.domain.user.UserOrganization;
 import be.xplore.notify.me.dto.user.UserOrganizationDto;
 import be.xplore.notify.me.dto.user.UserOrganizationIdsDto;
 import be.xplore.notify.me.dto.user.UserOrganizationProcessDto;
+import be.xplore.notify.me.dto.user.UserOrganizationsDto;
 import be.xplore.notify.me.persistence.OrganizationRepo;
 import be.xplore.notify.me.persistence.UserOrganizationRepo;
 import be.xplore.notify.me.persistence.UserRepo;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -61,7 +63,7 @@ class UserOrganizationControllerTest {
     @Autowired
     private Organization organization;
     @Autowired
-    private UserOrganization request;
+    private UserOrganization userOrganization;
 
     @Test
     void userJoinOrganization() {
@@ -93,7 +95,7 @@ class UserOrganizationControllerTest {
     void processJoinRequest() {
         try {
             mockAll();
-            ResultActions resultActions = getPerformPostWithContent("/userorganization/request/process", new UserOrganizationProcessDto(request.getId(), true));
+            ResultActions resultActions = getPerformPostWithContent("/userorganization/request/process", new UserOrganizationProcessDto(userOrganization.getId(), true));
             expectStatus(HttpStatus.OK, resultActions);
         } catch (Exception e) {
             failTest(e);
@@ -126,7 +128,7 @@ class UserOrganizationControllerTest {
     void getUsersOfOrganization() {
         try {
             mockAll();
-            ResultActions resultActions = getPerform(get("/userorganization/" + request.getId() + "/users?page=1"));
+            ResultActions resultActions = getPerform(get("/userorganization/" + userOrganization.getId() + "/users?page=1"));
             expectStatus(HttpStatus.OK, resultActions);
         } catch (Exception e) {
             failTest(e);
@@ -148,7 +150,7 @@ class UserOrganizationControllerTest {
     void getUsersOfOrganizationNoPage() {
         try {
             mockAll();
-            ResultActions resultActions = getPerform(get("/userorganization/" + request.getId() + "/users"));
+            ResultActions resultActions = getPerform(get("/userorganization/" + userOrganization.getId() + "/users"));
             expectStatus(HttpStatus.OK, resultActions);
         } catch (Exception e) {
             failTest(e);
@@ -159,7 +161,7 @@ class UserOrganizationControllerTest {
     void promoteMember() {
         try {
             mockAll();
-            ResultActions resultActions = getPerform(post("/userorganization/" + request.getId() + "/promote"));
+            ResultActions resultActions = getPerform(post("/userorganization/" + userOrganization.getId() + "/promote"));
             expectStatus(HttpStatus.OK, resultActions);
             UserOrganizationDto userOrganizationDto = mapper.readValue(getContentAsString(resultActions), UserOrganizationDto.class);
             assertEquals(Role.ORGANIZATION_LEADER, userOrganizationDto.getRole());
@@ -194,11 +196,24 @@ class UserOrganizationControllerTest {
     void demoteMember() {
         try {
             mockAll();
-            MockHttpServletRequestBuilder patch = post("/userorganization/" + request.getId() + "/demote");
+            MockHttpServletRequestBuilder patch = post("/userorganization/" + userOrganization.getId() + "/demote");
             ResultActions resultActions = getPerform(patch);
             expectStatus(HttpStatus.OK, resultActions);
             UserOrganizationDto userOrganizationDto = mapper.readValue(getContentAsString(resultActions), UserOrganizationDto.class);
             assertEquals(Role.MEMBER, userOrganizationDto.getRole());
+        } catch (Exception e) {
+            failTest(e);
+        }
+    }
+
+    @Test
+    void getAllUserOrganizationsOfUser() {
+        try {
+            mockAll();
+            ResultActions resultActions = getPerform(get("/userorganization/user/" + user.getId()));
+            expectStatus(HttpStatus.OK, resultActions);
+            UserOrganizationsDto userOrganizationDto = mapper.readValue(getContentAsString(resultActions), UserOrganizationsDto.class);
+            assertNotNull(userOrganizationDto);
         } catch (Exception e) {
             failTest(e);
         }
@@ -235,6 +250,15 @@ class UserOrganizationControllerTest {
         mockOrganizationFetchById();
         mockUserOrganizationFetchById();
         mockUserOrganisationByOrganization_IdAndStatus();
+        mockGetUserOrgsByUserId();
+    }
+
+    private void mockGetUserOrgsByUserId() {
+        given(userOrganizationRepo.getAllUserOrganizationsByUserId(any())).will(i -> {
+            List<UserOrganization> uos = new ArrayList<>();
+            uos.add(userOrganization);
+            return uos;
+        });
     }
 
     private void mockSaves() {
@@ -244,15 +268,15 @@ class UserOrganizationControllerTest {
     private void mockUserOrganisationByOrganization_IdAndStatus() {
         given(userOrganizationRepo.getUserByOrganizationAndStatus(any(), any(), any())).will(i -> {
             List<UserOrganization> pending = new ArrayList<>();
-            pending.add(request);
+            pending.add(userOrganization);
             return new PageImpl<>(pending);
         });
     }
 
     private void mockUserOrganizationFetchById() {
         given(userOrganizationRepo.findById(any())).will(i -> {
-            if (i.getArgument(0).equals(request.getId())) {
-                return Optional.of(request);
+            if (i.getArgument(0).equals(userOrganization.getId())) {
+                return Optional.of(userOrganization);
             }
             return Optional.empty();
         });

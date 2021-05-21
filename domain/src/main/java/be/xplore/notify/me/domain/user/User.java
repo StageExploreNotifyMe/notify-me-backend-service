@@ -13,6 +13,8 @@ public class User {
     UserPreferences userPreferences;
     String firstname;
     String lastname;
+    String mobileNumber;
+    String email;
     List<Notification> inbox;
     List<Notification> notificationQueue;
 }

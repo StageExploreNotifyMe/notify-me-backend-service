@@ -58,7 +58,7 @@ class EmailScheduledServiceTest {
     }
 
     private void mockSaveAndSendNotification() {
-        given(notificationService.saveNotificationAndSendToInbox(any(), any())).will(i -> {
+        given(notificationService.sendNotification(any(), any())).will(i -> {
             sendNotification = i.getArgument(0);
             return sendNotification;
         });

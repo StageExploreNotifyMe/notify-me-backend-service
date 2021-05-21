@@ -14,6 +14,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import java.time.LocalDateTime;
+import java.util.Currency;
 
 @Entity
 @NoArgsConstructor
@@ -32,4 +33,7 @@ public class NotificationEntity {
     private NotificationType type;
     private NotificationUrgency urgency;
     private LocalDateTime creationDate;
+    private LocalDateTime sentDate;
+    private Double price;
+    private Currency priceCurrency;
 }
