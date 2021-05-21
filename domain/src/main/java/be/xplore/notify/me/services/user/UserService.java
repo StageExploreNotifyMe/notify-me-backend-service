@@ -33,8 +33,7 @@ public class UserService {
         return userRepo.findAll(pageRequest);
     }
 
-    public User addNotificationToQueue(Notification notification) {
-        User user = getUserById(notification.getUserId());
+    public User addNotificationToQueue(Notification notification, User user) {
         user.getNotificationQueue().add(notification);
         return save(user);
     }

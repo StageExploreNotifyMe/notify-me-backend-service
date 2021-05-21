@@ -10,7 +10,6 @@ import be.xplore.notify.me.domain.notification.NotificationType;
 import be.xplore.notify.me.domain.notification.NotificationUrgency;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.domain.user.UserOrganization;
-import be.xplore.notify.me.services.notification.NotificationSenderService;
 import be.xplore.notify.me.services.notification.NotificationService;
 import be.xplore.notify.me.services.user.UserOrganizationService;
 import org.springframework.data.domain.Page;
@@ -22,18 +21,15 @@ import java.util.List;
 
 @Service
 public class EventNotificationService {
-    private final NotificationSenderService notificationSenderService;
     private final NotificationService notificationService;
     private final EventLineService eventLineService;
     private final UserOrganizationService userOrganizationService;
 
     public EventNotificationService(
-            NotificationSenderService notificationSenderService,
             NotificationService notificationService,
             EventLineService eventLineService,
             UserOrganizationService userOrganizationService
     ) {
-        this.notificationSenderService = notificationSenderService;
         this.notificationService = notificationService;
         this.eventLineService = eventLineService;
         this.userOrganizationService = userOrganizationService;
@@ -110,19 +106,14 @@ public class EventNotificationService {
                 .title("Event canceled")
                 .body(body)
                 .build();
-        saveAndSendNotification(user, notification);
-    }
-
-    private void saveAndSendNotification(User user, Notification notification) {
-        notificationService.saveNotificationAndSendToInbox(notification, user);
-        notificationSenderService.sendNotification(notification);
+        notificationService.sendNotification(notification, user);
     }
 
     private void sendLineManagerCancelNotification(Event event) {
         List<User> lineManagers = event.getVenue().getLineManagers();
         for (User lineManager : lineManagers) {
             Notification notification = createLineManagerCancelEventNotification(event, lineManager);
-            saveAndSendNotification(lineManager, notification);
+            notificationService.sendNotification(notification, lineManager);
         }
     }
 
@@ -135,6 +126,7 @@ public class EventNotificationService {
             .usedChannel(NotificationChannel.EMAIL)
             .type(NotificationType.EVENT_CANCELED)
             .userId(lineManager.getId())
+            .eventId(event.getId())
             .build();
     }
 
@@ -145,7 +137,7 @@ public class EventNotificationService {
 
         String body = generateEventCreatedBody(event);
         for (User lineManager : event.getVenue().getLineManagers()) {
-            sendEventCreatedNotificationToUser(lineManager, body);
+            sendEventCreatedNotificationToUser(lineManager, body, event);
         }
     }
 
@@ -159,15 +151,17 @@ public class EventNotificationService {
         );
     }
 
-    private void sendEventCreatedNotificationToUser(User lineManager, String body) {
+    private void sendEventCreatedNotificationToUser(User lineManager, String body, Event event) {
         Notification notification = Notification.builder()
                 .userId(lineManager.getId())
                 .type(NotificationType.EVENT_CREATED)
                 .urgency(NotificationUrgency.NORMAL)
+                .usedChannel(NotificationChannel.EMAIL)
                 .creationDate(LocalDateTime.now())
                 .title("New event created")
                 .body(body)
+                .eventId(event.getId())
                 .build();
-        notificationService.saveNotificationAndSendToQueue(notification);
+        notificationService.queueNotification(notification, lineManager);
     }
 }

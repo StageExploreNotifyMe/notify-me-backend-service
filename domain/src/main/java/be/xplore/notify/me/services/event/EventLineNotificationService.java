@@ -7,7 +7,6 @@ import be.xplore.notify.me.domain.notification.NotificationType;
 import be.xplore.notify.me.domain.notification.NotificationUrgency;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.domain.user.UserOrganization;
-import be.xplore.notify.me.services.notification.NotificationSenderService;
 import be.xplore.notify.me.services.notification.NotificationService;
 import be.xplore.notify.me.services.user.UserOrganizationService;
 import org.springframework.stereotype.Service;
@@ -18,14 +17,13 @@ import java.util.List;
 
 @Service
 public class EventLineNotificationService {
-    private final NotificationSenderService notificationSenderService;
     private final NotificationService notificationService;
     private final UserOrganizationService userOrganizationService;
 
     public EventLineNotificationService(
-            NotificationSenderService notificationSenderService,
-            NotificationService notificationService, UserOrganizationService userOrganizationService) {
-        this.notificationSenderService = notificationSenderService;
+            NotificationService notificationService,
+            UserOrganizationService userOrganizationService
+    ) {
         this.notificationService = notificationService;
         this.userOrganizationService = userOrganizationService;
     }
@@ -34,8 +32,7 @@ public class EventLineNotificationService {
         List<UserOrganization> userOrganizations = userOrganizationService.getAllOrganizationLeadersByOrganizationId(line.getOrganization().getId());
         for (UserOrganization userOrganization: userOrganizations) {
             Notification notification = MemberCanceledDetails(userId, line, userOrganization.getUser());
-            notificationSenderService.sendNotification(notification);
-            notificationService.saveNotificationAndSendToInbox(notification, userOrganization.getUser());
+            notificationService.sendNotification(notification, userOrganization.getUser());
         }
     }
 
@@ -48,14 +45,14 @@ public class EventLineNotificationService {
             .urgency(NotificationUrgency.NORMAL)
             .creationDate(LocalDateTime.now())
             .usedChannel(NotificationChannel.EMAIL)
+            .eventId(line.getEvent().getId())
             .build();
 
     }
 
     public void sendEventLineCanceledNotification(EventLine eventLine) {
         Notification notification = setEventLineCanceledDetails(eventLine);
-        notificationService.saveNotificationAndSendToInbox(notification, eventLine.getLineManager());
-        notificationSenderService.sendNotification(notification);
+        notificationService.sendNotification(notification, eventLine.getLineManager());
     }
 
     private Notification setEventLineCanceledDetails(EventLine eventLine) {
@@ -67,6 +64,7 @@ public class EventLineNotificationService {
             .usedChannel(NotificationChannel.EMAIL)
             .type(NotificationType.LINE_CANCELED)
             .userId(eventLine.getLineManager().getId())
+            .eventId(eventLine.getEvent().getId())
             .build();
     }
 
@@ -79,10 +77,10 @@ public class EventLineNotificationService {
                 .urgency(NotificationUrgency.NORMAL)
                 .usedChannel(user.getUserPreferences().getNormalChannel())
                 .type(NotificationType.LINE_ASSIGNED)
+                .eventId(line.getEvent().getId())
                 .build();
 
-        Notification notification = notificationService.saveNotificationAndSendToInbox(toSave, user);
-        notificationSenderService.sendNotification(notification);
+        notificationService.sendNotification(toSave, user);
     }
 
     private String createLineAssignedBody(User user, EventLine line) {
@@ -121,7 +119,6 @@ public class EventLineNotificationService {
                 .body(customText == null ? body : customText)
                 .build();
 
-        notificationSenderService.sendNotification(notification);
-        notificationService.saveNotificationAndSendToInbox(notification, leader);
+        notificationService.sendNotification(notification, leader);
     }
 }

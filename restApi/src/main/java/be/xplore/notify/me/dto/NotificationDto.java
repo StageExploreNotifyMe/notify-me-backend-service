@@ -19,6 +19,7 @@ public class NotificationDto {
     String userId;
     String title;
     String body;
+    String eventId;
     NotificationChannel usedChannel;
     NotificationType type;
     NotificationUrgency urgency;

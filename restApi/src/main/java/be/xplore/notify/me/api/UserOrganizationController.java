@@ -8,6 +8,7 @@ import be.xplore.notify.me.domain.user.UserOrganization;
 import be.xplore.notify.me.dto.user.UserOrganizationDto;
 import be.xplore.notify.me.dto.user.UserOrganizationIdsDto;
 import be.xplore.notify.me.dto.user.UserOrganizationProcessDto;
+import be.xplore.notify.me.dto.user.UserOrganizationsDto;
 import be.xplore.notify.me.mappers.UserOrganizationDtoMapper;
 import be.xplore.notify.me.services.OrganizationService;
 import be.xplore.notify.me.services.user.UserOrganizationService;
@@ -26,7 +27,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/userorganization", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -50,6 +53,13 @@ public class UserOrganizationController {
         this.organizationService = organizationService;
         this.userOrganizationDtoMapper = userOrganizationDtoMapper;
         this.converters = converters;
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<UserOrganizationsDto> getAllUserOrganizationsOfUser(@PathVariable String userId) {
+        List<UserOrganizationDto> userOrganizations = userOrganizationService.getAllUserOrganizationsByUserId(userId)
+                .stream().map(userOrganizationDtoMapper::toDto).collect(Collectors.toList());
+        return new ResponseEntity<>(new UserOrganizationsDto(userOrganizations), HttpStatus.OK);
     }
 
     @PostMapping("/request/join")

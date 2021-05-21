@@ -22,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -43,9 +45,9 @@ class OrganizationControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private UserService userService;
-    @MockBean
     private OrganizationService organizationService;
+    @MockBean
+    private UserService userService;
     @MockBean
     private UserOrganizationService userOrganizationService;
 
@@ -60,10 +62,8 @@ class OrganizationControllerTest {
     void getOrganizationById() {
         try {
             mockFetchById();
-            ResultActions request = performGet("/organization/" + organization.getId());
-            ResultActions expectedRequest = ExpectResult(request, HttpStatus.OK);
-            String contentAsString = expectedRequest.andReturn().getResponse().getContentAsString();
-            OrganizationDto returnedOrg = mapper.readValue(contentAsString, OrganizationDto.class);
+            ResultActions request = performGetAndExpect("/organization/" + organization.getId(), HttpStatus.OK);
+            OrganizationDto returnedOrg = mapper.readValue(andReturn(request), OrganizationDto.class);
             assertEquals(organization.getId(), returnedOrg.getId());
         } catch (Exception e) {
             failTest(e);
@@ -74,8 +74,7 @@ class OrganizationControllerTest {
     void getOrganizationByIdExpectNotFound() {
         try {
             mockFetchById();
-            ResultActions request = mockMvc.perform(get("/organization/" + organization.getId() + "qds").contentType(MediaType.APPLICATION_JSON));
-            ExpectResult(request, HttpStatus.NOT_FOUND);
+            performGetAndExpect("/organization/" + organization.getId() + "qds", HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             failTest(e);
         }
@@ -85,8 +84,7 @@ class OrganizationControllerTest {
     void getOrganizations() {
         try {
             mockFetchAll();
-            ResultActions request = performGet("/organization");
-            ExpectResult(request, HttpStatus.OK);
+            performGetAndExpect("/organization", HttpStatus.OK);
         } catch (Exception e) {
             failTest(e);
         }
@@ -96,8 +94,7 @@ class OrganizationControllerTest {
     void getOrganizationsWithPage() {
         try {
             mockFetchAll();
-            ResultActions request = performGet("/organization?page=0");
-            ExpectResult(request, HttpStatus.OK);
+            performGetAndExpect("/organization?page=0", HttpStatus.OK);
         } catch (Exception e) {
             failTest(e);
         }
@@ -109,8 +106,7 @@ class OrganizationControllerTest {
             mockGetUserById();
             mockCreateOrg();
             mockAddUserOrgLeader();
-            ResultActions request = performPost("/organization/create", new CreateOrganizationDto("testName", user.getId()));
-            ExpectResult(request, HttpStatus.OK);
+            performPostAndExpect("/organization/create", HttpStatus.OK, new CreateOrganizationDto("testName", user.getId()));
         } catch (Exception e) {
             failTest(e);
         }
@@ -122,8 +118,7 @@ class OrganizationControllerTest {
             given(userService.getById(any())).willReturn(Optional.empty());
             mockCreateOrg();
             mockAddUserOrgLeader();
-            ResultActions request = performPost("/organization/create", new CreateOrganizationDto("testName", user.getId()));
-            ExpectResult(request, HttpStatus.NOT_FOUND);
+            performPostAndExpect("/organization/create", HttpStatus.NOT_FOUND, new CreateOrganizationDto("testName", user.getId()));
         } catch (Exception e) {
             failTest(e);
         }
@@ -135,35 +130,43 @@ class OrganizationControllerTest {
             mockGetUserById();
             mockAddUserOrgLeader();
             given(organizationService.createOrganization(any())).willThrow(AlreadyExistsException.class);
-            ResultActions request = performPost("/organization/create", new CreateOrganizationDto("testName", user.getId()));
-            ExpectResult(request, HttpStatus.CONFLICT);
+            ResultActions request = performPostAndExpect("/organization/create", HttpStatus.CONFLICT, new CreateOrganizationDto("testName", user.getId()));
         } catch (Exception e) {
             failTest(e);
         }
     }
 
-    private ResultActions performPost(String url, Object dto) throws Exception {
-        return mockMvc.perform(post(url).content(mapper.writeValueAsString(dto)).contentType(MediaType.APPLICATION_JSON));
+    @Test
+    void updateOrganization() {
+        try {
+            mockUpdateOrganization();
+            ResultActions request = mockMvc.perform(patch("/organization").contentType(MediaType.APPLICATION_JSON).content(mapper.writeValueAsString(organization)));
+            expect(request, HttpStatus.OK);
+            OrganizationDto returnedOrg = mapper.readValue(andReturn(request), OrganizationDto.class);
+            assertEquals(organization.getId(), returnedOrg.getId());
+        } catch (Exception e) {
+            failTest(e);
+        }
     }
 
-    private void mockAddUserOrgLeader() {
-        given(userOrganizationService.addOrganizationLeaderToOrganization(any(), any())).willReturn(userOrganization);
+    private ResultActions performPostAndExpect(String url, HttpStatus status, Object dto) throws Exception {
+        ResultActions perform = mockMvc.perform(post(url).content(mapper.writeValueAsString(dto)).contentType(MediaType.APPLICATION_JSON));
+        expect(perform, status);
+        return perform;
     }
 
-    private void mockCreateOrg() {
-        given(organizationService.createOrganization(any())).willReturn(organization);
+    private ResultActions performGetAndExpect(String url, HttpStatus status) throws Exception {
+        ResultActions request = mockMvc.perform(get(url).contentType(MediaType.APPLICATION_JSON));
+        expect(request, status);
+        return request;
     }
 
-    private ResultActions ExpectResult(ResultActions request, HttpStatus status) throws Exception {
-        return request.andExpect(status().is(status.value()));
+    private void expect(ResultActions request, HttpStatus status) throws Exception {
+        request.andExpect(status().is(status.value()));
     }
 
-    private ResultActions performGet(String url) throws Exception {
-        return mockMvc.perform(get(url).contentType(MediaType.APPLICATION_JSON));
-    }
-
-    private void mockGetUserById() {
-        given(userService.getById(any())).willReturn(Optional.of(user));
+    private String andReturn(ResultActions request) throws UnsupportedEncodingException {
+        return request.andReturn().getResponse().getContentAsString();
     }
 
     private void failTest(Exception e) {
@@ -186,5 +189,21 @@ class OrganizationControllerTest {
             organizations.add(organization);
             return new PageImpl<>(organizations);
         });
+    }
+
+    private void mockUpdateOrganization() {
+        given(organizationService.updateOrganization(any())).will(i -> i.getArgument(0));
+    }
+
+    private void mockAddUserOrgLeader() {
+        given(userOrganizationService.addOrganizationLeaderToOrganization(any(), any())).willReturn(userOrganization);
+    }
+
+    private void mockCreateOrg() {
+        given(organizationService.createOrganization(any())).willReturn(organization);
+    }
+
+    private void mockGetUserById() {
+        given(userService.getById(any())).willReturn(Optional.of(user));
     }
 }

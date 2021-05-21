@@ -8,7 +8,6 @@ import be.xplore.notify.me.domain.notification.NotificationType;
 import be.xplore.notify.me.domain.notification.NotificationUrgency;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.domain.user.UserOrganization;
-import be.xplore.notify.me.services.notification.NotificationSenderService;
 import be.xplore.notify.me.services.notification.NotificationService;
 import be.xplore.notify.me.services.user.UserOrganizationService;
 import org.springframework.stereotype.Service;
@@ -19,16 +18,13 @@ import java.util.List;
 @Service
 public class OrganizationNotificationService {
     private final NotificationService notificationService;
-    private final NotificationSenderService notificationSenderService;
     private final UserOrganizationService userOrganizationService;
 
     public OrganizationNotificationService(
             NotificationService notificationService,
-            NotificationSenderService notificationSenderService,
             UserOrganizationService userOrganizationService
     ) {
         this.notificationService = notificationService;
-        this.notificationSenderService = notificationSenderService;
         this.userOrganizationService = userOrganizationService;
     }
 
@@ -36,8 +32,7 @@ public class OrganizationNotificationService {
         List<UserOrganization> userOrganizationLeaders = userOrganizationService.getAllOrganizationLeadersByOrganizationId(organization.getId());
         for (UserOrganization userOrganization : userOrganizationLeaders) {
             Notification notification = setOrganizationLineAssignmentNotificationDetails(organization, line, userOrganization.getUser());
-            notificationService.saveNotificationAndSendToInbox(notification, userOrganization.getUser());
-            notificationSenderService.sendNotification(notification);
+            notificationService.sendNotification(notification, userOrganization.getUser());
         }
 
     }
@@ -52,6 +47,7 @@ public class OrganizationNotificationService {
             .usedChannel(NotificationChannel.EMAIL)
             .creationDate(LocalDateTime.now())
             .type(NotificationType.LINE_ASSIGNED)
+            .eventId(line.getEvent().getId())
             .build();
     }
 }

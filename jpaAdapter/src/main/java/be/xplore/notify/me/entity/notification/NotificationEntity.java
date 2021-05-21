@@ -14,6 +14,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import java.time.LocalDateTime;
+import java.util.Currency;
 
 @Entity
 @NoArgsConstructor
@@ -27,8 +28,12 @@ public class NotificationEntity {
     private String userId;
     private String title;
     private String body;
+    private String eventId;
     private NotificationChannel usedChannel;
     private NotificationType type;
     private NotificationUrgency urgency;
     private LocalDateTime creationDate;
+    private LocalDateTime sentDate;
+    private Double price;
+    private Currency priceCurrency;
 }
