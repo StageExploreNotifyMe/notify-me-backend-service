@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -51,7 +52,7 @@ public class VenueController {
         return new ResponseEntity<>(venue, HttpStatus.CREATED);
     }
 
-    @PostMapping("/edit")
+    @PatchMapping("/edit")
     public ResponseEntity<VenueDto> updateVenue(@RequestBody VenueDto venueDto) {
         Venue venue = venueService.updateVenue(venueDtoMapper.fromDto(venueDto));
         return new ResponseEntity<>(venueDtoMapper.toDto(venue), HttpStatus.OK);

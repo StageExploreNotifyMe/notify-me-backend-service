@@ -26,6 +26,7 @@ import java.util.Optional;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -125,7 +126,7 @@ class VenueControllerTest {
         mockUpdate();
         try {
             VenueDto body = new VenueDto("1", "test venue", new ArrayList<>());
-            ResultActions request = mockMvc.perform(post("/admin/venue/edit").content(mapper.writeValueAsString(body)).contentType(MediaType.APPLICATION_JSON));
+            ResultActions request = mockMvc.perform(patch("/admin/venue/edit").content(mapper.writeValueAsString(body)).contentType(MediaType.APPLICATION_JSON));
             request.andExpect(status().is(HttpStatus.OK.value()));
             VenueDto venueDto = mapper.readValue(request.andReturn().getResponse().getContentAsString(), VenueDto.class);
             Assertions.assertEquals(venueDto.getId(), body.getId());
