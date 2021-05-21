@@ -5,13 +5,16 @@ import be.xplore.notify.me.domain.notification.NotificationChannel;
 import be.xplore.notify.me.domain.user.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.twilio.exception.ApiException;
 import com.twilio.rest.api.v2010.account.Message;
+import com.twilio.type.PhoneNumber;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -67,5 +70,11 @@ class TwilioTextServiceTest {
         mockSendText(false, false);
         twilioTextService.sendSms(notification, user);
         assertEquals(NotificationChannel.SMS, notification.getUsedChannel());
+    }
+
+    @Test
+    void sendText() {
+        TwilioTextService.TwilioTextSender twilioTextSender = new TwilioTextService.TwilioTextSender();
+        assertThrows(ApiException.class, () -> twilioTextSender.sendText(new PhoneNumber("+15005550006"), "+32492920000", "no Authentication"));
     }
 }
