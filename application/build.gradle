@@ -7,5 +7,6 @@ dependencies {
     implementation project(':domain')
     implementation project(':jpaAdapter')
     implementation project(':restApi')
+    implementation project(':twilio')
     implementation 'org.springframework:spring-core'
 }

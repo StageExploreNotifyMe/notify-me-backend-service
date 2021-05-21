@@ -105,7 +105,7 @@ class EventNotificationServiceTest {
     }
 
     private void mockSaveNotificationToQueue() {
-        given(notificationService.saveNotificationAndSendToQueue(any())).will(i -> {
+        given(notificationService.queueNotification(any(), any())).will(i -> {
             Notification not = i.getArgument(0);
             sendNotifications.add(not);
             return not;
@@ -113,7 +113,7 @@ class EventNotificationServiceTest {
     }
 
     private void mockSaveNotificationToInbox() {
-        given(notificationService.saveNotificationAndSendToInbox(any(), any())).will(i -> {
+        given(notificationService.sendNotification(any(), any())).will(i -> {
             Notification not = i.getArgument(0);
             sendNotifications.add(not);
             return not;

@@ -7,7 +7,6 @@ import be.xplore.notify.me.domain.user.MemberRequestStatus;
 import be.xplore.notify.me.domain.user.Role;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.domain.user.UserOrganization;
-import be.xplore.notify.me.services.notification.NotificationSenderService;
 import be.xplore.notify.me.services.notification.NotificationService;
 import org.springframework.stereotype.Service;
 
@@ -16,19 +15,16 @@ import java.time.LocalDateTime;
 @Service
 public class UserOrganizationNotificationService {
 
-    private final NotificationSenderService notificationSenderService;
     private final NotificationService notificationService;
 
-    public UserOrganizationNotificationService(NotificationSenderService notificationSenderService, NotificationService notificationService) {
-        this.notificationSenderService = notificationSenderService;
+    public UserOrganizationNotificationService(NotificationService notificationService) {
         this.notificationService = notificationService;
     }
 
     public void sendResolvedPendingRequestNotification(UserOrganization userOrganization) {
         User user = userOrganization.getUser();
         Notification notification = setResolvedNotificationDetails(userOrganization, user);
-        notificationService.saveNotificationAndSendToInbox(notification, user);
-        notificationSenderService.sendNotification(notification);
+        notificationService.sendNotification(notification, user);
     }
 
     private Notification setResolvedNotificationDetails(UserOrganization userOrganization, User user) {
@@ -50,8 +46,7 @@ public class UserOrganizationNotificationService {
             notificationType = NotificationType.USER_DEMOTED;
         }
         Notification notification = setChangedRoleNotificationDetails(userOrganization, user, notificationType);
-        notificationService.saveNotificationAndSendToInbox(notification, user);
-        notificationSenderService.sendNotification(notification);
+        notificationService.sendNotification(notification, user);
     }
 
     private Notification setChangedRoleNotificationDetails(UserOrganization userOrganization, User user, NotificationType notificationType) {
