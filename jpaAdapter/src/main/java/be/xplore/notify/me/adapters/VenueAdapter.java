@@ -42,6 +42,16 @@ public class VenueAdapter implements VenueRepo {
         return entityPage.map(entityMapper::fromEntity);
     }
 
+    @Override
+    public Optional<Venue> findVenueEntityByName(String name) {
+        Optional<VenueEntity> optional = repo.findVenueEntityByName(name);
+        if (optional.isEmpty()) {
+            return Optional.empty();
+        }
+        Venue venue = entityMapper.fromEntity(optional.get());
+        return Optional.of(venue);
+    }
+
     public Venue save(Venue venue) {
         VenueEntity venueEntity = repo.save(entityMapper.toEntity(venue));
         return entityMapper.fromEntity(venueEntity);

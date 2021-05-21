@@ -25,4 +25,9 @@ public class VenueAdapter implements VenueRepo {
     public Page<Venue> getAllVenues(PageRequest pageRequest) {
         return null;
     }
+
+    @Override
+    public Optional<Venue> findVenueEntityByName(String name) {
+        return Optional.empty();
+    }
 }

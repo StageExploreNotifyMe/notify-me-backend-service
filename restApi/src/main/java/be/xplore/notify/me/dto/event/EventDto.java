@@ -1,7 +1,7 @@
 package be.xplore.notify.me.dto.event;
 
 import be.xplore.notify.me.domain.event.EventStatus;
-import be.xplore.notify.me.dto.VenueDto;
+import be.xplore.notify.me.dto.venue.VenueDto;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;

@@ -14,4 +14,7 @@ public interface VenueRepo {
     Optional<Venue> findById(String id);
 
     Page<Venue> getAllVenues(PageRequest pageRequest);
+
+    Optional<Venue> findVenueEntityByName(String name);
+
 }
