@@ -4,7 +4,7 @@ import be.xplore.notify.me.domain.event.EventLine;
 import be.xplore.notify.me.dto.event.EventLineDto;
 import be.xplore.notify.me.mappers.DtoMapper;
 import be.xplore.notify.me.mappers.OrganizationDtoMapper;
-import be.xplore.notify.me.mappers.UserDtoMapper;
+import be.xplore.notify.me.mappers.user.UserDtoMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.stream.Collectors;

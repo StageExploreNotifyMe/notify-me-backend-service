@@ -6,7 +6,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,6 +32,7 @@ class VenueServiceTest {
     private void setUpMocks() {
         given(venueRepo.findById(any())).will(i -> venue.getId().equals(i.getArgument(0)) ? Optional.of(venue) : Optional.empty());
         given(venueRepo.save(any())).will(i -> i.getArgument(0));
+        given(venueRepo.getAllVenues(any())).willReturn(new PageImpl<>(Collections.singletonList(venue)));
     }
 
     @Test
@@ -51,5 +55,12 @@ class VenueServiceTest {
         setUpMocks();
         Venue savedVenue = venueService.save(venue);
         assertEquals(venue.getId(), savedVenue.getId());
+    }
+
+    @Test
+    void getAllVenues() {
+        setUpMocks();
+        Page<Venue> allVenues = venueService.getAllVenues(0);
+        assertEquals(venue.getId(), allVenues.getContent().get(0).getId());
     }
 }

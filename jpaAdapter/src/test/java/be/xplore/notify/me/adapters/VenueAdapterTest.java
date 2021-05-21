@@ -4,6 +4,8 @@ import be.xplore.notify.me.domain.Venue;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import javax.transaction.Transactional;
 
@@ -36,5 +38,11 @@ class VenueAdapterTest {
         Venue venue = Venue.builder().name("Test").build();
         Venue saved = venueAdapter.save(venue);
         assertEquals(venue.getName(), saved.getName());
+    }
+
+    @Test
+    void getAllVenues() {
+        Page<Venue> allVenues = venueAdapter.getAllVenues(PageRequest.of(0, 20));
+        assertEquals("1", allVenues.getContent().get(0).getId());
     }
 }
