@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,14 +40,16 @@ public class LineController {
         this.converters = converters;
     }
 
+    @PatchMapping("/edit")
+    public ResponseEntity<LineDto> editLine(@RequestBody LineDto lineDto) {
+        doLineValidation(lineDto.getName(), lineDto.getNumberOfRequiredPeople());
+        Line updated = lineService.updateLine(lineDtoMapper.fromDto(lineDto));
+        return new ResponseEntity<>(lineDtoMapper.toDto(updated), HttpStatus.OK);
+    }
+
     @PostMapping("/create")
     public ResponseEntity<LineDto> createLine(@RequestBody LineCreationDto dto) {
-        if (dto.getName().isBlank()) {
-            throw new IllegalArgumentException("A line must have a name");
-        }
-        if (dto.getNumberOfRequiredPeople() < 0) {
-            throw new IllegalArgumentException("The number of required people for a line cannot be negative");
-        }
+        doLineValidation(dto.getName(), dto.getNumberOfRequiredPeople());
         Line line = Line.builder()
                 .name(dto.getName())
                 .description(dto.getDescription())
@@ -56,6 +59,15 @@ public class LineController {
 
         Line created = lineService.createLine(line);
         return new ResponseEntity<>(lineDtoMapper.toDto(created), HttpStatus.CREATED);
+    }
+
+    private void doLineValidation(String name, int numberOfPeople) {
+        if (name.isBlank()) {
+            throw new IllegalArgumentException("A line must have a name");
+        }
+        if (numberOfPeople < 0) {
+            throw new IllegalArgumentException("The number of required people for a line cannot be negative");
+        }
     }
 
     @GetMapping("/venue/{id}")
