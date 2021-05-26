@@ -1,6 +1,7 @@
 package be.xplore.notify.me.api;
 
 import be.xplore.notify.me.domain.exceptions.AlreadyExistsException;
+import be.xplore.notify.me.domain.exceptions.BadRequestException;
 import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,11 @@ public class ExceptionHandlerController {
     @ExceptionHandler(IllegalArgumentException.class)
     public void illegalArgumentException(HttpServletRequest request, Exception e) {
         log.trace("Request on {} produced an illegal argument exception: {}: {}", request.getRequestURI(), e.getClass().getSimpleName(), e.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(BadRequestException.class)
+    public void badRequestException() {
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)

@@ -30,6 +30,7 @@ public class Testdata {
         UserPreferences userPreferences = UserPreferences.builder().id("1")
                 .normalChannel(NotificationChannel.EMAIL).urgentChannel(NotificationChannel.SMS).build();
         return User.builder().id("1").userPreferences(userPreferences).firstname("John").lastname("Doe")
+                .email("test@email.com").mobileNumber("+00000000000").passwordHash("ThisRepresentsAPWHash")
                 .inbox(new ArrayList<>()).notificationQueue(new ArrayList<>()).build();
     }
 

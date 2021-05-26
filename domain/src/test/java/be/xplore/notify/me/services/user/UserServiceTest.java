@@ -18,6 +18,8 @@ import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -28,6 +30,8 @@ class UserServiceTest {
     @Autowired
     private UserService userService;
 
+    @MockBean
+    private UserPreferencesService userPreferencesService;
     @MockBean
     private UserRepo userRepo;
 
@@ -43,10 +47,6 @@ class UserServiceTest {
             }
             return Optional.empty();
         });
-    }
-
-    private void mockSave() {
-        given(userRepo.save(any())).will(i -> i.getArgument(0));
     }
 
     @Test
@@ -112,5 +112,25 @@ class UserServiceTest {
         NotificationChannel urgentChannel = NotificationChannel.SMS;
         User returnedUser = userService.setNotificationChannels("1", normalChannel, urgentChannel);
         assertEquals(returnedUser.getUserPreferences().getNormalChannel(), user.getUserPreferences().getNormalChannel());
+    }
+
+    @Test
+    void registerNewUser() {
+        mockSave();
+        mockGenerateDefaultPreferences();
+        User toRegister = User.builder().firstname("test").lastname("test").mobileNumber("000000000").email("test@email.com").passwordHash("test").build();
+        User registered = userService.registerNewUser(toRegister);
+        assertEquals(toRegister.getFirstname(), registered.getFirstname());
+        assertNotNull(registered.getInbox());
+        assertNotNull(registered.getUserPreferences());
+        assertNotEquals(toRegister.getPasswordHash(), registered.getPasswordHash());
+    }
+
+    private void mockGenerateDefaultPreferences() {
+        given(userPreferencesService.generateDefaultPreferences()).willReturn(user.getUserPreferences());
+    }
+
+    private void mockSave() {
+        given(userRepo.save(any())).will(i -> i.getArgument(0));
     }
 }

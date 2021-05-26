@@ -19,6 +19,18 @@ public class UserPreferencesService {
     public UserPreferences setNotificationChannels(User user, NotificationChannel normalChannel, NotificationChannel urgentChannel) {
         UserPreferences up = user.getUserPreferences();
         UserPreferences userPreferences = UserPreferences.builder().id(up.getId()).normalChannel(normalChannel).urgentChannel(urgentChannel).build();
+        return save(userPreferences);
+    }
+
+    public UserPreferences save(UserPreferences userPreferences) {
         return userPreferencesRepo.save(userPreferences);
+    }
+
+    public UserPreferences generateDefaultPreferences() {
+        UserPreferences defaultPrefs = UserPreferences.builder()
+                .normalChannel(NotificationChannel.EMAIL)
+                .urgentChannel(NotificationChannel.SMS)
+                .build();
+        return save(defaultPrefs);
     }
 }

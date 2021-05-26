@@ -15,5 +15,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.data:spring-data-commons'
     implementation 'org.modelmapper:modelmapper:2.3.8'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
 }
 
