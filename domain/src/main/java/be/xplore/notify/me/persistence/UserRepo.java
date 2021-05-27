@@ -14,4 +14,6 @@ public interface UserRepo {
     User save(User user);
 
     Page<User> findAll(PageRequest pageRequest);
+
+    Optional<User> getUserByEmail(String email);
 }

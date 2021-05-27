@@ -6,8 +6,7 @@ import be.xplore.notify.me.domain.user.UserPreferences;
 import be.xplore.notify.me.dto.user.UserPreferencesDto;
 import be.xplore.notify.me.services.event.EventLineService;
 import be.xplore.notify.me.services.user.UserService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Assertions;
+import be.xplore.notify.me.util.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -15,7 +14,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -25,8 +23,6 @@ import java.util.Optional;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -45,14 +41,12 @@ class UserControllerTest {
     @Autowired
     private EventLine eventLine;
 
-    @Autowired
-    private ObjectMapper mapper;
-
     @Test
     void getNormalChannelUser() {
         try {
             mockEverything();
-            ResultActions request = mockMvc.perform(get("/user/1/channel").contentType(MediaType.APPLICATION_JSON));
+            ResultActions request = TestUtils.performGet(mockMvc, "/user/1/channel");
+
             request.andExpect(status().is(HttpStatus.OK.value()));
         } catch (Exception e) {
             e.printStackTrace();
@@ -63,7 +57,7 @@ class UserControllerTest {
     void getNormalChannelUserNotFound() {
         try {
             mockEverything();
-            ResultActions request = mockMvc.perform(get("/user/sdf/channel").contentType(MediaType.APPLICATION_JSON));
+            ResultActions request = TestUtils.performGet(mockMvc, "/user/sdf/channel");
             request.andExpect(status().is(HttpStatus.NOT_FOUND.value()));
         } catch (Exception e) {
             e.printStackTrace();
@@ -74,10 +68,10 @@ class UserControllerTest {
     void getUserLines() {
         try {
             mockEverything();
-            ResultActions resultActions = performGet("/user/" + user.getId() + "/lines");
-            expectResult(resultActions, HttpStatus.OK);
+            ResultActions resultActions = TestUtils.performGet(mockMvc, "/user/" + user.getId() + "/lines");
+            TestUtils.expectStatus(resultActions, HttpStatus.OK);
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
@@ -85,10 +79,10 @@ class UserControllerTest {
     void getUserLinesUserNotFound() {
         try {
             mockEverything();
-            ResultActions resultActions = performGet("/user/qmldfkj/lines?page=0");
-            expectResult(resultActions, HttpStatus.NOT_FOUND);
+            ResultActions resultActions = TestUtils.performGet(mockMvc, "/user/qmldfkj/lines?page=0");
+            TestUtils.expectStatus(resultActions, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
@@ -98,20 +92,20 @@ class UserControllerTest {
             mockEverything();
             UserPreferences userPreferences = user.getUserPreferences();
             Object dto = new UserPreferencesDto(userPreferences.getId(), userPreferences.getNormalChannel(), userPreferences.getUrgentChannel());
-            ResultActions request = performPost("/user/1/preferences/channel", dto);
+            ResultActions request = TestUtils.performPost(mockMvc, dto, "/user/1/preferences/channel");
             request.andExpect(status().is(HttpStatus.OK.value()));
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
     @Test
     void getUserPreferencesNotificationChannel() {
         try {
-            ResultActions request = performGet("/user/preferences");
-            expectResult(request, HttpStatus.OK);
+            ResultActions request = TestUtils.performGet(mockMvc, "/user/preferences");
+            TestUtils.expectStatus(request, HttpStatus.OK);
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
@@ -119,33 +113,16 @@ class UserControllerTest {
     void getAllUsers() {
         try {
             mockEverything();
-            ResultActions request = performGet("/user");
-            expectResult(request, HttpStatus.OK);
+            ResultActions request = TestUtils.performGet(mockMvc, "/user");
+            TestUtils.expectStatus(request, HttpStatus.OK);
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
-    }
-
-    private ResultActions performPost(String url, Object dto) throws Exception {
-        return mockMvc.perform(post(url).content(mapper.writeValueAsString(dto)).contentType(MediaType.APPLICATION_JSON));
     }
 
     private void mockEverything() {
         given(userService.getById(any())).will(i -> i.getArgument(0).equals(user.getId()) ? Optional.of(user) : Optional.empty());
         given(eventLineService.getAllLinesOfUser(any(), anyInt())).will(i -> new PageImpl<>(Collections.singletonList(eventLine)));
         given(userService.getUsersPage(any())).will(i -> new PageImpl<>(Collections.singletonList(user)));
-    }
-
-    private ResultActions performGet(String url) throws Exception {
-        return mockMvc.perform(get(url).contentType(MediaType.APPLICATION_JSON));
-    }
-
-    private void expectResult(ResultActions resultActions, HttpStatus status) throws Exception {
-        resultActions.andExpect(status().is(status.value()));
-    }
-
-    private void failTest(Exception e) {
-        e.printStackTrace();
-        Assertions.fail("Exception was thrown in test.");
     }
 }

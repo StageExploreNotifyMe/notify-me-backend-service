@@ -12,8 +12,8 @@ import be.xplore.notify.me.persistence.OrganizationRepo;
 import be.xplore.notify.me.persistence.UserOrganizationRepo;
 import be.xplore.notify.me.persistence.UserRepo;
 import be.xplore.notify.me.services.user.UserOrganizationNotificationService;
+import be.xplore.notify.me.util.TestUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -21,12 +21,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -35,10 +32,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -69,14 +62,14 @@ class UserOrganizationControllerTest {
     void userJoinOrganization() {
         try {
             mockAll();
-            ResultActions resultActions = getPerformPostWithContent("/userorganization/request/join", new UserOrganizationIdsDto(user.getId(), organization.getId()));
-            expectStatus(HttpStatus.CREATED, resultActions);
-            UserOrganizationDto userOrganization = mapper.readValue(getContentAsString(resultActions), UserOrganizationDto.class);
+            ResultActions request = TestUtils.performPost(mockMvc, new UserOrganizationIdsDto(user.getId(), organization.getId()), "/userorganization/request/join");
+            TestUtils.expectStatus(request, HttpStatus.CREATED);
+            UserOrganizationDto userOrganization = mapper.readValue(TestUtils.getContentAsString(request), UserOrganizationDto.class);
 
             assertEquals(user.getId(), userOrganization.getUser().getId());
             assertEquals(organization.getId(), userOrganization.getOrganization().getId());
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
@@ -84,10 +77,10 @@ class UserOrganizationControllerTest {
     void userJoinNotFound() {
         try {
             mockFetchesByIds();
-            ResultActions resultActions = getPerformPostWithContent("/userorganization/request/join", new UserOrganizationIdsDto("qqsdfqsdf", organization.getId()));
-            expectStatus(HttpStatus.NOT_FOUND, resultActions);
+            ResultActions request = TestUtils.performPost(mockMvc, new UserOrganizationIdsDto("qqsdfqsdf", organization.getId()), "/userorganization/request/join");
+            TestUtils.expectStatus(request, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
@@ -95,10 +88,10 @@ class UserOrganizationControllerTest {
     void processJoinRequest() {
         try {
             mockAll();
-            ResultActions resultActions = getPerformPostWithContent("/userorganization/request/process", new UserOrganizationProcessDto(userOrganization.getId(), true));
-            expectStatus(HttpStatus.OK, resultActions);
+            ResultActions request = TestUtils.performPost(mockMvc, new UserOrganizationProcessDto(userOrganization.getId(), true), "/userorganization/request/process");
+            TestUtils.expectStatus(request, HttpStatus.OK);
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
@@ -106,10 +99,10 @@ class UserOrganizationControllerTest {
     void processJoinRequestNotFound() {
         try {
             mockAll();
-            ResultActions request = getPerformPostWithContent("/userorganization/request/process", new UserOrganizationProcessDto("qksdfj", true));
-            expectStatus(HttpStatus.NOT_FOUND, request);
+            ResultActions request = TestUtils.performPost(mockMvc, new UserOrganizationProcessDto("qksdfj", true), "/userorganization/request/process");
+            TestUtils.expectStatus(request, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
@@ -117,10 +110,10 @@ class UserOrganizationControllerTest {
     void getPendingJoinRequests() {
         try {
             mockAll();
-            ResultActions request = getPerform(get("/userorganization/requests/1/pending?page=1"));
-            expectStatus(HttpStatus.OK, request);
+            ResultActions request = TestUtils.performGet(mockMvc, "/userorganization/requests/1/pending?page=1");
+            TestUtils.expectStatus(request, HttpStatus.OK);
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
@@ -128,10 +121,10 @@ class UserOrganizationControllerTest {
     void getUsersOfOrganization() {
         try {
             mockAll();
-            ResultActions resultActions = getPerform(get("/userorganization/" + userOrganization.getId() + "/users?page=1"));
-            expectStatus(HttpStatus.OK, resultActions);
+            ResultActions request = TestUtils.performGet(mockMvc, "/userorganization/" + userOrganization.getId() + "/users?page=1");
+            TestUtils.expectStatus(request, HttpStatus.OK);
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
@@ -139,10 +132,10 @@ class UserOrganizationControllerTest {
     void getUsersOfOrganizationInvalidId() {
         try {
             mockAll();
-            ResultActions request = getPerform(get("/userorganization/maermkdoiu/users"));
-            expectStatus(HttpStatus.NOT_FOUND, request);
+            ResultActions request = TestUtils.performGet(mockMvc, "/userorganization/maermkdoiu/users");
+            TestUtils.expectStatus(request, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
@@ -150,10 +143,10 @@ class UserOrganizationControllerTest {
     void getUsersOfOrganizationNoPage() {
         try {
             mockAll();
-            ResultActions resultActions = getPerform(get("/userorganization/" + userOrganization.getId() + "/users"));
-            expectStatus(HttpStatus.OK, resultActions);
+            ResultActions request = TestUtils.performGet(mockMvc, "/userorganization/" + userOrganization.getId() + "/users");
+            TestUtils.expectStatus(request, HttpStatus.OK);
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
@@ -161,12 +154,12 @@ class UserOrganizationControllerTest {
     void promoteMember() {
         try {
             mockAll();
-            ResultActions resultActions = getPerform(post("/userorganization/" + userOrganization.getId() + "/promote"));
-            expectStatus(HttpStatus.OK, resultActions);
-            UserOrganizationDto userOrganizationDto = mapper.readValue(getContentAsString(resultActions), UserOrganizationDto.class);
+            ResultActions request = TestUtils.performPost(mockMvc, null, "/userorganization/" + userOrganization.getId() + "/promote");
+            TestUtils.expectStatus(request, HttpStatus.OK);
+            UserOrganizationDto userOrganizationDto = mapper.readValue(TestUtils.getContentAsString(request), UserOrganizationDto.class);
             assertEquals(Role.ORGANIZATION_LEADER, userOrganizationDto.getRole());
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
@@ -174,10 +167,10 @@ class UserOrganizationControllerTest {
     void promoteMemberNotFound() {
         try {
             mockAll();
-            ResultActions resultActions = getPerform(post("/userorganization/qdsmlfk/promote"));
-            expectStatus(HttpStatus.NOT_FOUND, resultActions);
+            ResultActions request = TestUtils.performPost(mockMvc, null, "/userorganization/qdsmlfk/promote");
+            TestUtils.expectStatus(request, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
@@ -185,10 +178,10 @@ class UserOrganizationControllerTest {
     void promoteMemberWrongMethod() {
         try {
             mockAll();
-            ResultActions resultActions = getPerform(patch("/userorganization/qdsmlfk/promote"));
-            expectStatus(HttpStatus.METHOD_NOT_ALLOWED, resultActions);
+            ResultActions request = TestUtils.performPatch(mockMvc, null, "/userorganization/qdsmlfk/promote");
+            TestUtils.expectStatus(request, HttpStatus.METHOD_NOT_ALLOWED);
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
@@ -196,13 +189,12 @@ class UserOrganizationControllerTest {
     void demoteMember() {
         try {
             mockAll();
-            MockHttpServletRequestBuilder patch = post("/userorganization/" + userOrganization.getId() + "/demote");
-            ResultActions resultActions = getPerform(patch);
-            expectStatus(HttpStatus.OK, resultActions);
-            UserOrganizationDto userOrganizationDto = mapper.readValue(getContentAsString(resultActions), UserOrganizationDto.class);
+            ResultActions request = TestUtils.performPost(mockMvc, null, "/userorganization/" + userOrganization.getId() + "/demote");
+            TestUtils.expectStatus(request, HttpStatus.OK);
+            UserOrganizationDto userOrganizationDto = mapper.readValue(TestUtils.getContentAsString(request), UserOrganizationDto.class);
             assertEquals(Role.MEMBER, userOrganizationDto.getRole());
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
@@ -210,34 +202,13 @@ class UserOrganizationControllerTest {
     void getAllUserOrganizationsOfUser() {
         try {
             mockAll();
-            ResultActions resultActions = getPerform(get("/userorganization/user/" + user.getId()));
-            expectStatus(HttpStatus.OK, resultActions);
-            UserOrganizationsDto userOrganizationDto = mapper.readValue(getContentAsString(resultActions), UserOrganizationsDto.class);
+            ResultActions request = TestUtils.performGet(mockMvc, "/userorganization/user/" + user.getId());
+            TestUtils.expectStatus(request, HttpStatus.OK);
+            UserOrganizationsDto userOrganizationDto = mapper.readValue(TestUtils.getContentAsString(request), UserOrganizationsDto.class);
             assertNotNull(userOrganizationDto);
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
-    }
-
-    private ResultActions getPerform(MockHttpServletRequestBuilder patch) throws Exception {
-        return mockMvc.perform(patch.contentType(MediaType.APPLICATION_JSON));
-    }
-
-    private ResultActions getPerformPostWithContent(String url, Object requestBody) throws Exception {
-        return getPerform(post(url).content(mapper.writeValueAsString(requestBody)));
-    }
-
-    private void failTest(Exception e) {
-        e.printStackTrace();
-        Assertions.fail("Exception was thrown in test.");
-    }
-
-    private String getContentAsString(ResultActions request) throws UnsupportedEncodingException {
-        return request.andReturn().getResponse().getContentAsString();
-    }
-
-    private void expectStatus(HttpStatus status, ResultActions request) throws Exception {
-        request.andExpect(status().is(status.value()));
     }
 
     private void mockAll() {

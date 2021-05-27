@@ -7,8 +7,8 @@ import be.xplore.notify.me.dto.event.EventCreationDto;
 import be.xplore.notify.me.dto.event.EventDto;
 import be.xplore.notify.me.services.VenueService;
 import be.xplore.notify.me.services.event.EventService;
+import be.xplore.notify.me.util.TestUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -16,11 +16,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,9 +27,6 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -56,12 +51,12 @@ class EventControllerTest {
         mockServices();
         EventCreationDto eventCreationDto = new EventCreationDto(LocalDateTime.now().plusMonths(1), "Test Event", venue.getId());
         try {
-            ResultActions resultActions = performPost(eventCreationDto, "/event");
-            expectResult(resultActions, HttpStatus.CREATED);
-            EventDto eventDto = mapper.readValue(getResult(resultActions), EventDto.class);
+            ResultActions resultActions = TestUtils.performPost(mockMvc, eventCreationDto, "/event");
+            TestUtils.expectStatus(resultActions, HttpStatus.CREATED);
+            EventDto eventDto = mapper.readValue(TestUtils.getContentAsString(resultActions), EventDto.class);
             assertDataCorrectCreatedEvent(eventCreationDto, eventDto);
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
@@ -76,9 +71,9 @@ class EventControllerTest {
         mockServices();
         EventCreationDto eventCreationDto = new EventCreationDto(LocalDateTime.now().plusMonths(1), "Test Event", "qsdf");
         try {
-            expectResult(performPost(eventCreationDto, "/event"), HttpStatus.NOT_FOUND);
+            TestUtils.expectStatus(TestUtils.performPost(mockMvc, eventCreationDto, "/event"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
@@ -87,9 +82,9 @@ class EventControllerTest {
         mockServices();
         EventCreationDto eventCreationDto = new EventCreationDto(LocalDateTime.now().minusMonths(1), "Test Event", venue.getId());
         try {
-            expectResult(performPost(eventCreationDto, "/event"), HttpStatus.BAD_REQUEST);
+            TestUtils.expectStatus(TestUtils.performPost(mockMvc, eventCreationDto, "/event"), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
@@ -97,10 +92,10 @@ class EventControllerTest {
     void getEventsOfVenue() {
         mockServices();
         try {
-            ResultActions resultActions = performGet("/event/venue/" + event.getVenue().getId());
-            expectResult(resultActions, HttpStatus.OK);
+            ResultActions resultActions = TestUtils.performGet(mockMvc, "/event/venue/" + event.getVenue().getId());
+            TestUtils.expectStatus(resultActions, HttpStatus.OK);
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
@@ -108,10 +103,10 @@ class EventControllerTest {
     void getEventsOfVenueWithPage() {
         mockServices();
         try {
-            ResultActions resultActions = performGet("/event/venue/" + event.getVenue().getId() + "?page=0");
-            expectResult(resultActions, HttpStatus.OK);
+            ResultActions resultActions = TestUtils.performGet(mockMvc, "/event/venue/" + event.getVenue().getId() + "?page=0");
+            TestUtils.expectStatus(resultActions, HttpStatus.OK);
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
@@ -119,12 +114,12 @@ class EventControllerTest {
     void cancelEvent() {
         try {
             mockServices();
-            ResultActions resultActions = performPost(new EventDto(), "/event/" + event.getId() + "/cancel");
-            expectResult(resultActions, HttpStatus.OK);
-            EventDto eventDto = mapper.readValue(getResult(resultActions), EventDto.class);
+            ResultActions resultActions = TestUtils.performPost(mockMvc, new EventDto(), "/event/" + event.getId() + "/cancel");
+            TestUtils.expectStatus(resultActions, HttpStatus.OK);
+            EventDto eventDto = mapper.readValue(TestUtils.getContentAsString(resultActions), EventDto.class);
             assertEquals(EventStatus.CANCELED, eventDto.getEventStatus());
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
@@ -132,12 +127,12 @@ class EventControllerTest {
     void publishEvent() {
         try {
             mockServices();
-            ResultActions resultActions = performPost(new EventDto(), "/event/" + event.getId() + "/publish");
-            expectResult(resultActions, HttpStatus.OK);
-            EventDto eventDto = mapper.readValue(getResult(resultActions), EventDto.class);
+            ResultActions resultActions = TestUtils.performPost(mockMvc, new EventDto(), "/event/" + event.getId() + "/publish");
+            TestUtils.expectStatus(resultActions, HttpStatus.OK);
+            EventDto eventDto = mapper.readValue(TestUtils.getContentAsString(resultActions), EventDto.class);
             assertEquals(EventStatus.PUBLIC, eventDto.getEventStatus());
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
@@ -145,12 +140,12 @@ class EventControllerTest {
     void makeEventPrivate() {
         try {
             mockServices();
-            ResultActions resultActions = performPost(new EventDto(), "/event/" + event.getId() + "/private");
-            expectResult(resultActions, HttpStatus.OK);
-            EventDto eventDto = mapper.readValue(getResult(resultActions), EventDto.class);
+            ResultActions resultActions = TestUtils.performPost(mockMvc, new EventDto(), "/event/" + event.getId() + "/private");
+            TestUtils.expectStatus(resultActions, HttpStatus.OK);
+            EventDto eventDto = mapper.readValue(TestUtils.getContentAsString(resultActions), EventDto.class);
             assertEquals(EventStatus.PRIVATE, eventDto.getEventStatus());
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
@@ -158,12 +153,12 @@ class EventControllerTest {
     void getEventById() {
         try {
             mockServices();
-            ResultActions resultActions = performGet("/event/" + event.getId());
-            expectResult(resultActions, HttpStatus.OK);
-            EventDto eventDto = mapper.readValue(getResult(resultActions), EventDto.class);
+            ResultActions resultActions = TestUtils.performGet(mockMvc, "/event/" + event.getId());
+            TestUtils.expectStatus(resultActions, HttpStatus.OK);
+            EventDto eventDto = mapper.readValue(TestUtils.getContentAsString(resultActions), EventDto.class);
             assertEquals(event.getId(), eventDto.getId());
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
@@ -171,19 +166,11 @@ class EventControllerTest {
     void getEventByIdNotFound() {
         try {
             mockServices();
-            ResultActions resultActions = performGet("/event/qsdmflkj");
-            expectResult(resultActions, HttpStatus.NOT_FOUND);
+            ResultActions resultActions = TestUtils.performGet(mockMvc, "/event/qsdmflkj");
+            TestUtils.expectStatus(resultActions, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
-    }
-
-    private ResultActions performGet(String url) throws Exception {
-        return mockMvc.perform(get(url).contentType(MediaType.APPLICATION_JSON));
-    }
-
-    private void expectResult(ResultActions resultActions, HttpStatus expectedStatus) throws Exception {
-        resultActions.andExpect(status().is(expectedStatus.value()));
     }
 
     private void mockServices() {
@@ -235,19 +222,6 @@ class EventControllerTest {
             }
             return new PageImpl<>(entityList);
         });
-    }
-
-    private ResultActions performPost(Object body, String url) throws Exception {
-        return mockMvc.perform(post(url).content(mapper.writeValueAsString(body)).contentType(MediaType.APPLICATION_JSON));
-    }
-
-    private String getResult(ResultActions resultActions) throws UnsupportedEncodingException {
-        return resultActions.andReturn().getResponse().getContentAsString();
-    }
-
-    private void failTest(Exception e) {
-        e.printStackTrace();
-        Assertions.fail("Exception was thrown in test.");
     }
 
 }

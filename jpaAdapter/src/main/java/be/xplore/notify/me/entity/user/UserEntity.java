@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -28,6 +29,7 @@ public class UserEntity {
     private String firstname;
     private String lastname;
     private String mobileNumber;
+    @Column(unique = true)
     private String email;
     private String passwordHash;
     @OneToMany

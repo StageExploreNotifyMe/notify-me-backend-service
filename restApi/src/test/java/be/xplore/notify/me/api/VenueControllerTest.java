@@ -5,8 +5,7 @@ import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.dto.venue.CreateVenueDto;
 import be.xplore.notify.me.services.VenueService;
 import be.xplore.notify.me.services.user.UserService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Assertions;
+import be.xplore.notify.me.util.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -14,7 +13,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -24,8 +22,6 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -33,22 +29,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class VenueControllerTest {
 
     @Autowired
-    ObjectMapper mapper;
+    private MockMvc mockMvc;
 
     @Autowired
-    MockMvc mockMvc;
-
+    private Venue venue;
     @Autowired
-    Venue venue;
-
-    @Autowired
-    User user;
+    private User user;
 
     @MockBean
-    VenueService venueService;
-
+    private VenueService venueService;
     @MockBean
-    UserService userService;
+    private UserService userService;
 
     private void mockGetVenues() {
         given(venueService.getAllVenues(any(int.class))).will(i -> {
@@ -74,10 +65,10 @@ class VenueControllerTest {
     void getVenues() {
         try {
             mockGetVenues();
-            ResultActions resultActions = mockMvc.perform(get("/admin/venue").contentType(MediaType.APPLICATION_JSON));
+            ResultActions resultActions = TestUtils.performGet(mockMvc, "/admin/venue");
             resultActions.andExpect(status().is(HttpStatus.OK.value()));
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
@@ -87,11 +78,10 @@ class VenueControllerTest {
         mockGetUserById();
         CreateVenueDto createVenueDto = new CreateVenueDto("test venue", user.getId());
         try {
-            String requestBody = mapper.writeValueAsString(createVenueDto);
-            ResultActions resultActions = mockMvc.perform(post("/admin/venue/create").content(requestBody).contentType(MediaType.APPLICATION_JSON));
-            resultActions.andExpect(status().is(HttpStatus.CREATED.value()));
+            ResultActions resultActions = TestUtils.performPost(mockMvc, createVenueDto, "/admin/venue/create");
+            TestUtils.expectStatus(resultActions, HttpStatus.CREATED);
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
@@ -100,11 +90,10 @@ class VenueControllerTest {
         mockAll();
         CreateVenueDto createVenueDto = new CreateVenueDto("test venue", "sdfdq");
         try {
-            String requestBody = mapper.writeValueAsString(createVenueDto);
-            ResultActions resultActions = mockMvc.perform(post("/admin/venue/create").content(requestBody).contentType(MediaType.APPLICATION_JSON));
-            resultActions.andExpect(status().is(HttpStatus.NOT_FOUND.value()));
+            ResultActions resultActions = TestUtils.performPost(mockMvc, createVenueDto, "/admin/venue/create");
+            TestUtils.expectStatus(resultActions, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
@@ -112,11 +101,6 @@ class VenueControllerTest {
         mockCreateVenue();
         mockGetVenues();
         mockAddVenueManager();
-    }
-
-    private void failTest(Exception e) {
-        e.printStackTrace();
-        Assertions.fail("Exception was thrown in test.");
     }
 
 }

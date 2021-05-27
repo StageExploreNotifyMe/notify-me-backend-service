@@ -16,6 +16,7 @@ import java.util.Optional;
 
 @Slf4j
 @Component
+@Transactional
 public class UserAdapter implements UserRepo {
     private final JpaUserRepo jpaUserRepo;
     private final UserEntityMapper userEntityMapper;
@@ -27,12 +28,7 @@ public class UserAdapter implements UserRepo {
 
     @Override
     public Optional<User> findById(String id) {
-        Optional<UserEntity> optional = jpaUserRepo.findById(id);
-        if (optional.isEmpty()) {
-            return Optional.empty();
-        }
-        User user = userEntityMapper.fromEntity(optional.get());
-        return Optional.of(user);
+        return mapToObject(jpaUserRepo.findById(id));
     }
 
     @Override
@@ -42,9 +38,22 @@ public class UserAdapter implements UserRepo {
     }
 
     @Override
-    @Transactional
+
     public Page<User> findAll(PageRequest pageRequest) {
         Page<UserEntity> entityPage = jpaUserRepo.findAll(pageRequest);
         return entityPage.map(userEntityMapper::fromEntity);
+    }
+
+    @Override
+    public Optional<User> getUserByEmail(String email) {
+        return mapToObject(jpaUserRepo.findByEmail(email));
+    }
+
+    private Optional<User> mapToObject(Optional<UserEntity> optional) {
+        if (optional.isEmpty()) {
+            return Optional.empty();
+        }
+        User user = userEntityMapper.fromEntity(optional.get());
+        return Optional.of(user);
     }
 }

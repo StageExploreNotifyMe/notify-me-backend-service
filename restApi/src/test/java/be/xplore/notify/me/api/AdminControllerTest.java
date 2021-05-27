@@ -2,7 +2,7 @@ package be.xplore.notify.me.api;
 
 import be.xplore.notify.me.domain.notification.Notification;
 import be.xplore.notify.me.services.notification.NotificationService;
-import org.junit.jupiter.api.Assertions;
+import be.xplore.notify.me.util.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -20,7 +20,6 @@ import java.util.List;
 import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -39,10 +38,20 @@ class AdminControllerTest {
         try {
             mockSave();
             mockGetAllNotifications();
-            ResultActions request = mockMvc.perform(get("/admin/notifications?page=0").contentType(MediaType.APPLICATION_JSON));
-            request.andExpect(status().is(HttpStatus.OK.value()));
+            ResultActions request = TestUtils.performGet(mockMvc, "/admin/notifications?page=0");
+            TestUtils.expectStatus(request, HttpStatus.OK);
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
+        }
+    }
+
+    @Test
+    void getAllNotificationsUnAuthorized() {
+        try {
+            ResultActions perform = mockMvc.perform(get("/admin/notifications?page=0").contentType(MediaType.APPLICATION_JSON));
+            TestUtils.expectStatus(perform, HttpStatus.valueOf(403));
+        } catch (Exception e) {
+            TestUtils.failTest(e);
         }
     }
 
@@ -51,10 +60,10 @@ class AdminControllerTest {
         try {
             mockSave();
             mockGetAllNotificationByType();
-            ResultActions request = mockMvc.perform(get("/admin/notifications/type/USER_JOINED?page=0").contentType(MediaType.APPLICATION_JSON));
-            request.andExpect(status().is(HttpStatus.OK.value()));
+            ResultActions request = TestUtils.performGet(mockMvc, "/admin/notifications/type/USER_JOINED?page=0");
+            TestUtils.expectStatus(request, HttpStatus.OK);
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
@@ -63,10 +72,10 @@ class AdminControllerTest {
         try {
             mockSave();
             mockGetAllNotificationsByEvent();
-            ResultActions request = mockMvc.perform(get("/admin/notifications/event/1?page=0").contentType(MediaType.APPLICATION_JSON));
-            request.andExpect(status().is(HttpStatus.OK.value()));
+            ResultActions request = TestUtils.performGet(mockMvc, "/admin/notifications/event/1?page=0");
+            TestUtils.expectStatus(request, HttpStatus.OK);
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
@@ -75,40 +84,40 @@ class AdminControllerTest {
         try {
             mockSave();
             mockGetAllNotificationByTypeAndEvent();
-            ResultActions request = mockMvc.perform(get("/admin/notifications/type/USER_JOINED/event/1?page=0").contentType(MediaType.APPLICATION_JSON));
-            request.andExpect(status().is(HttpStatus.OK.value()));
+            ResultActions request = TestUtils.performGet(mockMvc, "/admin/notifications/type/USER_JOINED/event/1?page=0");
+            TestUtils.expectStatus(request, HttpStatus.OK);
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
     @Test
     void getAllNotificationTypes() {
         try {
-            ResultActions request = mockMvc.perform(get("/admin/notificationTypes").contentType(MediaType.APPLICATION_JSON));
-            request.andExpect(status().is(HttpStatus.OK.value()));
+            ResultActions request = TestUtils.performGet(mockMvc, "/admin/notificationTypes");
+            TestUtils.expectStatus(request, HttpStatus.OK);
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
     @Test
     void getAllEvents() {
         try {
-            ResultActions request = mockMvc.perform(get("/admin/eventId").contentType(MediaType.APPLICATION_JSON));
-            request.andExpect(status().is(HttpStatus.OK.value()));
+            ResultActions request = TestUtils.performGet(mockMvc, "/admin/eventId");
+            TestUtils.expectStatus(request, HttpStatus.OK);
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
     @Test
     void getAmountOfNotificationChannels() {
         try {
-            ResultActions request = mockMvc.perform(get("/admin/channelAmount").contentType(MediaType.APPLICATION_JSON));
-            request.andExpect(status().is(HttpStatus.OK.value()));
+            ResultActions request = TestUtils.performGet(mockMvc, "/admin/channelAmount");
+            TestUtils.expectStatus(request, HttpStatus.OK);
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
@@ -146,11 +155,6 @@ class AdminControllerTest {
             notifications.add(notification);
             return new PageImpl<>(notifications);
         });
-    }
-
-    private void failTest(Exception e) {
-        e.printStackTrace();
-        Assertions.fail("Exception was thrown in test.");
     }
 
 }
