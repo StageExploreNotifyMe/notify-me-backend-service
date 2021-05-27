@@ -69,10 +69,6 @@ public class EventLineService {
         return save(updatedLine);
     }
 
-    public List<User> getLineManagersByEvent(Event event) {
-        return eventLineRepo.getLineManagersByEvent(event);
-    }
-
     public Optional<EventLine> getById(String id) {
         return eventLineRepo.findById(id);
     }

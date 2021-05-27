@@ -68,4 +68,10 @@ class EventLineAdapterTest {
         Page<EventLine> page = eventLineAdapter.getAllLinesOfEvent("1", PageRequest.of(0, 20));
         assertTrue(page.hasContent());
     }
+
+    @Test
+    void getAllActiveEventLinesOfLineManager() {
+        List<EventLine> lines = eventLineAdapter.getAllActiveEventLinesOfLineManager("1");
+        assertEquals("1", lines.get(0).getLineManager().getId());
+    }
 }

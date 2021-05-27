@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageImpl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -85,20 +86,6 @@ class EventServiceTest {
         assertEquals(event.getId(), updatedEvent.getId());
     }
 
-    private void mockGetEventsByVenueId() {
-        given(eventRepo.getEventsOfVenue(any(), any())).will(i -> {
-            List<Event> entityList = new ArrayList<>();
-            if (i.getArgument(0).equals(event.getVenue().getId())) {
-                entityList.add(event);
-            }
-            return new PageImpl<>(entityList);
-        });
-    }
-
-    private void mockSave() {
-        given(eventRepo.save(any())).will(i -> i.getArgument(0));
-    }
-
     @Test
     void getById() {
         mockFindById();
@@ -114,7 +101,28 @@ class EventServiceTest {
         assertTrue(eventLineOptional.isEmpty());
     }
 
+    @Test
+    void getUpcomingEvents() {
+        given(eventRepo.getAllEventsBetween(any(), any(), any())).will(i -> new PageImpl<>(Collections.singletonList(event)));
+        Page<Event> events = eventService.getUpcomingEvents(5, 0);
+        assertEquals(event.getId(), events.getContent().get(0).getId());
+    }
+
     private void mockFindById() {
         given(eventRepo.findById(any())).will(i -> i.getArgument(0).equals(event.getId()) ? Optional.of(event) : Optional.empty());
+    }
+
+    private void mockGetEventsByVenueId() {
+        given(eventRepo.getEventsOfVenue(any(), any())).will(i -> {
+            List<Event> entityList = new ArrayList<>();
+            if (i.getArgument(0).equals(event.getVenue().getId())) {
+                entityList.add(event);
+            }
+            return new PageImpl<>(entityList);
+        });
+    }
+
+    private void mockSave() {
+        given(eventRepo.save(any())).will(i -> i.getArgument(0));
     }
 }

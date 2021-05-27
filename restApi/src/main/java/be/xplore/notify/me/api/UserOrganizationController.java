@@ -9,7 +9,7 @@ import be.xplore.notify.me.dto.user.UserOrganizationDto;
 import be.xplore.notify.me.dto.user.UserOrganizationIdsDto;
 import be.xplore.notify.me.dto.user.UserOrganizationProcessDto;
 import be.xplore.notify.me.dto.user.UserOrganizationsDto;
-import be.xplore.notify.me.mappers.UserOrganizationDtoMapper;
+import be.xplore.notify.me.mappers.user.UserOrganizationDtoMapper;
 import be.xplore.notify.me.services.OrganizationService;
 import be.xplore.notify.me.services.user.UserOrganizationService;
 import be.xplore.notify.me.services.user.UserService;

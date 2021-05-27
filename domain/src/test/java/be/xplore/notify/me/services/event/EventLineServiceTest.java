@@ -152,6 +152,25 @@ class EventLineServiceTest {
         eventLineService.sendStaffingReminder(eventLine, null);
     }
 
+    @Test
+    void getAllActiveEventLinesOfLineManager() {
+        mockGetAllLineMangersOfEvent();
+        List<EventLine> lines = eventLineService.getAllActiveEventLinesOfLineManager(eventLine.getLineManager());
+        assertEquals(eventLine.getLineManager().getId(), lines.get(0).getLineManager().getId());
+        List<EventLine> empty = eventLineService.getAllActiveEventLinesOfLineManager(User.builder().id("qdsfa").build());
+        assertTrue(empty.isEmpty());
+    }
+
+    private void mockGetAllLineMangersOfEvent() {
+        given(eventLineRepo.getAllActiveEventLinesOfLineManager(any())).will(i -> {
+            List<EventLine> lines = new ArrayList<>();
+            if (i.getArgument(0).equals(eventLine.getLineManager().getId())) {
+                lines.add(eventLine);
+            }
+            return lines;
+        });
+    }
+
     private void mockGetEventLinesOfUser() {
         given(eventLineRepo.getAllLinesOfUser(any(), any())).will(i -> getPageOfEventLine());
     }
