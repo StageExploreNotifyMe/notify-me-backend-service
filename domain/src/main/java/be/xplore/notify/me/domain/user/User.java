@@ -15,6 +15,7 @@ public class User {
     String lastname;
     String mobileNumber;
     String email;
+    String passwordHash;
     List<Notification> inbox;
     List<Notification> notificationQueue;
 }

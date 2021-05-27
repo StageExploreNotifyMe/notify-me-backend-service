@@ -29,6 +29,7 @@ public class UserEntity {
     private String lastname;
     private String mobileNumber;
     private String email;
+    private String passwordHash;
     @OneToMany
     private List<NotificationEntity> inbox = new ArrayList<>();
     @OneToMany

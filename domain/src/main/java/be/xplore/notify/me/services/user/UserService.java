@@ -5,6 +5,7 @@ import be.xplore.notify.me.domain.notification.Notification;
 import be.xplore.notify.me.domain.notification.NotificationChannel;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.persistence.UserRepo;
+import be.xplore.notify.me.services.authentication.PasswordService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,10 +19,12 @@ import java.util.Optional;
 public class UserService {
     private final UserRepo userRepo;
     private final UserPreferencesService userPreferencesService;
+    private final PasswordService passwordService;
 
-    public UserService(UserRepo userRepo, UserPreferencesService userPreferencesService) {
+    public UserService(UserRepo userRepo, UserPreferencesService userPreferencesService, PasswordService passwordService) {
         this.userRepo = userRepo;
         this.userPreferencesService = userPreferencesService;
+        this.passwordService = passwordService;
     }
 
     public User addNotificationToInbox(Notification notification, User user) {
@@ -69,5 +72,22 @@ public class UserService {
                 .inbox(user.getInbox())
                 .build();
         return save(toSave);
+    }
+
+    public User registerNewUser(User user) {
+        User toSave = User.builder()
+                .userPreferences(userPreferencesService.generateDefaultPreferences())
+                .email(user.getEmail())
+                .mobileNumber(user.getMobileNumber())
+                .inbox(new ArrayList<>())
+                .notificationQueue(new ArrayList<>())
+                .firstname(user.getFirstname())
+                .lastname(user.getLastname())
+                .passwordHash(passwordService.generatePasswordHash(user.getPasswordHash()))
+                .build();
+
+        User savedUser = save(toSave);
+        log.trace("Registered a new user: {} {}", savedUser.getFirstname(), savedUser.getLastname());
+        return savedUser;
     }
 }
