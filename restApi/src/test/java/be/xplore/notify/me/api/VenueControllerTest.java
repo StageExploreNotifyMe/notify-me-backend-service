@@ -7,6 +7,7 @@ import be.xplore.notify.me.dto.venue.VenueDto;
 import be.xplore.notify.me.services.VenueService;
 import be.xplore.notify.me.services.user.UserService;
 import be.xplore.notify.me.util.TestUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -21,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static be.xplore.notify.me.util.TestUtils.failTest;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -31,6 +34,9 @@ class VenueControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper mapper;
 
     @Autowired
     private Venue venue;
@@ -79,7 +85,7 @@ class VenueControllerTest {
             ResultActions resultActions = TestUtils.performGet(mockMvc, "/admin/venue");
             resultActions.andExpect(status().is(HttpStatus.OK.value()));
         } catch (Exception e) {
-            TestUtils.failTest(e);
+            failTest(e);
         }
     }
 
@@ -92,7 +98,7 @@ class VenueControllerTest {
             ResultActions resultActions = TestUtils.performPost(mockMvc, createVenueDto, "/admin/venue/create");
             TestUtils.expectStatus(resultActions, HttpStatus.CREATED);
         } catch (Exception e) {
-            TestUtils.failTest(e);
+            failTest(e);
         }
     }
 
@@ -105,7 +111,7 @@ class VenueControllerTest {
             ResultActions resultActions = TestUtils.performPost(mockMvc, createVenueDto, "/admin/venue/create");
             TestUtils.expectStatus(resultActions, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            TestUtils.failTest(e);
+            failTest(e);
         }
     }
 
@@ -114,12 +120,12 @@ class VenueControllerTest {
         mockUpdate();
         try {
             VenueDto body = new VenueDto("1", "test venue", new ArrayList<>());
-            ResultActions request = mockMvc.perform(patch("/admin/venue/edit").content(mapper.writeValueAsString(body)).contentType(MediaType.APPLICATION_JSON));
+            ResultActions request = TestUtils.performPatch(mockMvc, body, "/admin/venue/edit");
             request.andExpect(status().is(HttpStatus.OK.value()));
             VenueDto venueDto = mapper.readValue(request.andReturn().getResponse().getContentAsString(), VenueDto.class);
-            Assertions.assertEquals(venueDto.getId(), body.getId());
+            assertEquals(venueDto.getId(), body.getId());
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
@@ -134,7 +140,7 @@ class VenueControllerTest {
         mockAddVenueManager();
     }
 
-     private List<String> getUserIds(String id) {
+    private List<String> getUserIds(String id) {
         List<String> users = new ArrayList<>();
         users.add(id);
         return users;

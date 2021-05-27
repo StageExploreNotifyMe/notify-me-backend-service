@@ -4,7 +4,7 @@ import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.dto.user.LoggedInDto;
 import be.xplore.notify.me.dto.user.LoginDto;
-import be.xplore.notify.me.mappers.UserDtoMapper;
+import be.xplore.notify.me.mappers.user.UserDtoMapper;
 import be.xplore.notify.me.services.user.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;

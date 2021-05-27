@@ -1,6 +1,6 @@
 package be.xplore.notify.me.authentication;
 
-import be.xplore.notify.me.mappers.UserDtoMapper;
+import be.xplore.notify.me.mappers.user.UserDtoMapper;
 import be.xplore.notify.me.services.user.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;

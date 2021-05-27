@@ -4,6 +4,7 @@ import be.xplore.notify.me.domain.Venue;
 import be.xplore.notify.me.domain.event.Line;
 import be.xplore.notify.me.dto.line.LineCreationDto;
 import be.xplore.notify.me.dto.line.LineDto;
+import be.xplore.notify.me.mappers.event.LineDtoMapper;
 import be.xplore.notify.me.services.VenueService;
 import be.xplore.notify.me.services.event.LineService;
 import be.xplore.notify.me.util.TestUtils;
@@ -33,7 +34,8 @@ class LineControllerTest {
     private MockMvc mockMvc;
     @Autowired
     private ObjectMapper mapper;
-
+    @Autowired
+    private LineDtoMapper lineDtoMapper;
     @Autowired
     private Line line;
     @Autowired
@@ -113,7 +115,7 @@ class LineControllerTest {
             TestUtils.expectStatus(resultActions, HttpStatus.BAD_REQUEST);
 
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
@@ -121,12 +123,9 @@ class LineControllerTest {
     void editLine() {
         try {
             mockEverything();
-            ResultActions resultActions = performPatch(
-                    "/line/edit",
-                        lineDtoMapper.toDto(line),
-                        HttpStatus.OK
-            );
-            LineDto lineDto = mapper.readValue(getResult(resultActions), LineDto.class);
+            ResultActions resultActions = TestUtils.performPatch(mockMvc, lineDtoMapper.toDto(line), "/line/edit");
+            TestUtils.expectStatus(resultActions, HttpStatus.OK);
+            LineDto lineDto = mapper.readValue(TestUtils.getContentAsString(resultActions), LineDto.class);
             assertEquals(line.getId(), lineDto.getId());
         } catch (Exception e) {
             TestUtils.failTest(e);

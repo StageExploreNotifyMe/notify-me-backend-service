@@ -2,6 +2,7 @@ package be.xplore.notify.me.mappers;
 
 import be.xplore.notify.me.domain.Venue;
 import be.xplore.notify.me.dto.venue.VenueDto;
+import be.xplore.notify.me.mappers.user.UserDtoMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.stream.Collectors;
