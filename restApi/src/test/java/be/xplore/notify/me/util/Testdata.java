@@ -54,7 +54,7 @@ public class Testdata {
 
     @Bean
     Venue testVenue() {
-        return Venue.builder().id("1").name("Test Venue").venueManagers(new ArrayList<>()).build();
+        return Venue.builder().id("1").name("Test Venue").venueManagers(new ArrayList<>()).lineManagers(new ArrayList<>()).build();
     }
 
     @Bean

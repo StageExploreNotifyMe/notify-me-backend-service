@@ -3,6 +3,7 @@ package be.xplore.notify.me.api;
 import be.xplore.notify.me.domain.Venue;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.dto.venue.CreateVenueDto;
+import be.xplore.notify.me.dto.venue.VenueDto;
 import be.xplore.notify.me.services.VenueService;
 import be.xplore.notify.me.services.user.UserService;
 import be.xplore.notify.me.util.TestUtils;
@@ -61,6 +62,16 @@ class VenueControllerTest {
         given(userService.getById(any())).willReturn(Optional.of(user));
     }
 
+    private void mockUpdateVenue() {
+        given(venueService.updateVenue(any())).will(i ->
+                Venue.builder()
+                .id(venue.getId())
+                .name("updated name")
+                .venueManagers(venue.getVenueManagers())
+                .lineManagers(venue.getLineManagers())
+                .build());
+    }
+
     @Test
     void getVenues() {
         try {
@@ -76,7 +87,7 @@ class VenueControllerTest {
     void createVenue() {
         mockAll();
         mockGetUserById();
-        CreateVenueDto createVenueDto = new CreateVenueDto("test venue", user.getId());
+        CreateVenueDto createVenueDto = new CreateVenueDto("test venue", getUserIds(user.getId()));
         try {
             ResultActions resultActions = TestUtils.performPost(mockMvc, createVenueDto, "/admin/venue/create");
             TestUtils.expectStatus(resultActions, HttpStatus.CREATED);
@@ -88,7 +99,8 @@ class VenueControllerTest {
     @Test
     void createVenueUserNotFound() {
         mockAll();
-        CreateVenueDto createVenueDto = new CreateVenueDto("test venue", "sdfdq");
+        List<String> users = getUserIds("sdfsd");
+        CreateVenueDto createVenueDto = new CreateVenueDto("test venue", users);
         try {
             ResultActions resultActions = TestUtils.performPost(mockMvc, createVenueDto, "/admin/venue/create");
             TestUtils.expectStatus(resultActions, HttpStatus.NOT_FOUND);
@@ -97,10 +109,35 @@ class VenueControllerTest {
         }
     }
 
+    @Test
+    void updateVenue() {
+        mockUpdate();
+        try {
+            VenueDto body = new VenueDto("1", "test venue", new ArrayList<>());
+            ResultActions request = mockMvc.perform(patch("/admin/venue/edit").content(mapper.writeValueAsString(body)).contentType(MediaType.APPLICATION_JSON));
+            request.andExpect(status().is(HttpStatus.OK.value()));
+            VenueDto venueDto = mapper.readValue(request.andReturn().getResponse().getContentAsString(), VenueDto.class);
+            Assertions.assertEquals(venueDto.getId(), body.getId());
+        } catch (Exception e) {
+            failTest(e);
+        }
+    }
+
+    private void mockUpdate() {
+        mockGetUserById();
+        mockUpdateVenue();
+    }
+
     private void mockAll() {
         mockCreateVenue();
         mockGetVenues();
         mockAddVenueManager();
+    }
+
+     private List<String> getUserIds(String id) {
+        List<String> users = new ArrayList<>();
+        users.add(id);
+        return users;
     }
 
 }

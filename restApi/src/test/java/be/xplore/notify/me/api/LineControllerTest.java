@@ -111,6 +111,23 @@ class LineControllerTest {
             ResultActions resultActions = TestUtils.performPost(mockMvc,
                 new LineCreationDto(line.getName(), line.getDescription(), line.getVenue().getId(), -1), "/line/create");
             TestUtils.expectStatus(resultActions, HttpStatus.BAD_REQUEST);
+
+        } catch (Exception e) {
+            failTest(e);
+        }
+    }
+
+    @Test
+    void editLine() {
+        try {
+            mockEverything();
+            ResultActions resultActions = performPatch(
+                    "/line/edit",
+                        lineDtoMapper.toDto(line),
+                        HttpStatus.OK
+            );
+            LineDto lineDto = mapper.readValue(getResult(resultActions), LineDto.class);
+            assertEquals(line.getId(), lineDto.getId());
         } catch (Exception e) {
             TestUtils.failTest(e);
         }
@@ -121,6 +138,7 @@ class LineControllerTest {
         mockGetLineById();
         mockGetVenueById();
         given(lineService.createLine(any())).will(i -> i.getArgument(0));
+        given(lineService.updateLine(any())).will(i -> i.getArgument(0));
     }
 
     private void mockGetLinesByVenue() {

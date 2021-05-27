@@ -2,6 +2,7 @@ package be.xplore.notify.me.services;
 
 import be.xplore.notify.me.domain.Venue;
 import be.xplore.notify.me.domain.exceptions.AlreadyExistsException;
+import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.persistence.VenueRepo;
 import lombok.extern.slf4j.Slf4j;
@@ -45,9 +46,17 @@ public class VenueService {
         return save(Venue.builder().name(name).venueManagers(new ArrayList<>()).lineManagers(new ArrayList<>()).build());
     }
 
-    public Venue addVenueManagerToVenue(Venue venue, User user) {
+    public Venue addVenueManagerToVenue(Venue venue, List<User> users) {
         List<User> venueManagers = venue.getVenueManagers();
-        venueManagers.add(user);
+        venueManagers.addAll(users);
         return save(Venue.builder().id(venue.getId()).name(venue.getName()).venueManagers(venueManagers).build());
+    }
+
+    public Venue updateVenue(Venue venue) {
+        Optional<Venue> optional = getById(venue.getId());
+        if (optional.isEmpty()) {
+            throw new NotFoundException("No venue found for id: " + venue.getId());
+        }
+        return save(Venue.builder().id(venue.getId()).name(venue.getName()).venueManagers(venue.getVenueManagers()).build());
     }
 }

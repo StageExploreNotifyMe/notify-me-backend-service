@@ -42,8 +42,8 @@ class VenueAdapterTest {
 
     @Test
     void getAllVenues() {
-        Page<Venue> venues = venueAdapter.getAllVenues(PageRequest.of(0, 20));
-        assertTrue(venues.hasContent());
+        Page<Venue> allVenues = venueAdapter.getAllVenues(PageRequest.of(0, 20));
+        assertEquals("1", allVenues.getContent().get(0).getId());
     }
 
     @Test
