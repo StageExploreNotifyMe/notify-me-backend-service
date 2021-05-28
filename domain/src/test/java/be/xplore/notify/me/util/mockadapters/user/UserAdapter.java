@@ -25,4 +25,9 @@ public class UserAdapter implements UserRepo {
     public Page<User> findAll(PageRequest pageRequest) {
         return null;
     }
+
+    @Override
+    public Optional<User> getUserByEmail(String email) {
+        return Optional.empty();
+    }
 }

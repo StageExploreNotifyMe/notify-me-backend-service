@@ -6,8 +6,8 @@ import be.xplore.notify.me.dto.venue.CreateVenueDto;
 import be.xplore.notify.me.dto.venue.VenueDto;
 import be.xplore.notify.me.services.VenueService;
 import be.xplore.notify.me.services.user.UserService;
+import be.xplore.notify.me.util.TestUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -15,7 +15,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -23,11 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static be.xplore.notify.me.util.TestUtils.failTest;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -35,22 +33,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class VenueControllerTest {
 
     @Autowired
-    ObjectMapper mapper;
+    private MockMvc mockMvc;
 
     @Autowired
-    MockMvc mockMvc;
+    private ObjectMapper mapper;
 
     @Autowired
-    Venue venue;
-
+    private Venue venue;
     @Autowired
-    User user;
+    private User user;
 
     @MockBean
-    VenueService venueService;
-
+    private VenueService venueService;
     @MockBean
-    UserService userService;
+    private UserService userService;
 
     private void mockGetVenues() {
         given(venueService.getAllVenues(any(int.class))).will(i -> {
@@ -86,7 +82,7 @@ class VenueControllerTest {
     void getVenues() {
         try {
             mockGetVenues();
-            ResultActions resultActions = mockMvc.perform(get("/admin/venue").contentType(MediaType.APPLICATION_JSON));
+            ResultActions resultActions = TestUtils.performGet(mockMvc, "/admin/venue");
             resultActions.andExpect(status().is(HttpStatus.OK.value()));
         } catch (Exception e) {
             failTest(e);
@@ -99,9 +95,8 @@ class VenueControllerTest {
         mockGetUserById();
         CreateVenueDto createVenueDto = new CreateVenueDto("test venue", getUserIds(user.getId()));
         try {
-            String requestBody = mapper.writeValueAsString(createVenueDto);
-            ResultActions resultActions = mockMvc.perform(post("/admin/venue/create").content(requestBody).contentType(MediaType.APPLICATION_JSON));
-            resultActions.andExpect(status().is(HttpStatus.CREATED.value()));
+            ResultActions resultActions = TestUtils.performPost(mockMvc, createVenueDto, "/admin/venue/create");
+            TestUtils.expectStatus(resultActions, HttpStatus.CREATED);
         } catch (Exception e) {
             failTest(e);
         }
@@ -113,9 +108,8 @@ class VenueControllerTest {
         List<String> users = getUserIds("sdfsd");
         CreateVenueDto createVenueDto = new CreateVenueDto("test venue", users);
         try {
-            String requestBody = mapper.writeValueAsString(createVenueDto);
-            ResultActions resultActions = mockMvc.perform(post("/admin/venue/create").content(requestBody).contentType(MediaType.APPLICATION_JSON));
-            resultActions.andExpect(status().is(HttpStatus.NOT_FOUND.value()));
+            ResultActions resultActions = TestUtils.performPost(mockMvc, createVenueDto, "/admin/venue/create");
+            TestUtils.expectStatus(resultActions, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             failTest(e);
         }
@@ -126,12 +120,12 @@ class VenueControllerTest {
         mockUpdate();
         try {
             VenueDto body = new VenueDto("1", "test venue", new ArrayList<>());
-            ResultActions request = mockMvc.perform(patch("/admin/venue/edit").content(mapper.writeValueAsString(body)).contentType(MediaType.APPLICATION_JSON));
+            ResultActions request = TestUtils.performPatch(mockMvc, body, "/admin/venue/edit");
             request.andExpect(status().is(HttpStatus.OK.value()));
             VenueDto venueDto = mapper.readValue(request.andReturn().getResponse().getContentAsString(), VenueDto.class);
-            Assertions.assertEquals(venueDto.getId(), body.getId());
+            assertEquals(venueDto.getId(), body.getId());
         } catch (Exception e) {
-            failTest(e);
+            TestUtils.failTest(e);
         }
     }
 
@@ -144,11 +138,6 @@ class VenueControllerTest {
         mockCreateVenue();
         mockGetVenues();
         mockAddVenueManager();
-    }
-
-    private void failTest(Exception e) {
-        e.printStackTrace();
-        Assertions.fail("Exception was thrown in test.");
     }
 
     private List<String> getUserIds(String id) {

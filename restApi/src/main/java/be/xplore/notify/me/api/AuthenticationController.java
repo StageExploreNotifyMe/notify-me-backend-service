@@ -4,7 +4,7 @@ import be.xplore.notify.me.domain.exceptions.BadRequestException;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.dto.user.UserDto;
 import be.xplore.notify.me.dto.user.UserRegisterDto;
-import be.xplore.notify.me.mappers.UserDtoMapper;
+import be.xplore.notify.me.mappers.user.UserDtoMapper;
 import be.xplore.notify.me.services.user.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

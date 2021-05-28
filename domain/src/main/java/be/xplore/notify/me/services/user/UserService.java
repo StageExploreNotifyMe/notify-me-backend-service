@@ -1,5 +1,6 @@
 package be.xplore.notify.me.services.user;
 
+import be.xplore.notify.me.domain.exceptions.AlreadyExistsException;
 import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.notification.Notification;
 import be.xplore.notify.me.domain.notification.NotificationChannel;
@@ -53,6 +54,10 @@ public class UserService {
         return userRepo.findById(id);
     }
 
+    public Optional<User> getUserByEmail(String email) {
+        return userRepo.getUserByEmail(email);
+    }
+
     public User save(User user) {
         return userRepo.save(user);
     }
@@ -75,6 +80,8 @@ public class UserService {
     }
 
     public User registerNewUser(User user) {
+        preRegistrationChecks(user);
+
         User toSave = User.builder()
                 .userPreferences(userPreferencesService.generateDefaultPreferences())
                 .email(user.getEmail())
@@ -89,5 +96,11 @@ public class UserService {
         User savedUser = save(toSave);
         log.trace("Registered a new user: {} {}", savedUser.getFirstname(), savedUser.getLastname());
         return savedUser;
+    }
+
+    private void preRegistrationChecks(User user) {
+        if (getUserByEmail(user.getEmail()).isPresent()) {
+            throw new AlreadyExistsException("A user with that email is already registered");
+        }
     }
 }

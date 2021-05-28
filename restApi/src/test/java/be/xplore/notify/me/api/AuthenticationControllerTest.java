@@ -1,6 +1,8 @@
 package be.xplore.notify.me.api;
 
 import be.xplore.notify.me.domain.user.User;
+import be.xplore.notify.me.dto.user.LoggedInDto;
+import be.xplore.notify.me.dto.user.LoginDto;
 import be.xplore.notify.me.dto.user.UserDto;
 import be.xplore.notify.me.dto.user.UserRegisterDto;
 import be.xplore.notify.me.services.user.UserService;
@@ -15,7 +17,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -33,6 +38,41 @@ class AuthenticationControllerTest {
 
     @Autowired
     private User user;
+
+    @Test
+    void login() {
+        try {
+            mockGetUser();
+            ResultActions resultActions = TestUtils.performPost(mockMvc, new LoginDto(user.getEmail(), "John"), "/login");
+            TestUtils.expectStatus(resultActions, HttpStatus.OK);
+            LoggedInDto loggedInDto = mapper.readValue(TestUtils.getContentAsString(resultActions), LoggedInDto.class);
+            assertEquals(user.getId(), loggedInDto.getUserDto().getId());
+            assertNotNull(loggedInDto.getJwt());
+        } catch (Exception e) {
+            TestUtils.failTest(e);
+        }
+    }
+
+    @Test
+    void loginWrongPassword() {
+        try {
+            mockGetUser();
+            ResultActions resultActions = TestUtils.performPost(mockMvc, new LoginDto(user.getEmail(), "NotJohn"), "/login");
+            TestUtils.expectStatus(resultActions, HttpStatus.valueOf(401));
+        } catch (Exception e) {
+            TestUtils.failTest(e);
+        }
+    }
+
+    @Test
+    void loginUnknownUser() {
+        try {
+            ResultActions resultActions = TestUtils.performPost(mockMvc, new LoginDto(user.getEmail(), "NotJohn"), "/login");
+            TestUtils.expectStatus(resultActions, HttpStatus.valueOf(401));
+        } catch (Exception e) {
+            TestUtils.failTest(e);
+        }
+    }
 
     @Test
     void register() {
@@ -90,5 +130,18 @@ class AuthenticationControllerTest {
 
     private void mockRegisterNewUser() {
         given(userService.registerNewUser(any())).willReturn(user);
+    }
+
+    private void mockGetUserByMail() {
+        given(userService.getUserByEmail(any())).willReturn(Optional.of(user));
+    }
+
+    private void mockGetUserById() {
+        given(userService.getById(any())).willReturn(Optional.of(user));
+    }
+
+    private void mockGetUser() {
+        mockGetUserByMail();
+        mockGetUserById();
     }
 }
