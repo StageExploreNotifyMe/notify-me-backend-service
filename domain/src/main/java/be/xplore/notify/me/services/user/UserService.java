@@ -4,6 +4,7 @@ import be.xplore.notify.me.domain.exceptions.AlreadyExistsException;
 import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.notification.Notification;
 import be.xplore.notify.me.domain.notification.NotificationChannel;
+import be.xplore.notify.me.domain.user.Role;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.persistence.UserRepo;
 import be.xplore.notify.me.services.authentication.PasswordService;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Optional;
 
 @Slf4j
@@ -88,6 +90,7 @@ public class UserService {
                 .mobileNumber(user.getMobileNumber())
                 .inbox(new ArrayList<>())
                 .notificationQueue(new ArrayList<>())
+                .roles(new HashSet<>())
                 .firstname(user.getFirstname())
                 .lastname(user.getLastname())
                 .passwordHash(passwordService.generatePasswordHash(user.getPasswordHash()))
@@ -96,6 +99,16 @@ public class UserService {
         User savedUser = save(toSave);
         log.trace("Registered a new user: {} {}", savedUser.getFirstname(), savedUser.getLastname());
         return savedUser;
+    }
+
+    public User addRole(User user, Role role) {
+        user.getRoles().add(role);
+        return save(user);
+    }
+
+    public User removeRole(User user, Role role) {
+        user.getRoles().remove(role);
+        return save(user);
     }
 
     private void preRegistrationChecks(User user) {

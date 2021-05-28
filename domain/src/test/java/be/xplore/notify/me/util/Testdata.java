@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 @Configuration
 public class Testdata {
@@ -30,7 +31,7 @@ public class Testdata {
         UserPreferences userPreferences = UserPreferences.builder().id("1")
                 .normalChannel(NotificationChannel.EMAIL).urgentChannel(NotificationChannel.SMS).build();
         return User.builder().id("1").userPreferences(userPreferences).firstname("John").lastname("Doe")
-                .inbox(new ArrayList<>()).notificationQueue(new ArrayList<>()).build();
+                .inbox(new ArrayList<>()).notificationQueue(new ArrayList<>()).roles(new HashSet<>()).build();
     }
 
     @Bean

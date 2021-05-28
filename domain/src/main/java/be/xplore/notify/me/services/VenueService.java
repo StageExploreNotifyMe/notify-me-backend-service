@@ -3,8 +3,10 @@ package be.xplore.notify.me.services;
 import be.xplore.notify.me.domain.Venue;
 import be.xplore.notify.me.domain.exceptions.AlreadyExistsException;
 import be.xplore.notify.me.domain.exceptions.NotFoundException;
+import be.xplore.notify.me.domain.user.Role;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.persistence.VenueRepo;
+import be.xplore.notify.me.services.user.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,9 +20,11 @@ import java.util.Optional;
 @Service
 public class VenueService {
     private final VenueRepo repo;
+    private final UserService userService;
 
-    public VenueService(VenueRepo repo) {
+    public VenueService(VenueRepo repo, UserService userService) {
         this.repo = repo;
+        this.userService = userService;
     }
 
     public Optional<Venue> findById(String id) {
@@ -57,6 +61,7 @@ public class VenueService {
     public Venue addVenueManagerToVenue(Venue venue, List<User> users) {
         List<User> venueManagers = venue.getVenueManagers();
         venueManagers.addAll(users);
+        users.forEach(u -> userService.addRole(u, Role.VENUE_MANAGER));
         return save(Venue.builder()
             .id(venue.getId())
             .name(venue.getName())
