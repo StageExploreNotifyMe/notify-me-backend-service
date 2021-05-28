@@ -4,6 +4,8 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
@@ -13,11 +15,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.stream.Collectors;
 
 public class AuthorizationFilter extends BasicAuthenticationFilter {
     private final String header;
     private final String key;
+    private final String AUTHORITIES_KEY = "ROLES";
 
     public AuthorizationFilter(AuthenticationManager authenticationManager, String header, String key) {
         super(authenticationManager);
@@ -48,6 +54,18 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
                 .parseClaimsJws(token)
                 .getBody();
 
-        return new UsernamePasswordAuthenticationToken(user, null, new ArrayList<>());
+        String authoritiesString = user.get(AUTHORITIES_KEY).toString();
+
+        Collection<? extends GrantedAuthority> authorities = null;
+        if (authoritiesString.length() > 0) {
+            authorities =
+                Arrays.stream(authoritiesString.split(","))
+                    .map(SimpleGrantedAuthority::new)
+                    .collect(Collectors.toList());
+        } else {
+            authorities = Collections.emptyList();
+        }
+
+        return new UsernamePasswordAuthenticationToken(user, null, authorities);
     }
 }

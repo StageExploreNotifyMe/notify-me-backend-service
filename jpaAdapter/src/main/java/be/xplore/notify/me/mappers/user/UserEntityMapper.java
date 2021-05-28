@@ -46,6 +46,7 @@ public class UserEntityMapper implements EntityMapper<UserEntity, User> {
             .mobileNumber(userEntity.getMobileNumber())
             .email(userEntity.getEmail())
             .passwordHash(userEntity.getPasswordHash())
+            .roles(userEntity.getRoles())
             .build();
     }
 
@@ -72,7 +73,8 @@ public class UserEntityMapper implements EntityMapper<UserEntity, User> {
             user.getEmail(),
             user.getPasswordHash(),
             inbox,
-            notificationQueue
+            notificationQueue,
+            user.getRoles()
         );
     }
 }

@@ -3,8 +3,11 @@ package be.xplore.notify.me.api;
 import be.xplore.notify.me.domain.exceptions.AlreadyExistsException;
 import be.xplore.notify.me.domain.exceptions.BadRequestException;
 import be.xplore.notify.me.domain.exceptions.NotFoundException;
+import be.xplore.notify.me.domain.exceptions.Unauthorized;
+import be.xplore.notify.me.util.ApiUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -42,6 +45,16 @@ public class ExceptionHandlerController {
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public void methodNotAllowed() {
+    }
+
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(Unauthorized.class)
+    public void unAuthorized(HttpServletRequest request, Authentication authentication) {
+        try {
+            log.info("Request on {} by user with id {} produced an unauthorized exception", request.getRequestURI(), ApiUtils.getRequestUserId(authentication));
+        } catch (Exception e) {
+            log.info("Request on {} produced an unauthorized exception", request.getRequestURI());
+        }
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

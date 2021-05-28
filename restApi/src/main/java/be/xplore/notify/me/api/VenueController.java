@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static be.xplore.notify.me.util.Converters.getPageNumber;
+import static be.xplore.notify.me.util.ApiUtils.getPageNumber;
 
 @RestController
 @RequestMapping(value = "/admin/venue", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

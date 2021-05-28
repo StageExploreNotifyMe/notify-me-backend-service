@@ -13,12 +13,13 @@ import be.xplore.notify.me.mappers.user.UserOrganizationDtoMapper;
 import be.xplore.notify.me.services.OrganizationService;
 import be.xplore.notify.me.services.user.UserOrganizationService;
 import be.xplore.notify.me.services.user.UserService;
-import be.xplore.notify.me.util.Converters;
+import be.xplore.notify.me.util.ApiUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,20 +40,17 @@ public class UserOrganizationController {
     private final UserService userService;
     private final OrganizationService organizationService;
     private final UserOrganizationDtoMapper userOrganizationDtoMapper;
-    private final Converters converters;
 
     public UserOrganizationController(
             UserOrganizationService userOrganizationService,
             UserService userService,
             OrganizationService organizationService,
-            UserOrganizationDtoMapper userOrganizationDtoMapper,
-            Converters converters
+            UserOrganizationDtoMapper userOrganizationDtoMapper
     ) {
         this.userOrganizationService = userOrganizationService;
         this.userService = userService;
         this.organizationService = organizationService;
         this.userOrganizationDtoMapper = userOrganizationDtoMapper;
-        this.converters = converters;
     }
 
     @GetMapping("/user/{userId}")
@@ -83,14 +81,14 @@ public class UserOrganizationController {
 
     @GetMapping("/requests/{organizationId}/pending")
     public ResponseEntity<Page<UserOrganizationDto>> getOpenUserOrganizationRequests(@PathVariable String organizationId, @RequestParam(required = false) Integer page) {
-        int pageNumber = converters.getPageNumber(page);
+        int pageNumber = ApiUtils.getPageNumber(page);
         Page<UserOrganization> requests = userOrganizationService.getPendingJoinRequests(organizationId, PageRequest.of(pageNumber, 20));
         return getPageResponseEntity(requests);
     }
 
     @GetMapping("/{organizationId}/users")
     public ResponseEntity<Page<UserOrganizationDto>> getUsersOfOrganization(@PathVariable String organizationId, @RequestParam(required = false) Integer page) {
-        int pageNumber = converters.getPageNumber(page);
+        int pageNumber = ApiUtils.getPageNumber(page);
         Optional<Organization> organizationOptional = organizationService.getById(organizationId);
         if (organizationOptional.isEmpty()) {
             throw new NotFoundException("No organization with id " + organizationId + " found");
@@ -101,14 +99,16 @@ public class UserOrganizationController {
     }
 
     @PostMapping("/{id}/promote")
-    public ResponseEntity<UserOrganizationDto> promoteMember(@PathVariable String id) {
+    public ResponseEntity<UserOrganizationDto> promoteMember(@PathVariable String id, Authentication authentication) {
+        ApiUtils.requireRole(authentication, Role.ORGANIZATION_LEADER);
         UserOrganization userOrganization = getUserOrganizationById(id);
         UserOrganization promoted = userOrganizationService.changeOrganizationMemberRole(userOrganization, Role.ORGANIZATION_LEADER);
         return new ResponseEntity<>(userOrganizationDtoMapper.toDto(promoted), HttpStatus.OK);
     }
 
     @PostMapping("/{id}/demote")
-    public ResponseEntity<UserOrganizationDto> demoteMember(@PathVariable String id) {
+    public ResponseEntity<UserOrganizationDto> demoteMember(@PathVariable String id, Authentication authentication) {
+        ApiUtils.requireRole(authentication, Role.ORGANIZATION_LEADER);
         UserOrganization userOrganization = getUserOrganizationById(id);
         UserOrganization promoted = userOrganizationService.changeOrganizationMemberRole(userOrganization, Role.MEMBER);
         return new ResponseEntity<>(userOrganizationDtoMapper.toDto(promoted), HttpStatus.OK);

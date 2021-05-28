@@ -16,6 +16,7 @@ import java.util.Optional;
 
 @Slf4j
 @Component
+@Transactional
 public class VenueAdapter implements VenueRepo {
 
     private final JpaVenueRepo repo;
@@ -35,7 +36,6 @@ public class VenueAdapter implements VenueRepo {
         return Optional.of(venue);
     }
 
-    @Transactional
     @Override
     public Page<Venue> getAllVenues(PageRequest pageRequest) {
         Page<VenueEntity> entityPage = repo.findAll(pageRequest);

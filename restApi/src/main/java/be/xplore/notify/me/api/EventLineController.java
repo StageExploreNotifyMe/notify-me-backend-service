@@ -17,7 +17,7 @@ import be.xplore.notify.me.services.event.EventLineService;
 import be.xplore.notify.me.services.event.EventService;
 import be.xplore.notify.me.services.event.LineService;
 import be.xplore.notify.me.services.user.UserService;
-import be.xplore.notify.me.util.Converters;
+import be.xplore.notify.me.util.ApiUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -42,7 +42,7 @@ public class EventLineController {
     private final EventService eventService;
     private final OrganizationService organizationService;
     private final UserService userService;
-    private final Converters converters;
+    private final ApiUtils apiUtils;
 
     public EventLineController(
             LineService lineService,
@@ -51,7 +51,7 @@ public class EventLineController {
             EventService eventService,
             OrganizationService organizationService,
             UserService userService,
-            Converters converters
+            ApiUtils apiUtils
     ) {
         this.lineService = lineService;
         this.eventLineService = eventLineService;
@@ -59,7 +59,7 @@ public class EventLineController {
         this.eventService = eventService;
         this.organizationService = organizationService;
         this.userService = userService;
-        this.converters = converters;
+        this.apiUtils = apiUtils;
     }
 
     @GetMapping("/{id}")
@@ -75,13 +75,13 @@ public class EventLineController {
 
     @GetMapping("/event/{id}")
     public ResponseEntity<Page<EventLineDto>> getEventLines(@PathVariable String id, @RequestParam(required = false) Integer page) {
-        Page<EventLine> linesOfEvent = eventLineService.getAllLinesOfEvent(getEventById(id).getId(), converters.getPageNumber(page));
+        Page<EventLine> linesOfEvent = eventLineService.getAllLinesOfEvent(getEventById(id).getId(), apiUtils.getPageNumber(page));
         return new ResponseEntity<>(linesOfEvent.map(eventLineDtoMapper::toDto), HttpStatus.OK);
     }
 
     @GetMapping("/organization/{id}")
     public ResponseEntity<Page<EventLineDto>> getEventLinesOfOrganization(@PathVariable String id, @RequestParam(required = false) Integer page) {
-        Page<EventLine> linesOfEvent = eventLineService.getAllLinesOfOrganization(getOrganizationById(id).getId(), converters.getPageNumber(page));
+        Page<EventLine> linesOfEvent = eventLineService.getAllLinesOfOrganization(getOrganizationById(id).getId(), apiUtils.getPageNumber(page));
         return new ResponseEntity<>(linesOfEvent.map(eventLineDtoMapper::toDto), HttpStatus.OK);
     }
 

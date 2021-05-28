@@ -14,6 +14,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.FilterChain;
@@ -24,7 +26,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private final UserService userService;
@@ -33,6 +38,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private final ObjectMapper mapper;
     private final String jwtKey;
     private final String jwtHeader;
+    private final String AUTHORITIES_KEY = "ROLES";
     private final Long jwtValidTime;
 
     public AuthenticationFilter(
@@ -65,11 +71,19 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException {
-        Date exp = new Date(System.currentTimeMillis() + jwtValidTime);
         String userIdentifier = ((org.springframework.security.core.userdetails.User) authResult.getPrincipal()).getUsername();
-        Claims claims = Jwts.claims().setSubject(userIdentifier);
-        String token = Jwts.builder().setClaims(claims).signWith(SignatureAlgorithm.HS512, this.jwtKey).setExpiration(exp).compact();
+        String token = generateJwtToken(userIdentifier);
         addTokenToResponse(response, token, userIdentifier);
+    }
+
+    private String generateJwtToken(String userIdentifier) {
+        String authorities = getRolesOfUser(getUser(userIdentifier)).stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+        Date exp = new Date(System.currentTimeMillis() + jwtValidTime);
+        Claims claims = Jwts.claims().setSubject(userIdentifier);
+        claims.put(AUTHORITIES_KEY, authorities);
+        return Jwts.builder().setClaims(claims).signWith(SignatureAlgorithm.HS512, this.jwtKey).setExpiration(exp).compact();
     }
 
     private void addTokenToResponse(HttpServletResponse response, String token, String userIdentifier) throws IOException {
@@ -88,5 +102,19 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         writer.write(mapper.writeValueAsString(new LoggedInDto(token, userDtoMapper.toDto(user.get()))));
         writer.flush();
         writer.close();
+    }
+
+    private Set<SimpleGrantedAuthority> getRolesOfUser(User user) {
+        Set<SimpleGrantedAuthority> authorities = new HashSet<>();
+        user.getRoles().forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_" + role.toString())));
+        return authorities;
+    }
+
+    private User getUser(String id) {
+        Optional<User> userOptional = userService.getById(id);
+        if (userOptional.isEmpty()) {
+            throw new NotFoundException("No user found associated with this token");
+        }
+        return userOptional.get();
     }
 }

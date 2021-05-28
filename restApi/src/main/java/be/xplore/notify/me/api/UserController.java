@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Arrays;
 import java.util.Optional;
 
-import static be.xplore.notify.me.util.Converters.getPageNumber;
+import static be.xplore.notify.me.util.ApiUtils.getPageNumber;
 
 @RestController
 @RequestMapping(value = "/user", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

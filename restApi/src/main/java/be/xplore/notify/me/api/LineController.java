@@ -8,7 +8,7 @@ import be.xplore.notify.me.dto.line.LineDto;
 import be.xplore.notify.me.mappers.event.LineDtoMapper;
 import be.xplore.notify.me.services.VenueService;
 import be.xplore.notify.me.services.event.LineService;
-import be.xplore.notify.me.util.Converters;
+import be.xplore.notify.me.util.ApiUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -31,13 +31,13 @@ public class LineController {
     private final LineService lineService;
     private final LineDtoMapper lineDtoMapper;
     private final VenueService venueService;
-    private final Converters converters;
+    private final ApiUtils apiUtils;
 
-    public LineController(LineService lineService, LineDtoMapper lineDtoMapper, VenueService venueService, Converters converters) {
+    public LineController(LineService lineService, LineDtoMapper lineDtoMapper, VenueService venueService, ApiUtils apiUtils) {
         this.lineService = lineService;
         this.lineDtoMapper = lineDtoMapper;
         this.venueService = venueService;
-        this.converters = converters;
+        this.apiUtils = apiUtils;
     }
 
     @PatchMapping("/edit")
@@ -72,7 +72,7 @@ public class LineController {
 
     @GetMapping("/venue/{id}")
     public ResponseEntity<Page<LineDto>> getLinesOfVenue(@PathVariable String id, @RequestParam(required = false) Integer page) {
-        Page<Line> linePage = lineService.getAllByVenue(getVenueById(id).getId(), converters.getPageNumber(page));
+        Page<Line> linePage = lineService.getAllByVenue(getVenueById(id).getId(), apiUtils.getPageNumber(page));
         return new ResponseEntity<>(linePage.map(lineDtoMapper::toDto), HttpStatus.OK);
     }
 

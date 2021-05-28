@@ -8,7 +8,7 @@ import be.xplore.notify.me.dto.event.EventDto;
 import be.xplore.notify.me.mappers.event.EventDtoMapper;
 import be.xplore.notify.me.services.VenueService;
 import be.xplore.notify.me.services.event.EventService;
-import be.xplore.notify.me.util.Converters;
+import be.xplore.notify.me.util.ApiUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -29,13 +29,13 @@ public class EventController {
     private final EventService eventService;
     private final VenueService venueService;
     private final EventDtoMapper eventDtoMapper;
-    private final Converters converters;
+    private final ApiUtils apiUtils;
 
-    public EventController(EventService eventService, VenueService venueService, EventDtoMapper eventDtoMapper, Converters converters) {
+    public EventController(EventService eventService, VenueService venueService, EventDtoMapper eventDtoMapper, ApiUtils apiUtils) {
         this.eventService = eventService;
         this.venueService = venueService;
         this.eventDtoMapper = eventDtoMapper;
-        this.converters = converters;
+        this.apiUtils = apiUtils;
     }
 
     @PostMapping
@@ -52,7 +52,7 @@ public class EventController {
 
     @GetMapping("/venue/{id}")
     public ResponseEntity<Page<EventDto>> getEventsOfVenue(@PathVariable String id, @RequestParam(required = false) Integer page) {
-        Page<Event> eventPage = eventService.getEventsOfVenue(id, converters.getPageNumber(page));
+        Page<Event> eventPage = eventService.getEventsOfVenue(id, apiUtils.getPageNumber(page));
         Page<EventDto> eventDtoPage = eventPage.map(eventDtoMapper::toDto);
         return new ResponseEntity<>(eventDtoPage, HttpStatus.OK);
     }

@@ -4,6 +4,11 @@ INSERT INTO organization_entity (id, name) values ('1', 'KdG');
 INSERT INTO user_preferences_entity (id, normal_channel, urgent_channel) values ('1', 0, 1);
 INSERT INTO user_entity (id, firstname, lastname, user_preferences_id, mobile_number, email, password_hash) values ('1', 'John', 'Doe', '1', '+32492920000', 'gerd.goemans@student.kdg.be', '$2a$10$286Mu.FRsWEpatglg/hFIu.wKwyw9g.cN/aAR4R0amhEZ3wHX5MwS');
 insert into user_organization_entity (id, role, status, organization_entity_id, user_entity_id) values ('1', 1, 0, '1', '1');
+INSERT INTO user_entity_roles (user_entity_id, roles) values ('1', 0);
+INSERT INTO user_entity_roles (user_entity_id, roles) values ('1', 1);
+INSERT INTO user_entity_roles (user_entity_id, roles) values ('1', 2);
+INSERT INTO user_entity_roles (user_entity_id, roles) values ('1', 3);
+INSERT INTO user_entity_roles (user_entity_id, roles) values ('1', 4);
 
 INSERT INTO user_preferences_entity (id, normal_channel, urgent_channel) values ('2', 0, 1);
 INSERT INTO user_entity (id, firstname, lastname, user_preferences_id, mobile_number, email, password_hash) values ('2', 'Jane', 'Doe', '2', '+32492920000', 'gerd.goemans@xplore.be', '$2a$10$dOTN4PHOJsdVR.B9jSk6Ueajbkh6FhQIFpZPBFgtCV25dy3gRnVyS');

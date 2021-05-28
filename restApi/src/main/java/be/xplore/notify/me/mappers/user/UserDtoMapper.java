@@ -20,11 +20,12 @@ public class UserDtoMapper implements DtoMapper<UserDto, User> {
             .firstname(d.getFirstname())
             .lastname(d.getLastname())
             .userPreferences(userPreferencesDtoMapper.fromDto(d.getUserPreferences()))
+            .roles(d.getRoles())
             .build();
     }
 
     @Override
     public UserDto toDto(User d) {
-        return new UserDto(d.getId(), userPreferencesDtoMapper.toDto(d.getUserPreferences()), d.getFirstname(), d.getLastname());
+        return new UserDto(d.getId(), userPreferencesDtoMapper.toDto(d.getUserPreferences()), d.getFirstname(), d.getLastname(), d.getRoles());
     }
 }
