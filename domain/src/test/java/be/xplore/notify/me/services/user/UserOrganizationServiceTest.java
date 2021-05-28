@@ -23,7 +23,6 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -129,9 +128,14 @@ class UserOrganizationServiceTest {
     @Test
     void getById() {
         mockFindById();
-        Optional<UserOrganization> byId = userOrganizationService.getById(userOrganization.getId());
-        assertTrue(byId.isPresent());
-        assertEquals(userOrganization.getId(), byId.get().getId());
+        UserOrganization foundEvent = userOrganizationService.getById(userOrganization.getId());
+        assertEquals(userOrganization.getId(), foundEvent.getId());
+    }
+
+    @Test
+    void getByIdNotFound() {
+        mockFindById();
+        assertThrows(NotFoundException.class, () -> userOrganizationService.getById("qdsf"));
     }
 
     @Test

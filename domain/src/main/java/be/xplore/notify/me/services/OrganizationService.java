@@ -24,8 +24,16 @@ public class OrganizationService {
         return organizationRepo.findAll(PageRequest.of(page, 20));
     }
 
-    public Optional<Organization> getById(String id) {
+    public Optional<Organization> findById(String id) {
         return organizationRepo.findById(id);
+    }
+
+    public Organization getById(String id) {
+        Optional<Organization> byId = organizationRepo.findById(id);
+        if (byId.isPresent()) {
+            return byId.get();
+        }
+        throw new NotFoundException("No organization with id " + id + " found");
     }
 
     public Optional<Organization> getOrganizationByName(String name) {
@@ -37,7 +45,7 @@ public class OrganizationService {
     }
 
     public Organization updateOrganization(Organization toUpdate) {
-        Optional<Organization> optional = getById(toUpdate.getId());
+        Optional<Organization> optional = findById(toUpdate.getId());
         if (optional.isEmpty()) {
             throw new NotFoundException("No organization with id " + toUpdate.getId() + " found.");
         }

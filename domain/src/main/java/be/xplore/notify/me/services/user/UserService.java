@@ -42,15 +42,15 @@ public class UserService {
         return save(user);
     }
 
-    private User getUserById(String userId) {
-        Optional<User> userOptional = getById(userId);
+    public User getById(String userId) {
+        Optional<User> userOptional = findById(userId);
         if (userOptional.isEmpty()) {
             throw new NotFoundException("No user found for id " + userId);
         }
         return userOptional.get();
     }
 
-    public Optional<User> getById(String id) {
+    public Optional<User> findById(String id) {
         return userRepo.findById(id);
     }
 
@@ -63,8 +63,8 @@ public class UserService {
     }
 
     public User setNotificationChannels(String userId, NotificationChannel normalChannel, NotificationChannel urgentChannel) {
-        userPreferencesService.setNotificationChannels(getUserById(userId), normalChannel, urgentChannel);
-        return getUserById(userId);
+        userPreferencesService.setNotificationChannels(getById(userId), normalChannel, urgentChannel);
+        return getById(userId);
     }
 
     public User clearUserQueue(User user) {

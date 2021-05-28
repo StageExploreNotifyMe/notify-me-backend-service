@@ -23,8 +23,16 @@ public class VenueService {
         this.repo = repo;
     }
 
-    public Optional<Venue> getById(String id) {
+    public Optional<Venue> findById(String id) {
         return repo.findById(id);
+    }
+
+    public Venue getById(String id) {
+        Optional<Venue> byId = findById(id);
+        if (byId.isPresent()) {
+            return byId.get();
+        }
+        throw new NotFoundException("No venue found for id " + id);
     }
 
     public Venue save(Venue venue) {
@@ -49,14 +57,21 @@ public class VenueService {
     public Venue addVenueManagerToVenue(Venue venue, List<User> users) {
         List<User> venueManagers = venue.getVenueManagers();
         venueManagers.addAll(users);
-        return save(Venue.builder().id(venue.getId()).name(venue.getName()).venueManagers(venueManagers).build());
+        return save(Venue.builder()
+            .id(venue.getId())
+            .name(venue.getName())
+            .venueManagers(venueManagers)
+            .lineManagers(venue.getLineManagers())
+            .build());
     }
 
     public Venue updateVenue(Venue venue) {
-        Optional<Venue> optional = getById(venue.getId());
-        if (optional.isEmpty()) {
-            throw new NotFoundException("No venue found for id: " + venue.getId());
-        }
-        return save(Venue.builder().id(venue.getId()).name(venue.getName()).venueManagers(venue.getVenueManagers()).build());
+        getById(venue.getId());
+        return save(Venue.builder()
+                .id(venue.getId())
+                .name(venue.getName())
+                .venueManagers(venue.getVenueManagers())
+                .lineManagers(venue.getLineManagers())
+                .build());
     }
 }

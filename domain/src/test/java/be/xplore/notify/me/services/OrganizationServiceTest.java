@@ -19,7 +19,6 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -68,11 +67,16 @@ class OrganizationServiceTest {
     }
 
     @Test
-    void getOrganizationById() {
+    void getById() {
         mockFetchById();
-        Optional<Organization> byId = organizationService.getById(organization.getId());
-        assertTrue(byId.isPresent());
-        assertEquals(organization, byId.get());
+        Organization foundEvent = organizationService.getById(organization.getId());
+        assertEquals(organization.getId(), foundEvent.getId());
+    }
+
+    @Test
+    void getByIdNotFound() {
+        mockFetchById();
+        assertThrows(NotFoundException.class, () -> organizationService.getById("qdsf"));
     }
 
     @Test

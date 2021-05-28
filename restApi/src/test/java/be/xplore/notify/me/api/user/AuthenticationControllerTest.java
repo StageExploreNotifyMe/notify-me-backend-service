@@ -1,4 +1,4 @@
-package be.xplore.notify.me.api;
+package be.xplore.notify.me.api.user;
 
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.dto.user.LoggedInDto;
@@ -137,7 +137,8 @@ class AuthenticationControllerTest {
     }
 
     private void mockGetUserById() {
-        given(userService.getById(any())).willReturn(Optional.of(user));
+        given(userService.findById(any())).willReturn(Optional.of(user));
+        given(userService.getById(any())).willReturn(user);
     }
 
     private void mockGetUser() {

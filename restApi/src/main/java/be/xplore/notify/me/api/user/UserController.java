@@ -1,7 +1,6 @@
-package be.xplore.notify.me.api;
+package be.xplore.notify.me.api.user;
 
 import be.xplore.notify.me.domain.event.EventLine;
-import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.notification.NotificationChannel;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.domain.user.UserPreferences;
@@ -27,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 import static be.xplore.notify.me.util.ApiUtils.getPageNumber;
 
@@ -55,12 +53,7 @@ public class UserController {
 
     @GetMapping("/{id}/lines")
     public ResponseEntity<Page<EventLineDto>> getUserLines(@PathVariable String id, @RequestParam(required = false) Integer page) {
-        Optional<User> userOptional = userService.getById(id);
-        if (userOptional.isEmpty()) {
-            throw new NotFoundException("No user found with id " + id);
-        }
-
-        Page<EventLine> allLinesOfUser = eventLineService.getAllLinesOfUser(userOptional.get(), getPageNumber(page));
+        Page<EventLine> allLinesOfUser = eventLineService.getAllLinesOfUser(userService.getById(id), getPageNumber(page));
         return new ResponseEntity<>(allLinesOfUser.map(eventLineDtoMapper::toDto), HttpStatus.OK);
 
     }
@@ -74,11 +67,7 @@ public class UserController {
 
     @GetMapping("/{userId}/channel")
     public ResponseEntity<UserPreferences> getNormalChannelUser(@PathVariable String userId) {
-        Optional<User> optionalUser = userService.getById(userId);
-        if (optionalUser.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        UserPreferences userPreferences = optionalUser.get().getUserPreferences();
+        UserPreferences userPreferences = userService.getById(userId).getUserPreferences();
         return new ResponseEntity<>(userPreferences, HttpStatus.OK);
     }
 

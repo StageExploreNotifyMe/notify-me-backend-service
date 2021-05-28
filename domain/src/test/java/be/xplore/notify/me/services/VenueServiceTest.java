@@ -56,7 +56,7 @@ class VenueServiceTest {
     @Test
     void getById() {
         setUpMocks();
-        Optional<Venue> optional = venueService.getById(venue.getId());
+        Optional<Venue> optional = venueService.findById(venue.getId());
         assertTrue(optional.isPresent());
         assertEquals(venue.getId(), optional.get().getId());
     }
@@ -64,7 +64,7 @@ class VenueServiceTest {
     @Test
     void getByIdNotFound() {
         setUpMocks();
-        Optional<Venue> optional = venueService.getById("qdskjf");
+        Optional<Venue> optional = venueService.findById("qdskjf");
         assertTrue(optional.isEmpty());
     }
 
@@ -112,7 +112,7 @@ class VenueServiceTest {
         setUpMocks();
         String name = "updated name";
         Venue updatedVenue = venueService.updateVenue(Venue.builder().id(venue.getId()).name(name).build());
-        assertEquals(updatedVenue.getName(), name);
+        assertEquals(name, updatedVenue.getName());
     }
 
     @Test

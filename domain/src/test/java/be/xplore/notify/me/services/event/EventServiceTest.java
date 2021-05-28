@@ -3,6 +3,7 @@ package be.xplore.notify.me.services.event;
 import be.xplore.notify.me.domain.Venue;
 import be.xplore.notify.me.domain.event.Event;
 import be.xplore.notify.me.domain.event.EventStatus;
+import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.persistence.EventRepo;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -89,16 +89,14 @@ class EventServiceTest {
     @Test
     void getById() {
         mockFindById();
-        Optional<Event> eventLineOptional = eventService.getById(event.getId());
-        assertTrue(eventLineOptional.isPresent());
-        assertEquals(event.getId(), eventLineOptional.get().getId());
+        Event foundEvent = eventService.getById(event.getId());
+        assertEquals(event.getId(), foundEvent.getId());
     }
 
     @Test
     void getByIdNotFound() {
         mockFindById();
-        Optional<Event> eventLineOptional = eventService.getById("qdsf");
-        assertTrue(eventLineOptional.isEmpty());
+        assertThrows(NotFoundException.class, () -> eventService.getById("qdsf"));
     }
 
     @Test

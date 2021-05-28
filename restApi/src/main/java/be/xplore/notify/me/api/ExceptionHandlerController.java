@@ -60,7 +60,8 @@ public class ExceptionHandlerController {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler
     public void uncaughtExceptionHandler(HttpServletRequest request, Exception e) {
-        log.warn("Request on {} produced an uncaught exception: {}: {}", request.getRequestURI(), e.getClass().getSimpleName(), e.getMessage());
+        log.error("Request on {} produced an uncaught exception: {}: {}", request.getRequestURI(), e.getClass().getSimpleName(), e.getMessage());
+        e.printStackTrace();
     }
 
 }

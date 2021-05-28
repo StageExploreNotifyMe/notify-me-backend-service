@@ -1,7 +1,6 @@
-package be.xplore.notify.me.api;
+package be.xplore.notify.me.api.admin;
 
 import be.xplore.notify.me.domain.Venue;
-import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.dto.venue.CreateVenueDto;
 import be.xplore.notify.me.dto.venue.VenueDto;
@@ -22,18 +21,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static be.xplore.notify.me.util.ApiUtils.getPageNumber;
 
 @RestController
 @RequestMapping(value = "/admin/venue", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-public class VenueController {
+public class AdminVenueController {
     private final VenueService venueService;
     private final UserService userService;
     private final VenueDtoMapper venueDtoMapper;
 
-    public VenueController(VenueService venueService, UserService userService, VenueDtoMapper venueDtoMapper) {
+    public AdminVenueController(VenueService venueService, UserService userService, VenueDtoMapper venueDtoMapper) {
         this.venueService = venueService;
         this.userService = userService;
         this.venueDtoMapper = venueDtoMapper;
@@ -61,11 +59,7 @@ public class VenueController {
     private List<User> getUser(CreateVenueDto createVenueDto) {
         List<User> users = new ArrayList<>();
         for (String id : createVenueDto.getVenueManagerIds()) {
-            Optional<User> user = userService.getById(id);
-            if (user.isEmpty()) {
-                throw new NotFoundException("No user with id: " + id + "found");
-            }
-            users.add(user.get());
+            users.add(userService.getById(id));
         }
         return users;
     }

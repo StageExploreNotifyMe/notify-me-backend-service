@@ -87,8 +87,16 @@ public class UserOrganizationService {
         return userOrganizationRepo.save(updated);
     }
 
-    public Optional<UserOrganization> getById(String id) {
+    public Optional<UserOrganization> findById(String id) {
         return userOrganizationRepo.findById(id);
+    }
+
+    public UserOrganization getById(String id) {
+        Optional<UserOrganization> byId = findById(id);
+        if (byId.isPresent()) {
+            return byId.get();
+        }
+        throw new NotFoundException("No userOrganization found with id " + id);
     }
 
     public List<UserOrganization> getAllUserOrganizationsByUserId(String userId) {

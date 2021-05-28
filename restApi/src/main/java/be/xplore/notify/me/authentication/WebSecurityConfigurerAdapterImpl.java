@@ -1,9 +1,7 @@
 package be.xplore.notify.me.authentication;
 
-import be.xplore.notify.me.mappers.user.UserDtoMapper;
-import be.xplore.notify.me.services.user.UserService;
+import be.xplore.notify.me.domain.user.Role;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -21,34 +19,18 @@ public class WebSecurityConfigurerAdapterImpl extends WebSecurityConfigurerAdapt
     private final PasswordEncoder passwordEncoder;
     private final UserServiceSecurityAdapter userServiceSecurityAdapter;
     private final ObjectMapper objectMapper;
-    private final UserService userService;
-    private final UserDtoMapper userDtoMapper;
-
-    private final String jwtKey;
-    private final String jwtHeader;
-    private final String validTime;
+    private final JwtService jwtService;
 
     public WebSecurityConfigurerAdapterImpl(
             PasswordEncoder passwordEncoder,
             UserServiceSecurityAdapter userServiceSecurityAdapter,
             ObjectMapper objectMapper,
-            UserService userService,
-            UserDtoMapper userDtoMapper,
-            @Value("${notify.me.security.jwt.key}")
-            String jwtKey,
-            @Value("${notify.me.security.jwt.httpheader:Authorization}")
-            String jwtHeader,
-            @Value("${notify.me.security.jwt.validtime:10000000}")
-            String validTime
+            JwtService jwtService
     ) {
         this.passwordEncoder = passwordEncoder;
         this.userServiceSecurityAdapter = userServiceSecurityAdapter;
         this.objectMapper = objectMapper;
-        this.userService = userService;
-        this.userDtoMapper = userDtoMapper;
-        this.jwtKey = jwtKey;
-        this.jwtHeader = jwtHeader;
-        this.validTime = validTime;
+        this.jwtService = jwtService;
     }
 
     @Override
@@ -56,14 +38,17 @@ public class WebSecurityConfigurerAdapterImpl extends WebSecurityConfigurerAdapt
         http.cors().and().csrf().disable()
             .authorizeRequests()
             .antMatchers(HttpMethod.OPTIONS).permitAll()
-            .antMatchers(HttpMethod.POST, "/authentication/register").permitAll()
-            .antMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
+            .antMatchers("/authentication/register").permitAll()
             .antMatchers("/user/**").authenticated()
-            //.antMatchers("/userorganization/**").access("hasAuthority(\"ROLE_MEMBER\") or hasAuthority(\"ROLE_ORGANIZATION_LEADER\")")
+            .antMatchers("/admin/**").access(getAccessString(new Role[]{Role.ADMIN}))
+            .antMatchers("/line/**").access(getAccessString(new Role[]{Role.MEMBER, Role.ORGANIZATION_LEADER, Role.LINE_MANAGER, Role.VENUE_MANAGER}))
+            .antMatchers("/event/**").access(getAccessString(new Role[]{Role.MEMBER, Role.ORGANIZATION_LEADER, Role.LINE_MANAGER, Role.VENUE_MANAGER}))
+            .antMatchers("/userorganization/**").access(getAccessString(new Role[]{Role.MEMBER, Role.ORGANIZATION_LEADER}))
+            .antMatchers("/organization/**").access(getAccessString(new Role[]{Role.MEMBER, Role.ORGANIZATION_LEADER}))
             .anyRequest().authenticated()
             .and()
-            .addFilter(new AuthenticationFilter(authenticationManager(), userService, userDtoMapper, objectMapper, jwtKey, jwtHeader, Long.valueOf(validTime)))
-            .addFilter(new AuthorizationFilter(authenticationManager(), jwtHeader, jwtKey));
+            .addFilter(new AuthenticationFilter(authenticationManager(), objectMapper, jwtService))
+            .addFilter(new AuthorizationFilter(authenticationManager(), jwtService));
     }
 
     @Override
@@ -76,5 +61,16 @@ public class WebSecurityConfigurerAdapterImpl extends WebSecurityConfigurerAdapt
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", new CorsConfiguration().applyPermitDefaultValues());
         return source;
+    }
+
+    private String getAccessString(Role[] roles) {
+        String hasAuthorityString = "hasAuthority(\"ROLE_ADMIN\")";
+        if (roles.length == 0) {
+            return hasAuthorityString;
+        }
+        for (Role role : roles) {
+            hasAuthorityString += "or hasAuthority(\"ROLE_" + role + "\")";
+        }
+        return hasAuthorityString;
     }
 }

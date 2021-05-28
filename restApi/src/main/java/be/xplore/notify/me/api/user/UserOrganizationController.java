@@ -1,9 +1,8 @@
-package be.xplore.notify.me.api;
+package be.xplore.notify.me.api.user;
 
 import be.xplore.notify.me.domain.Organization;
 import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.user.Role;
-import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.domain.user.UserOrganization;
 import be.xplore.notify.me.dto.user.UserOrganizationDto;
 import be.xplore.notify.me.dto.user.UserOrganizationIdsDto;
@@ -62,13 +61,12 @@ public class UserOrganizationController {
 
     @PostMapping("/request/join")
     public ResponseEntity<UserOrganizationDto> userJoinOrganization(@RequestBody UserOrganizationIdsDto dto) {
-        Optional<User> optionalUser = userService.getById(dto.getUserId());
 
-        Optional<Organization> optionalOrganization = organizationService.getById(dto.getOrganizationId());
-        if (optionalUser.isEmpty() || optionalOrganization.isEmpty()) {
+        Optional<Organization> optionalOrganization = organizationService.findById(dto.getOrganizationId());
+        if (optionalOrganization.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        UserOrganization userOrganization = userOrganizationService.userJoinOrganization(optionalUser.get(), optionalOrganization.get());
+        UserOrganization userOrganization = userOrganizationService.userJoinOrganization(userService.getById(dto.getUserId()), optionalOrganization.get());
         UserOrganizationDto returnDto = userOrganizationDtoMapper.toDto(userOrganization);
         return new ResponseEntity<>(returnDto, HttpStatus.CREATED);
     }
@@ -89,7 +87,7 @@ public class UserOrganizationController {
     @GetMapping("/{organizationId}/users")
     public ResponseEntity<Page<UserOrganizationDto>> getUsersOfOrganization(@PathVariable String organizationId, @RequestParam(required = false) Integer page) {
         int pageNumber = ApiUtils.getPageNumber(page);
-        Optional<Organization> organizationOptional = organizationService.getById(organizationId);
+        Optional<Organization> organizationOptional = organizationService.findById(organizationId);
         if (organizationOptional.isEmpty()) {
             throw new NotFoundException("No organization with id " + organizationId + " found");
         }
@@ -101,7 +99,7 @@ public class UserOrganizationController {
     @PostMapping("/{id}/promote")
     public ResponseEntity<UserOrganizationDto> promoteMember(@PathVariable String id, Authentication authentication) {
         ApiUtils.requireRole(authentication, Role.ORGANIZATION_LEADER);
-        UserOrganization userOrganization = getUserOrganizationById(id);
+        UserOrganization userOrganization = userOrganizationService.getById(id);
         UserOrganization promoted = userOrganizationService.changeOrganizationMemberRole(userOrganization, Role.ORGANIZATION_LEADER);
         return new ResponseEntity<>(userOrganizationDtoMapper.toDto(promoted), HttpStatus.OK);
     }
@@ -109,17 +107,9 @@ public class UserOrganizationController {
     @PostMapping("/{id}/demote")
     public ResponseEntity<UserOrganizationDto> demoteMember(@PathVariable String id, Authentication authentication) {
         ApiUtils.requireRole(authentication, Role.ORGANIZATION_LEADER);
-        UserOrganization userOrganization = getUserOrganizationById(id);
+        UserOrganization userOrganization = userOrganizationService.getById(id);
         UserOrganization promoted = userOrganizationService.changeOrganizationMemberRole(userOrganization, Role.MEMBER);
         return new ResponseEntity<>(userOrganizationDtoMapper.toDto(promoted), HttpStatus.OK);
-    }
-
-    private UserOrganization getUserOrganizationById(String id) {
-        Optional<UserOrganization> userOrganizationOptional = userOrganizationService.getById(id);
-        if (userOrganizationOptional.isEmpty()) {
-            throw new NotFoundException("Could not find a userOrganization with id " + id);
-        }
-        return userOrganizationOptional.get();
     }
 
     private ResponseEntity<Page<UserOrganizationDto>> getPageResponseEntity(Page<UserOrganization> requests) {

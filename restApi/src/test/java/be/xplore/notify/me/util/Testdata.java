@@ -21,6 +21,9 @@ import org.springframework.context.annotation.Configuration;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Configuration
 public class Testdata {
@@ -31,7 +34,9 @@ public class Testdata {
                 .normalChannel(NotificationChannel.EMAIL).urgentChannel(NotificationChannel.SMS).build();
         return User.builder().id("1").userPreferences(userPreferences).firstname("John").lastname("Doe")
                 .email("test@email.com").mobileNumber("+00000000000").passwordHash("$2a$10$286Mu.FRsWEpatglg/hFIu.wKwyw9g.cN/aAR4R0amhEZ3wHX5MwS")
-                .inbox(new ArrayList<>()).notificationQueue(new ArrayList<>()).build();
+                .inbox(new ArrayList<>()).notificationQueue(new ArrayList<>())
+                .roles(Arrays.stream(Role.values()).collect(Collectors.toSet()))
+                .build();
     }
 
     @Bean
@@ -54,7 +59,9 @@ public class Testdata {
 
     @Bean
     Venue testVenue() {
-        return Venue.builder().id("1").name("Test Venue").venueManagers(new ArrayList<>()).lineManagers(new ArrayList<>()).build();
+        List<User> userList = new ArrayList<>();
+        userList.add(testUser());
+        return Venue.builder().id("1").name("Test Venue").venueManagers(userList).lineManagers(userList).build();
     }
 
     @Bean

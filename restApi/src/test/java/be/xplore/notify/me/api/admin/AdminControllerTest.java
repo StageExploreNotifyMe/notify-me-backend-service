@@ -1,4 +1,4 @@
-package be.xplore.notify.me.api;
+package be.xplore.notify.me.api.admin;
 
 import be.xplore.notify.me.domain.notification.Notification;
 import be.xplore.notify.me.services.notification.NotificationService;

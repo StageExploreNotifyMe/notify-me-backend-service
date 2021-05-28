@@ -1,6 +1,7 @@
-package be.xplore.notify.me.api;
+package be.xplore.notify.me.api.admin;
 
 import be.xplore.notify.me.domain.Venue;
+import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.dto.venue.CreateVenueDto;
 import be.xplore.notify.me.dto.venue.VenueDto;
@@ -30,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class VenueControllerTest {
+class AdminVenueControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -48,40 +49,10 @@ class VenueControllerTest {
     @MockBean
     private UserService userService;
 
-    private void mockGetVenues() {
-        given(venueService.getAllVenues(any(int.class))).will(i -> {
-            List<Venue> venueList = new ArrayList<>();
-            venueList.add(venue);
-            return new PageImpl<>(venueList);
-        });
-    }
-
-    private void mockCreateVenue() {
-        given(venueService.createVenue(any(String.class))).will(i -> Venue.builder().name("Test Venue").build());
-    }
-
-    private void mockAddVenueManager() {
-        given(venueService.addVenueManagerToVenue(any(), any())).willReturn(venue);
-    }
-
-    private void mockGetUserById() {
-        given(userService.getById(any())).willReturn(Optional.of(user));
-    }
-
-    private void mockUpdateVenue() {
-        given(venueService.updateVenue(any())).will(i ->
-                Venue.builder()
-                .id(venue.getId())
-                .name("updated name")
-                .venueManagers(venue.getVenueManagers())
-                .lineManagers(venue.getLineManagers())
-                .build());
-    }
-
     @Test
     void getVenues() {
         try {
-            mockGetVenues();
+            mockAll();
             ResultActions resultActions = TestUtils.performGet(mockMvc, "/admin/venue");
             resultActions.andExpect(status().is(HttpStatus.OK.value()));
         } catch (Exception e) {
@@ -104,7 +75,7 @@ class VenueControllerTest {
 
     @Test
     void createVenueUserNotFound() {
-        mockAll();
+        given(userService.getById(any())).willThrow(NotFoundException.class);
         List<String> users = getUserIds("sdfsd");
         CreateVenueDto createVenueDto = new CreateVenueDto("test venue", users);
         try {
@@ -117,7 +88,7 @@ class VenueControllerTest {
 
     @Test
     void updateVenue() {
-        mockUpdate();
+        mockAll();
         try {
             VenueDto body = new VenueDto("1", "test venue", new ArrayList<>());
             ResultActions request = TestUtils.performPatch(mockMvc, body, "/admin/venue/edit");
@@ -129,21 +100,48 @@ class VenueControllerTest {
         }
     }
 
-    private void mockUpdate() {
-        mockGetUserById();
-        mockUpdateVenue();
+    private List<String> getUserIds(String id) {
+        List<String> users = new ArrayList<>();
+        users.add(id);
+        return users;
     }
 
     private void mockAll() {
         mockCreateVenue();
         mockGetVenues();
         mockAddVenueManager();
+        mockGetUserById();
+        mockUpdateVenue();
     }
 
-    private List<String> getUserIds(String id) {
-        List<String> users = new ArrayList<>();
-        users.add(id);
-        return users;
+    private void mockGetVenues() {
+        given(venueService.getAllVenues(any(int.class))).will(i -> {
+            List<Venue> venueList = new ArrayList<>();
+            venueList.add(venue);
+            return new PageImpl<>(venueList);
+        });
+    }
+
+    private void mockCreateVenue() {
+        given(venueService.createVenue(any(String.class))).will(i -> Venue.builder().name("Test Venue").build());
+    }
+
+    private void mockAddVenueManager() {
+        given(venueService.addVenueManagerToVenue(any(), any())).willReturn(venue);
+    }
+
+    private void mockGetUserById() {
+        given(userService.findById(any())).willReturn(Optional.of(user));
+    }
+
+    private void mockUpdateVenue() {
+        given(venueService.updateVenue(any())).will(i ->
+                Venue.builder()
+                .id(venue.getId())
+                .name("updated name")
+                .venueManagers(venue.getVenueManagers())
+                .lineManagers(venue.getLineManagers())
+                .build());
     }
 
 }
