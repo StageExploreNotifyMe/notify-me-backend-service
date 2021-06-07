@@ -1,7 +1,9 @@
 package be.xplore.notify.me.services.notification;
 
+import be.xplore.notify.me.domain.event.Event;
 import be.xplore.notify.me.domain.notification.Notification;
 import be.xplore.notify.me.domain.notification.NotificationType;
+import be.xplore.notify.me.domain.notification.NotificationUrgency;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.persistence.NotificationRepo;
 import be.xplore.notify.me.services.user.UserService;
@@ -10,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -78,5 +81,17 @@ public class NotificationService {
 
     public List<Object[]> getChannelAmount() {
         return notificationRepo.getChannelAmount();
+    }
+
+    public static NotificationUrgency getNormalNotificationUrgency(Event event) {
+        NotificationUrgency notificationUrgency = NotificationUrgency.NORMAL;
+        if (isUrgent(event)) {
+            notificationUrgency = NotificationUrgency.URGENT;
+        }
+        return notificationUrgency;
+    }
+
+    public static boolean isUrgent(Event event) {
+        return event.getDate().minusDays(2).isBefore(LocalDateTime.now());
     }
 }

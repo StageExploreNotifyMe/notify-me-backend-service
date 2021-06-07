@@ -7,7 +7,6 @@ import be.xplore.notify.me.domain.event.EventLineStatus;
 import be.xplore.notify.me.domain.notification.Notification;
 import be.xplore.notify.me.domain.notification.NotificationChannel;
 import be.xplore.notify.me.domain.notification.NotificationType;
-import be.xplore.notify.me.domain.notification.NotificationUrgency;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.domain.user.UserOrganization;
 import be.xplore.notify.me.services.notification.NotificationService;
@@ -82,7 +81,7 @@ public class EventNotificationService {
                 eventLine.getLine().getName()
         );
 
-        sendOrganizationMemberCanceledNotification(user, body);
+        sendOrganizationMemberCanceledNotification(user, body, eventLine.getEvent());
     }
 
     private void sendMemberCancelNotification(User user, EventLine eventLine) {
@@ -94,14 +93,14 @@ public class EventNotificationService {
                 eventLine.getLine().getName()
         );
 
-        sendOrganizationMemberCanceledNotification(user, body);
+        sendOrganizationMemberCanceledNotification(user, body, eventLine.getEvent());
     }
 
-    private void sendOrganizationMemberCanceledNotification(User user, String body) {
+    private void sendOrganizationMemberCanceledNotification(User user, String body, Event event) {
         Notification notification = Notification.builder()
                 .userId(user.getId())
                 .type(NotificationType.EVENT_CANCELED)
-                .urgency(NotificationUrgency.NORMAL)
+                .urgency(NotificationService.getNormalNotificationUrgency(event))
                 .creationDate(LocalDateTime.now())
                 .title("Event canceled")
                 .body(body)
@@ -122,7 +121,7 @@ public class EventNotificationService {
             .title(String.format("event %s is canceled", event.getName()))
             .body(String.format("event %s is canceled, this event was planned on %s ", event.getName(), event.getDate()))
             .creationDate(LocalDateTime.now())
-            .urgency(NotificationUrgency.NORMAL)
+            .urgency(NotificationService.getNormalNotificationUrgency(event))
             .usedChannel(NotificationChannel.EMAIL)
             .type(NotificationType.EVENT_CANCELED)
             .userId(lineManager.getId())
@@ -155,7 +154,7 @@ public class EventNotificationService {
         Notification notification = Notification.builder()
                 .userId(lineManager.getId())
                 .type(NotificationType.EVENT_CREATED)
-                .urgency(NotificationUrgency.NORMAL)
+                .urgency(NotificationService.getNormalNotificationUrgency(event))
                 .usedChannel(NotificationChannel.EMAIL)
                 .creationDate(LocalDateTime.now())
                 .title("New event created")
