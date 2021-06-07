@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.Currency;
 
 @Getter
 @Setter
@@ -30,4 +31,7 @@ public class NotificationDto {
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     LocalDateTime creationDate;
+    Double price;
+    Currency priceCurrency;
+
 }
