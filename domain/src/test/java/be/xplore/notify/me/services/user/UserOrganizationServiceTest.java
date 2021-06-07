@@ -118,6 +118,7 @@ class UserOrganizationServiceTest {
     @Test
     void changeOrganizationMemberRole() {
         mockSave();
+        mockGetUserOrganizationsByUserId();
         assertEquals(Role.MEMBER, userOrganization.getRole());
         UserOrganization updated = userOrganizationService.changeOrganizationMemberRole(userOrganization, Role.MEMBER);
         assertEquals(Role.MEMBER, updated.getRole());

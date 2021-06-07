@@ -79,4 +79,8 @@ public class VenueService {
                 .lineManagers(venue.getLineManagers())
                 .build());
     }
+
+    public Page<Venue> getAllVenuesOfUser(User user, int page) {
+        return repo.getAllVenuesOfUser(user, PageRequest.of(page, 20));
+    }
 }

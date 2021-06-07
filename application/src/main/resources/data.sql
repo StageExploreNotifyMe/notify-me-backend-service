@@ -12,7 +12,8 @@ INSERT INTO user_entity_roles (user_entity_id, roles) values ('1', 4);
 
 INSERT INTO user_preferences_entity (id, normal_channel, urgent_channel) values ('2', 0, 1);
 INSERT INTO user_entity (id, firstname, lastname, user_preferences_id, mobile_number, email, password_hash) values ('2', 'Jane', 'Doe', '2', '+32492920000', 'gerd.goemans@xplore.be', '$2a$10$dOTN4PHOJsdVR.B9jSk6Ueajbkh6FhQIFpZPBFgtCV25dy3gRnVyS');
-insert into user_organization_entity (id, role, status, organization_entity_id, user_entity_id) values ('2', 0, 1, '1', '2');
+insert into user_organization_entity (id, role, status, organization_entity_id, user_entity_id) values ('2', 0, 0, '1', '2');
+INSERT INTO user_entity_roles (user_entity_id, roles) values ('2', 0);
 
 INSERT INTO user_preferences_entity (id, normal_channel, urgent_channel) values ('3', 0, 1);
 INSERT INTO user_entity (id, firstname, lastname, user_preferences_id, mobile_number, email, password_hash) values ('3', 'John', 'Smith', '3', '+32492920000', 'jana.wouters@xplore.be', '$2a$10$RENroRcvpbEWsvobaFIId.u0Ycc3i9LTW/9DLLwHO44cbM9/VjKIS');

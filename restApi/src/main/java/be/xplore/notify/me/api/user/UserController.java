@@ -55,7 +55,6 @@ public class UserController {
     public ResponseEntity<Page<EventLineDto>> getUserLines(@PathVariable String id, @RequestParam(required = false) Integer page) {
         Page<EventLine> allLinesOfUser = eventLineService.getAllLinesOfUser(userService.getById(id), getPageNumber(page));
         return new ResponseEntity<>(allLinesOfUser.map(eventLineDtoMapper::toDto), HttpStatus.OK);
-
     }
 
     @GetMapping("/preferences")

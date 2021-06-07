@@ -44,7 +44,7 @@ public class WebSecurityConfigurerAdapterImpl extends WebSecurityConfigurerAdapt
             .antMatchers("/line/**").access(getAccessString(new Role[]{Role.MEMBER, Role.ORGANIZATION_LEADER, Role.LINE_MANAGER, Role.VENUE_MANAGER}))
             .antMatchers("/event/**").access(getAccessString(new Role[]{Role.MEMBER, Role.ORGANIZATION_LEADER, Role.LINE_MANAGER, Role.VENUE_MANAGER}))
             .antMatchers("/userorganization/**").access(getAccessString(new Role[]{Role.MEMBER, Role.ORGANIZATION_LEADER}))
-            .antMatchers("/organization/**").access(getAccessString(new Role[]{Role.MEMBER, Role.ORGANIZATION_LEADER}))
+            .antMatchers("/organization/**").access(getAccessString(new Role[]{Role.MEMBER, Role.ORGANIZATION_LEADER, Role.LINE_MANAGER, Role.VENUE_MANAGER}))
             .anyRequest().authenticated()
             .and()
             .addFilter(new AuthenticationFilter(authenticationManager(), objectMapper, jwtService))

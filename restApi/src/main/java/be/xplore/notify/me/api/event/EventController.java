@@ -90,7 +90,7 @@ public class EventController {
             return;
         }
 
-        if (venue.getLineManagers().stream().noneMatch(user -> user.getId().equals(caller.getId()))) {
+        if (venue.getVenueManagers().stream().noneMatch(user -> user.getId().equals(caller.getId()))) {
             throw new Unauthorized("You are not authorized to create an event");
         }
     }

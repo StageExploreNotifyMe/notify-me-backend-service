@@ -71,6 +71,7 @@ public class UserOrganizationService {
 
     public UserOrganization changeOrganizationMemberRole(UserOrganization userOrganization, Role roleToChangeTo) {
         if (userOrganization.getRole().equals(roleToChangeTo)) {
+            updateUserRoles(userOrganization.getUser());
             return userOrganization;
         }
 
@@ -89,16 +90,16 @@ public class UserOrganizationService {
 
     private void updateUserRoles(User user) {
         List<UserOrganization> userOrganizations = getAllUserOrganizationsByUserId(user.getId());
-        for (Role role : new Role[]{Role.MEMBER, Role.ORGANIZATION_LEADER}) {
-            updateUserRole(user, userOrganizations, role);
+        for (Role toCheckRole : new Role[]{Role.MEMBER, Role.ORGANIZATION_LEADER}) {
+            updateUserRole(user, userOrganizations, toCheckRole);
         }
     }
 
-    private void updateUserRole(User user, List<UserOrganization> userOrganizations, Role role) {
-        if (userOrganizations.stream().anyMatch(uo -> uo.getRole() == role && uo.getStatus() == MemberRequestStatus.ACCEPTED)) {
-            userService.addRole(user, role);
+    private void updateUserRole(User user, List<UserOrganization> userOrganizations, Role roleToCheck) {
+        if (userOrganizations.stream().anyMatch(uo -> uo.getRole() == roleToCheck && uo.getStatus() == MemberRequestStatus.ACCEPTED)) {
+            userService.addRole(user, roleToCheck);
         } else {
-            userService.removeRole(user, role);
+            userService.removeRole(user, roleToCheck);
         }
     }
 

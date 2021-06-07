@@ -22,24 +22,25 @@ public class ExceptionHandlerController {
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(AlreadyExistsException.class)
     public void alreadyExistsException(HttpServletRequest request, Exception e) {
-        log.trace("Request on {} produced an already exists exception: {}: {}", request.getRequestURI(), e.getClass().getSimpleName(), e.getMessage());
+        log.trace("Request on {} produced an exception: {}: {}", request.getRequestURI(), e.getClass().getSimpleName(), e.getMessage());
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(IllegalArgumentException.class)
     public void illegalArgumentException(HttpServletRequest request, Exception e) {
-        log.trace("Request on {} produced an illegal argument exception: {}: {}", request.getRequestURI(), e.getClass().getSimpleName(), e.getMessage());
+        log.trace("Request on {} produced an exception: {}: {}", request.getRequestURI(), e.getClass().getSimpleName(), e.getMessage());
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(BadRequestException.class)
-    public void badRequestException() {
+    public void badRequestException(HttpServletRequest request, Exception e) {
+        log.trace("Request on {} produced an exception: {}: {}", request.getRequestURI(), e.getClass().getSimpleName(), e.getMessage());
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(NotFoundException.class)
     public void notFoundException(HttpServletRequest request, Exception e) {
-        log.trace("Request on {} produced a not found exception: {}: {}", request.getRequestURI(), e.getClass().getSimpleName(), e.getMessage());
+        log.trace("Request on {} produced an exception: {}: {}", request.getRequestURI(), e.getClass().getSimpleName(), e.getMessage());
     }
 
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
