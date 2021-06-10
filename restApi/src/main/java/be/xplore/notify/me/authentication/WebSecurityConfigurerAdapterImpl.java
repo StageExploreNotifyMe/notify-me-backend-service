@@ -14,6 +14,8 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 @Component
 public class WebSecurityConfigurerAdapterImpl extends WebSecurityConfigurerAdapter {
@@ -42,11 +44,11 @@ public class WebSecurityConfigurerAdapterImpl extends WebSecurityConfigurerAdapt
             .antMatchers(HttpMethod.OPTIONS).permitAll()
             .antMatchers("/authentication/register").permitAll()
             .antMatchers("/user/**").authenticated()
-            .antMatchers("/admin/**").access(getAccessString(new Role[]{Role.ADMIN}))
-            .antMatchers("/line/**").access(getAccessString(new Role[]{Role.MEMBER, Role.ORGANIZATION_LEADER, Role.LINE_MANAGER, Role.VENUE_MANAGER}))
-            .antMatchers("/event/**").access(getAccessString(new Role[]{Role.MEMBER, Role.ORGANIZATION_LEADER, Role.LINE_MANAGER, Role.VENUE_MANAGER}))
-            .antMatchers("/userorganization/**").access(getAccessString(new Role[]{Role.MEMBER, Role.ORGANIZATION_LEADER}))
-            .antMatchers("/organization/**").access(getAccessString(new Role[]{Role.MEMBER, Role.ORGANIZATION_LEADER, Role.LINE_MANAGER, Role.VENUE_MANAGER}))
+            .antMatchers("/admin/**").access(getAccessString(Collections.singletonList(Role.ADMIN)))
+            .antMatchers("/line/**").access(getAccessString(Arrays.asList(Role.MEMBER, Role.ORGANIZATION_LEADER, Role.LINE_MANAGER, Role.VENUE_MANAGER)))
+            .antMatchers("/event/**").access(getAccessString(Arrays.asList(Role.MEMBER, Role.ORGANIZATION_LEADER, Role.LINE_MANAGER, Role.VENUE_MANAGER)))
+            .antMatchers("/userorganization/**").access(getAccessString(Arrays.asList(Role.MEMBER, Role.ORGANIZATION_LEADER)))
+            .antMatchers("/organization/**").access(getAccessString(Arrays.asList(Role.MEMBER, Role.ORGANIZATION_LEADER, Role.LINE_MANAGER, Role.VENUE_MANAGER)))
             .anyRequest().authenticated()
             .and()
             .addFilter(new AuthenticationFilter(authenticationManager(), objectMapper, jwtService))
@@ -72,9 +74,9 @@ public class WebSecurityConfigurerAdapterImpl extends WebSecurityConfigurerAdapt
         return source;
     }
 
-    private String getAccessString(Role[] roles) {
+    private String getAccessString(List<Role> roles) {
         String hasAuthorityString = "hasAuthority(\"ROLE_ADMIN\")";
-        if (roles.length == 0) {
+        if (roles.size() == 0) {
             return hasAuthorityString;
         }
         for (Role role : roles) {

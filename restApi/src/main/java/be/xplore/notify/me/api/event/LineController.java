@@ -25,6 +25,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Arrays;
+
 @RestController
 @RequestMapping(value = "/line", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 public class LineController {
@@ -79,7 +81,7 @@ public class LineController {
         if (ApiUtils.isAdmin(authentication)) {
             return;
         }
-        ApiUtils.requireRole(authentication, new Role[]{Role.LINE_MANAGER, Role.VENUE_MANAGER});
+        ApiUtils.requireRole(authentication, Arrays.asList(Role.LINE_MANAGER, Role.VENUE_MANAGER));
         User user = apiUtils.requireUserFromAuthentication(authentication);
         if (!isVenueOrLineManger(venue, user)) {
             throw new Unauthorized("You are not authorized to do this");
