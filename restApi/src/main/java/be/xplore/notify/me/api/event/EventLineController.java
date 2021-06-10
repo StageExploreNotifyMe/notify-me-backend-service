@@ -31,6 +31,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -84,7 +86,7 @@ public class EventLineController {
     public ResponseEntity<StaffingReminderDto> sendStaffingReminder(@PathVariable String id, @RequestBody StaffingReminderDto dto, Authentication authentication) {
         ApiUtils.requirePathVarAndBodyMatch(id, dto.getEventLineId());
         EventLine line = eventLineService.getById(dto.getEventLineId());
-        isAllowedOnThisEventLineAndHasRole(authentication, line, new Role[]{Role.LINE_MANAGER, Role.VENUE_MANAGER});
+        isAllowedOnThisEventLineAndHasRole(authentication, line, Arrays.asList(Role.LINE_MANAGER, Role.VENUE_MANAGER));
         eventLineService.sendStaffingReminder(line, dto.getCustomText());
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }
@@ -105,7 +107,7 @@ public class EventLineController {
 
         User user = userService.getById(dto.getMemberId());
         EventLine line = eventLineService.getById(dto.getEventLineId());
-        isAllowedOnThisEventLineAndHasRole(authentication, line, new Role[]{Role.ORGANIZATION_LEADER});
+        isAllowedOnThisEventLineAndHasRole(authentication, line, Collections.singletonList(Role.ORGANIZATION_LEADER));
 
         EventLine updatedLine = eventLineService.assignUserToEventLine(user, line);
         return new ResponseEntity<>(eventLineDtoMapper.toDto(updatedLine), HttpStatus.OK);
@@ -117,7 +119,7 @@ public class EventLineController {
 
         Organization organization = organizationService.getById(dto.getOrganizationId());
         EventLine line = eventLineService.getById(dto.getEventLineId());
-        isAllowedOnThisEventLineAndHasRole(authentication, line, new Role[]{Role.LINE_MANAGER, Role.VENUE_MANAGER});
+        isAllowedOnThisEventLineAndHasRole(authentication, line, Arrays.asList(Role.LINE_MANAGER, Role.VENUE_MANAGER));
 
         EventLine updatedLine = eventLineService.assignOrganizationToLine(organization, line);
         return new ResponseEntity<>(eventLineDtoMapper.toDto(updatedLine), HttpStatus.OK);
@@ -126,7 +128,7 @@ public class EventLineController {
     @PostMapping("{id}/cancel")
     public ResponseEntity<EventLineDto> cancelEventLine(@PathVariable String id, Authentication authentication) {
         EventLine line = eventLineService.getById(id);
-        isAllowedOnThisEventLineAndHasRole(authentication, line, new Role[]{Role.LINE_MANAGER, Role.VENUE_MANAGER});
+        isAllowedOnThisEventLineAndHasRole(authentication, line, Arrays.asList(Role.LINE_MANAGER, Role.VENUE_MANAGER));
         EventLine canceledLine = eventLineService.cancelEventLine(line);
         return new ResponseEntity<>(eventLineDtoMapper.toDto(canceledLine), HttpStatus.OK);
     }
@@ -135,7 +137,7 @@ public class EventLineController {
     public ResponseEntity<EventLineDto> cancelMemberEventLine(@PathVariable String lineId, @RequestBody LineMemberDto dto, Authentication authentication) {
         ApiUtils.requirePathVarAndBodyMatch(lineId, dto.getEventLineId());
         EventLine line = eventLineService.getById(dto.getEventLineId());
-        User caller = isAllowedOnThisEventLineAndHasRole(authentication, line, new Role[]{Role.MEMBER});
+        User caller = isAllowedOnThisEventLineAndHasRole(authentication, line, Collections.singletonList(Role.MEMBER));
         if (!ApiUtils.isAdmin(authentication) && !dto.getMemberId().equals(caller.getId())) {
             throw new Unauthorized("You are not allowed to cancel someone else's attendance");
         }
@@ -144,7 +146,7 @@ public class EventLineController {
         return new ResponseEntity<>(eventLineDtoMapper.toDto(updatedLine), HttpStatus.OK);
     }
 
-    private User isAllowedOnThisEventLineAndHasRole(Authentication authentication, EventLine eventLine, Role[] roles) {
+    private User isAllowedOnThisEventLineAndHasRole(Authentication authentication, EventLine eventLine, List<Role> roles) {
         if (ApiUtils.isAdmin(authentication)) {
             return null;
         }
