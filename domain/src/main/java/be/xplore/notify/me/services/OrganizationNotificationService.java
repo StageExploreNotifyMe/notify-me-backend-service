@@ -5,7 +5,6 @@ import be.xplore.notify.me.domain.event.EventLine;
 import be.xplore.notify.me.domain.notification.Notification;
 import be.xplore.notify.me.domain.notification.NotificationChannel;
 import be.xplore.notify.me.domain.notification.NotificationType;
-import be.xplore.notify.me.domain.notification.NotificationUrgency;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.domain.user.UserOrganization;
 import be.xplore.notify.me.services.notification.NotificationService;
@@ -34,7 +33,6 @@ public class OrganizationNotificationService {
             Notification notification = setOrganizationLineAssignmentNotificationDetails(organization, line, userOrganization.getUser());
             notificationService.sendNotification(notification, userOrganization.getUser());
         }
-
     }
 
     public Notification setOrganizationLineAssignmentNotificationDetails(Organization organization, EventLine line, User user) {
@@ -43,7 +41,7 @@ public class OrganizationNotificationService {
             .body(String.format("%s is assigned to line %s for: %s ,you can start searching for members",
                 organization.getName(), line.getLine().getName(), line.getEvent().getName()))
             .userId(user.getId())
-            .urgency(NotificationUrgency.NORMAL)
+            .urgency(NotificationService.getNormalNotificationUrgency(line.getEvent()))
             .usedChannel(NotificationChannel.EMAIL)
             .creationDate(LocalDateTime.now())
             .type(NotificationType.LINE_ASSIGNED)

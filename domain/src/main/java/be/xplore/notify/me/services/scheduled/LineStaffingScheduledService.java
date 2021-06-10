@@ -4,6 +4,7 @@ import be.xplore.notify.me.domain.event.Event;
 import be.xplore.notify.me.domain.event.EventLine;
 import be.xplore.notify.me.domain.notification.Notification;
 import be.xplore.notify.me.domain.notification.NotificationType;
+import be.xplore.notify.me.domain.notification.NotificationUrgency;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.services.event.EventLineService;
 import be.xplore.notify.me.services.event.EventService;
@@ -108,6 +109,7 @@ public class LineStaffingScheduledService {
     private void sendNotification(User user, String body, String title) {
         Notification notification = Notification.builder()
                 .type(NotificationType.STAFFING_REMINDER)
+                .urgency(NotificationUrgency.URGENT)
                 .title(title)
                 .creationDate(LocalDateTime.now())
                 .userId(user.getId())
