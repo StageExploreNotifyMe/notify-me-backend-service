@@ -5,6 +5,7 @@ import be.xplore.notify.me.entity.event.LineEntity;
 import be.xplore.notify.me.mappers.event.LineEntityMapper;
 import be.xplore.notify.me.persistence.LineRepo;
 import be.xplore.notify.me.repositories.JpaLineRepo;
+import be.xplore.notify.me.util.LongParser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,13 +27,13 @@ public class LineAdapter implements LineRepo {
 
     @Override
     public Page<Line> getAllByVenue(String venueId, PageRequest pageRequest) {
-        Page<LineEntity> lineEntityPage = jpaLineRepo.getAllByVenueEntity_IdOrderByName(venueId, pageRequest);
+        Page<LineEntity> lineEntityPage = jpaLineRepo.getAllByVenueEntity_IdOrderByName(LongParser.parseLong(venueId), pageRequest);
         return lineEntityPage.map(lineEntityMapper::fromEntity);
     }
 
     @Override
     public Optional<Line> findById(String id) {
-        Optional<LineEntity> optional = jpaLineRepo.findById(id);
+        Optional<LineEntity> optional = jpaLineRepo.findById(LongParser.parseLong(id));
         if (optional.isEmpty()) {
             return Optional.empty();
         }

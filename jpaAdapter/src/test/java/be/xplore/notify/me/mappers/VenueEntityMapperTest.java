@@ -19,7 +19,7 @@ class VenueEntityMapperTest {
 
     @Test
     void toAndFromEntity() {
-        Venue object = Venue.builder().id("ThisIsATest").venueManagers(new ArrayList<>()).lineManagers(new ArrayList<>()).build();
+        Venue object = Venue.builder().id("500").venueManagers(new ArrayList<>()).lineManagers(new ArrayList<>()).build();
         VenueEntity entity = mapper.toEntity(object);
         doEntityAsserts(object, entity);
 
@@ -29,7 +29,7 @@ class VenueEntityMapperTest {
 
     @Test
     void toAndFromEntityWithNulls() {
-        Venue object = Venue.builder().id("ThisIsATest").venueManagers(null).lineManagers(null).build();
+        Venue object = Venue.builder().id("500").venueManagers(null).lineManagers(null).build();
         VenueEntity entity = mapper.toEntity(object);
         doEntityAsserts(object, entity);
 
@@ -41,7 +41,7 @@ class VenueEntityMapperTest {
 
     private void doEntityAsserts(Venue object, VenueEntity entity) {
         assertNotNull(entity);
-        assertEquals(object.getId(), entity.getId());
+        assertEquals(Long.parseLong(object.getId()), entity.getId());
     }
 
     private void doObjectAsserts(Venue object, Venue fromEntity) {

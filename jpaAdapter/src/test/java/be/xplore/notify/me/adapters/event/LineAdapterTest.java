@@ -35,13 +35,13 @@ class LineAdapterTest {
 
     @Test
     void findByIdNotFound() {
-        Optional<Line> byId = lineAdapter.findById("qldfkjs");
+        Optional<Line> byId = lineAdapter.findById("500");
         assertTrue(byId.isEmpty());
     }
 
     @Test
     void save() {
-        Line line = Line.builder().name("tst").build();
+        Line line = Line.builder().id("501").name("tst").build();
         Line save = lineAdapter.save(line);
         assertEquals(line.getName(), save.getName());
     }

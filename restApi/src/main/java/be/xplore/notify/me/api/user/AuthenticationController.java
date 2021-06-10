@@ -36,7 +36,7 @@ public class AuthenticationController {
             .firstname(validateNotEmpty(userRegisterDto.getFirstname(), "Firstname"))
             .lastname(validateNotEmpty(userRegisterDto.getLastname(), "LastName"))
             .passwordHash(validateNotEmpty(userRegisterDto.getPassword(), "Password"))
-            .email(validateEmail(userRegisterDto.getEmail()))
+            .email(validateEmail(userRegisterDto.getEmail().toLowerCase()))
             .mobileNumber(validateNotEmpty(userRegisterDto.getMobileNumber(), "Mobile number"))
             .build();
     }

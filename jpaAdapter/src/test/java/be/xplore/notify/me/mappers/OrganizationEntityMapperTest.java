@@ -17,11 +17,11 @@ class OrganizationEntityMapperTest {
 
     @Test
     void toAndFromEntity() {
-        Organization object = Organization.builder().id("ThisIsATest").build();
+        Organization object = Organization.builder().id("500").build();
 
         OrganizationEntity entity = mapper.toEntity(object);
         assertNotNull(entity);
-        assertEquals(object.getId(), entity.getId());
+        assertEquals(Long.parseLong(object.getId()), entity.getId());
 
         Organization fromEntity = mapper.fromEntity(entity);
         assertNotNull(fromEntity);

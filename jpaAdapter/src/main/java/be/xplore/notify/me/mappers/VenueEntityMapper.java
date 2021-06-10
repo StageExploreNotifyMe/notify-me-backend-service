@@ -5,6 +5,7 @@ import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.entity.VenueEntity;
 import be.xplore.notify.me.entity.user.UserEntity;
 import be.xplore.notify.me.mappers.user.UserEntityMapper;
+import be.xplore.notify.me.util.LongParser;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ public class VenueEntityMapper implements EntityMapper<VenueEntity, Venue> {
         if (venueEntity.getLineManagers() != null) {
             lineManagers = venueEntity.getLineManagers().stream().map(userEntityMapper::fromEntity).collect(Collectors.toList());
         }
-        return Venue.builder().id(venueEntity.getId()).name(venueEntity.getName()).venueManagers(venueManagers).lineManagers(lineManagers).build();
+        return Venue.builder().id(String.valueOf(venueEntity.getId())).name(venueEntity.getName()).venueManagers(venueManagers).lineManagers(lineManagers).build();
     }
 
     @Override
@@ -50,6 +51,6 @@ public class VenueEntityMapper implements EntityMapper<VenueEntity, Venue> {
         if (venue.getLineManagers() != null) {
             lineManagers = venue.getLineManagers().stream().map(userEntityMapper::toEntity).collect(Collectors.toList());
         }
-        return new VenueEntity(venue.getId(), venue.getName(), venueManagers, lineManagers);
+        return new VenueEntity(LongParser.parseLong(venue.getId()), venue.getName(), venueManagers, lineManagers);
     }
 }

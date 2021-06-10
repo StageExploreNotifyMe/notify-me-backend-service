@@ -19,11 +19,11 @@ class EventLineEntityMapperTest {
 
     @Test
     void toAndFromEntity() {
-        EventLine object = EventLine.builder().id("ThisIsATest").assignedUsers(new ArrayList<>()).build();
+        EventLine object = EventLine.builder().id("500").assignedUsers(new ArrayList<>()).build();
 
         EventLineEntity entity = mapper.toEntity(object);
         assertNotNull(entity);
-        assertEquals(object.getId(), entity.getId());
+        assertEquals(Long.parseLong(object.getId()), entity.getId());
 
         EventLine fromEntity = mapper.fromEntity(entity);
         assertNotNull(fromEntity);

@@ -13,6 +13,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
+
 @Component
 public class WebSecurityConfigurerAdapterImpl extends WebSecurityConfigurerAdapter {
 
@@ -59,7 +61,14 @@ public class WebSecurityConfigurerAdapterImpl extends WebSecurityConfigurerAdapt
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", new CorsConfiguration().applyPermitDefaultValues());
+
+        CorsConfiguration config = new CorsConfiguration().applyPermitDefaultValues();
+        config.setAllowedMethods(Arrays.asList(
+                HttpMethod.PATCH.toString(), HttpMethod.PUT.toString(), HttpMethod.POST.toString(), HttpMethod.GET.toString(), HttpMethod.DELETE.toString()
+        ));
+        config.addAllowedHeader("Authorization");
+
+        source.registerCorsConfiguration("/**", config);
         return source;
     }
 

@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 public class EventEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String id;
+    private Long id;
     private String name;
     private LocalDateTime date;
     private EventStatus eventStatus;

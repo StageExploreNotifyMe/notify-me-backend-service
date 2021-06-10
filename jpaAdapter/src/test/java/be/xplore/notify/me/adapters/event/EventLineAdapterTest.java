@@ -40,13 +40,13 @@ class EventLineAdapterTest {
 
     @Test
     void findByIdNotFound() {
-        Optional<EventLine> byId = eventLineAdapter.findById("qdsfqdsf");
+        Optional<EventLine> byId = eventLineAdapter.findById("500");
         assertTrue(byId.isEmpty());
     }
 
     @Test
     void save() {
-        EventLine eventLine = EventLine.builder().assignedUsers(new ArrayList<>()).build();
+        EventLine eventLine = EventLine.builder().id("501").assignedUsers(new ArrayList<>()).build();
         EventLine save = eventLineAdapter.save(eventLine);
         assertEquals(eventLine.getAssignedUsers().size(), save.getAssignedUsers().size());
     }

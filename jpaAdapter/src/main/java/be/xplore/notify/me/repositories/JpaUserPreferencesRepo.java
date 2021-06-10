@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface JpaUserPreferencesRepo extends JpaRepository<UserPreferencesEntity, String> {
+public interface JpaUserPreferencesRepo extends JpaRepository<UserPreferencesEntity, Long> {
 }

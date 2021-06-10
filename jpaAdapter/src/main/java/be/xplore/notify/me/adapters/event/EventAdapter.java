@@ -5,6 +5,7 @@ import be.xplore.notify.me.entity.event.EventEntity;
 import be.xplore.notify.me.mappers.event.EventEntityMapper;
 import be.xplore.notify.me.persistence.EventRepo;
 import be.xplore.notify.me.repositories.JpaEventRepo;
+import be.xplore.notify.me.util.LongParser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -29,13 +30,13 @@ public class EventAdapter implements EventRepo {
 
     @Override
     public Page<Event> getEventsOfVenue(String venueId, PageRequest pageRequest) {
-        Page<EventEntity> eventEntityPage = jpaEventRepo.getAllByVenue_IdOrderByDate(venueId, pageRequest);
+        Page<EventEntity> eventEntityPage = jpaEventRepo.getAllByVenue_IdOrderByDate(LongParser.parseLong(venueId), pageRequest);
         return eventEntityPage.map(eventEntityMapper::fromEntity);
     }
 
     @Override
     public Optional<Event> findById(String id) {
-        Optional<EventEntity> optional = jpaEventRepo.findById(id);
+        Optional<EventEntity> optional = jpaEventRepo.findById(LongParser.parseLong(id));
         if (optional.isEmpty()) {
             return Optional.empty();
         }

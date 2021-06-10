@@ -32,13 +32,13 @@ class NotificationAdapterTest {
 
     @Test
     void findByIdNotFound() {
-        Optional<Notification> byId = notificationAdapter.findById("qsdmfklj");
+        Optional<Notification> byId = notificationAdapter.findById("500");
         assertTrue(byId.isEmpty());
     }
 
     @Test
     void save() {
-        Notification notification = Notification.builder().body("test").build();
+        Notification notification = Notification.builder().id("501").body("test").build();
         Notification save = notificationAdapter.save(notification);
         assertEquals(notification.getBody(), save.getBody());
     }

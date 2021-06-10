@@ -19,7 +19,7 @@ class UserPreferencesAdapterTest {
 
     @Test
     void save() {
-        UserPreferences userPreferences = UserPreferences.builder().urgentChannel(NotificationChannel.SMS).build();
+        UserPreferences userPreferences = UserPreferences.builder().id("501").urgentChannel(NotificationChannel.SMS).build();
         UserPreferences save = userPreferencesAdapter.save(userPreferences);
         assertEquals(userPreferences.getUrgentChannel(), save.getUrgentChannel());
     }

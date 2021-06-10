@@ -6,6 +6,7 @@ import be.xplore.notify.me.entity.notification.NotificationEntity;
 import be.xplore.notify.me.entity.user.UserEntity;
 import be.xplore.notify.me.mappers.EntityMapper;
 import be.xplore.notify.me.mappers.notification.NotificationEntityMapper;
+import be.xplore.notify.me.util.LongParser;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -37,7 +38,7 @@ public class UserEntityMapper implements EntityMapper<UserEntity, User> {
         }
 
         return User.builder()
-            .id(userEntity.getId())
+            .id(String.valueOf(userEntity.getId()))
             .firstname(userEntity.getFirstname())
             .lastname(userEntity.getLastname())
             .userPreferences(userPreferencesEntityMapper.fromEntity(userEntity.getUserPreferences()))
@@ -65,7 +66,9 @@ public class UserEntityMapper implements EntityMapper<UserEntity, User> {
             inbox = user.getInbox().stream().map(notificationEntityMapper::toEntity).collect(Collectors.toList());
         }
 
-        return new UserEntity(user.getId(), userPreferencesEntityMapper.toEntity(
+        return new UserEntity(
+            LongParser.parseLong(user.getId()),
+            userPreferencesEntityMapper.toEntity(
             user.getUserPreferences()),
             user.getFirstname(),
             user.getLastname(),

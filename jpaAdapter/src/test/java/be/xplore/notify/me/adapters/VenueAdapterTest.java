@@ -30,13 +30,13 @@ class VenueAdapterTest {
 
     @Test
     void findByIdNotFound() {
-        Optional<Venue> venue = venueAdapter.findById("qsdkfljl");
+        Optional<Venue> venue = venueAdapter.findById("500");
         assertTrue(venue.isEmpty());
     }
 
     @Test
     void save() {
-        Venue venue = Venue.builder().name("Test").build();
+        Venue venue = Venue.builder().id("501").name("Test").build();
         Venue saved = venueAdapter.save(venue);
         assertEquals(venue.getName(), saved.getName());
     }

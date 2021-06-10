@@ -39,7 +39,7 @@ class UserOrganizationAdapterTest {
 
     @Test
     void save() {
-        UserOrganization uo = UserOrganization.builder().role(Role.ORGANIZATION_LEADER).build();
+        UserOrganization uo = UserOrganization.builder().id("501").role(Role.ORGANIZATION_LEADER).build();
         UserOrganization save = userOrganizationAdapter.save(uo);
         assertEquals(uo.getRole(), save.getRole());
     }
@@ -52,7 +52,7 @@ class UserOrganizationAdapterTest {
 
     @Test
     void findByIdNotFound() {
-        Optional<UserOrganization> byId = userOrganizationAdapter.findById("qmsdfj");
+        Optional<UserOrganization> byId = userOrganizationAdapter.findById("500");
         assertTrue(byId.isEmpty());
     }
 

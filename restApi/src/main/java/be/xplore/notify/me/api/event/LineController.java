@@ -76,11 +76,18 @@ public class LineController {
     }
 
     private void doLineVenueMangerCheck(Authentication authentication, Venue venue) {
+        if (ApiUtils.isAdmin(authentication)) {
+            return;
+        }
         ApiUtils.requireRole(authentication, new Role[]{Role.LINE_MANAGER, Role.VENUE_MANAGER});
         User user = apiUtils.requireUserFromAuthentication(authentication);
-        if (venue.getLineManagers().stream().noneMatch(u -> u.getId().equals(user.getId())) && venue.getVenueManagers().stream().noneMatch(u -> u.getId().equals(user.getId()))) {
+        if (!isVenueOrLineManger(venue, user)) {
             throw new Unauthorized("You are not authorized to do this");
         }
+    }
+
+    private boolean isVenueOrLineManger(Venue venue, User user) {
+        return venue.getLineManagers().stream().anyMatch(u -> u.getId().equals(user.getId())) || venue.getVenueManagers().stream().anyMatch(u -> u.getId().equals(user.getId()));
     }
 
     private void doLineValidation(String name, int numberOfPeople) {

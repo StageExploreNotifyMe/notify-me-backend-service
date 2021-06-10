@@ -5,6 +5,7 @@ import be.xplore.notify.me.entity.user.UserEntity;
 import be.xplore.notify.me.mappers.user.UserEntityMapper;
 import be.xplore.notify.me.persistence.UserRepo;
 import be.xplore.notify.me.repositories.JpaUserRepo;
+import be.xplore.notify.me.util.LongParser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,7 +29,7 @@ public class UserAdapter implements UserRepo {
 
     @Override
     public Optional<User> findById(String id) {
-        return mapToObject(jpaUserRepo.findById(id));
+        return mapToObject(jpaUserRepo.findById(LongParser.parseLong(id)));
     }
 
     @Override

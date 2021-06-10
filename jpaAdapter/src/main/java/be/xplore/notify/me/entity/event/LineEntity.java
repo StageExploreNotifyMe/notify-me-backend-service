@@ -18,7 +18,7 @@ import javax.persistence.ManyToOne;
 public class LineEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String id;
+    private Long id;
     private String name;
     private String description;
     @ManyToOne
