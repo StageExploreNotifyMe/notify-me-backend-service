@@ -8,6 +8,7 @@ import be.xplore.notify.me.services.user.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -48,7 +49,7 @@ public class ApiUtils {
         }
     }
 
-    public static void requireRole(Authentication authentication, Role[] roles) {
+    public static void requireRole(Authentication authentication, List<Role> roles) {
         if (isAdmin(authentication)) {
             return;
         }
