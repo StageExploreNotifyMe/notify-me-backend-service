@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -90,7 +91,7 @@ public class UserOrganizationService {
 
     private void updateUserRoles(User user) {
         List<UserOrganization> userOrganizations = getAllUserOrganizationsByUserId(user.getId());
-        for (Role toCheckRole : new Role[]{Role.MEMBER, Role.ORGANIZATION_LEADER}) {
+        for (Role toCheckRole : Arrays.asList(Role.MEMBER, Role.ORGANIZATION_LEADER)) {
             updateUserRole(user, userOrganizations, toCheckRole);
         }
     }
