@@ -1,5 +1,6 @@
 package be.xplore.notify.me.services.user;
 
+import be.xplore.notify.me.domain.exceptions.AlreadyExistsException;
 import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.notification.Notification;
 import be.xplore.notify.me.domain.notification.NotificationChannel;
@@ -53,7 +54,7 @@ class UserServiceTest {
     void getById() {
         mockGetById();
         String id = user.getId();
-        Optional<User> optionalUser = userService.getById(id);
+        Optional<User> optionalUser = userService.findById(id);
         assertTrue(optionalUser.isPresent());
         User userById = optionalUser.get();
         assertEquals(userById.getId(), id);
@@ -124,6 +125,15 @@ class UserServiceTest {
         assertNotNull(registered.getInbox());
         assertNotNull(registered.getUserPreferences());
         assertNotEquals(toRegister.getPasswordHash(), registered.getPasswordHash());
+    }
+
+    @Test
+    void registerNewUserAlreadyExists() {
+        mockSave();
+        mockGenerateDefaultPreferences();
+        given(userService.getUserByEmail(any())).willReturn(Optional.of(user));
+        User toRegister = User.builder().firstname("test").lastname("test").mobileNumber("000000000").email("test@email.com").passwordHash("test").build();
+        assertThrows(AlreadyExistsException.class, () -> userService.registerNewUser(toRegister));
     }
 
     private void mockGenerateDefaultPreferences() {

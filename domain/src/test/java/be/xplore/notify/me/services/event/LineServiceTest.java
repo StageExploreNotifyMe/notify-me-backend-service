@@ -16,7 +16,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -42,16 +41,14 @@ class LineServiceTest {
     @Test
     void getById() {
         mockFindById();
-        Optional<Line> lineOptional = lineService.getById(line.getId());
-        assertTrue(lineOptional.isPresent());
-        assertEquals(line.getId(), lineOptional.get().getId());
+        Line foundLine = lineService.getById(line.getId());
+        assertEquals(line.getId(), foundLine.getId());
     }
 
     @Test
     void getByIdNotFound() {
         mockFindById();
-        Optional<Line> lineOptional = lineService.getById("qdsf");
-        assertTrue(lineOptional.isEmpty());
+        assertThrows(NotFoundException.class, () -> lineService.getById("qdsf"));
     }
 
     @Test

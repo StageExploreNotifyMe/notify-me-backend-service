@@ -1,14 +1,19 @@
-package be.xplore.notify.me.api;
+package be.xplore.notify.me.api.event;
 
 import be.xplore.notify.me.domain.Venue;
 import be.xplore.notify.me.domain.event.Event;
 import be.xplore.notify.me.domain.event.EventStatus;
+import be.xplore.notify.me.domain.exceptions.NotFoundException;
+import be.xplore.notify.me.domain.user.Role;
+import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.dto.event.EventCreationDto;
 import be.xplore.notify.me.dto.event.EventDto;
 import be.xplore.notify.me.services.VenueService;
 import be.xplore.notify.me.services.event.EventService;
+import be.xplore.notify.me.services.user.UserService;
 import be.xplore.notify.me.util.TestUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -46,21 +51,60 @@ class EventControllerTest {
     @Autowired
     private Venue venue;
 
+    @Autowired
+    private User user;
+    @MockBean
+    private UserService userService;
+
+    @BeforeEach
+    void setUp() {
+        user.getRoles().remove(Role.ADMIN);
+        given(userService.getById(any())).willReturn(user);
+    }
+
     @Test
     void createEvent() {
         mockServices();
         EventCreationDto eventCreationDto = new EventCreationDto(LocalDateTime.now().plusMonths(1), "Test Event", venue.getId());
         try {
             ResultActions resultActions = TestUtils.performPost(mockMvc, eventCreationDto, "/event");
-            TestUtils.expectStatus(resultActions, HttpStatus.CREATED);
-            EventDto eventDto = mapper.readValue(TestUtils.getContentAsString(resultActions), EventDto.class);
-            assertDataCorrectCreatedEvent(eventCreationDto, eventDto);
+            assertCreateEventSuccess(eventCreationDto, resultActions);
         } catch (Exception e) {
             TestUtils.failTest(e);
         }
     }
 
-    private void assertDataCorrectCreatedEvent(EventCreationDto eventCreationDto, EventDto eventDto) {
+    @Test
+    void createEventNoAdminRole() {
+        TestUtils.setRoles(new Role[]{Role.VENUE_MANAGER});
+        mockServices();
+        EventCreationDto eventCreationDto = new EventCreationDto(LocalDateTime.now().plusMonths(1), "Test Event", venue.getId());
+        try {
+            ResultActions resultActions = TestUtils.performPost(mockMvc, eventCreationDto, "/event");
+            assertCreateEventSuccess(eventCreationDto, resultActions);
+        } catch (Exception e) {
+            TestUtils.failTest(e);
+        }
+        TestUtils.setRoles(Role.values());
+    }
+
+    @Test
+    void createEventNoRoles() {
+        TestUtils.setRoles(new Role[]{});
+        mockServices();
+        EventCreationDto eventCreationDto = new EventCreationDto(LocalDateTime.now().plusMonths(1), "Test Event", venue.getId());
+        try {
+            ResultActions resultActions = TestUtils.performPost(mockMvc, eventCreationDto, "/event");
+            TestUtils.expectStatus(resultActions, HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            TestUtils.failTest(e);
+        }
+        TestUtils.setRoles(Role.values());
+    }
+
+    private void assertCreateEventSuccess(EventCreationDto eventCreationDto, ResultActions resultActions) throws Exception {
+        TestUtils.expectStatus(resultActions, HttpStatus.CREATED);
+        EventDto eventDto = mapper.readValue(TestUtils.getContentAsString(resultActions), EventDto.class);
         assertEquals(eventCreationDto.getVenueId(), eventDto.getVenue().getId());
         assertEquals(eventCreationDto.getEventDateTime(), eventDto.getDate());
         assertEquals(EventStatus.CREATED, eventDto.getEventStatus());
@@ -176,11 +220,35 @@ class EventControllerTest {
     private void mockServices() {
         mockCreateEvent();
         mockGetEvents();
-        given(venueService.getById(any())).will(i -> i.getArgument(0).equals(venue.getId()) ? Optional.of(venue) : Optional.empty());
-        given(eventService.getById(any())).will(i -> i.getArgument(0).equals(event.getId()) ? Optional.of(event) : Optional.empty());
+        mockGetById();
         mockCancelEvent();
         mockPublishEvent();
         mockMakeEventPrivate();
+    }
+
+    private void mockGetById() {
+        mockGetVenueById();
+        mockGetEventById();
+    }
+
+    private void mockGetEventById() {
+        given(eventService.findById(any())).will(i -> i.getArgument(0).equals(event.getId()) ? Optional.of(event) : Optional.empty());
+        given(eventService.getById(any())).will(i -> {
+            if (i.getArgument(0).equals(event.getId())) {
+                return event;
+            }
+            throw new NotFoundException("Not found");
+        });
+    }
+
+    private void mockGetVenueById() {
+        given(venueService.findById(any())).will(i -> i.getArgument(0).equals(venue.getId()) ? Optional.of(venue) : Optional.empty());
+        given(venueService.getById(any())).will(i -> {
+            if (i.getArgument(0).equals(venue.getId())) {
+                return venue;
+            }
+            throw new NotFoundException("Not found");
+        });
     }
 
     private void mockCancelEvent() {

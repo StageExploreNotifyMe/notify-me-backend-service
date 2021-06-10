@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,13 +20,16 @@ import java.util.Optional;
 @Service
 public class UserOrganizationService {
 
+    private final UserService userService;
     private final UserOrganizationRepo userOrganizationRepo;
     private final UserOrganizationNotificationService userOrganizationNotificationService;
 
     public UserOrganizationService(
+            UserService userService,
             UserOrganizationRepo userOrganizationRepo,
             UserOrganizationNotificationService userOrganizationNotificationService
     ) {
+        this.userService = userService;
         this.userOrganizationRepo = userOrganizationRepo;
         this.userOrganizationNotificationService = userOrganizationNotificationService;
     }
@@ -57,21 +61,18 @@ public class UserOrganizationService {
     }
 
     public UserOrganization resolvePendingJoinRequest(String requestId, boolean accepted) {
-        Optional<UserOrganization> userOrganisationOptional = userOrganizationRepo.findById(requestId);
-        if (userOrganisationOptional.isEmpty()) {
-            throw new NotFoundException("No request with id " + requestId + " found");
-        }
-        UserOrganization request = userOrganisationOptional.get();
-
+        UserOrganization request = getById(requestId);
         MemberRequestStatus status = accepted ? MemberRequestStatus.ACCEPTED : MemberRequestStatus.DECLINED;
         request = UserOrganization.builder().id(request.getId()).role(request.getRole()).status(status).organization(request.getOrganization()).user(request.getUser()).build();
         request = userOrganizationRepo.save(request);
+        updateUserRoles(request.getUser());
         userOrganizationNotificationService.sendResolvedPendingRequestNotification(request);
         return request;
     }
 
     public UserOrganization changeOrganizationMemberRole(UserOrganization userOrganization, Role roleToChangeTo) {
         if (userOrganization.getRole().equals(roleToChangeTo)) {
+            updateUserRoles(userOrganization.getUser());
             return userOrganization;
         }
 
@@ -82,13 +83,37 @@ public class UserOrganizationService {
                 .user(userOrganization.getUser())
                 .role(roleToChangeTo)
                 .build();
+        updateUserRoles(updated.getUser());
         userOrganizationNotificationService.sendOrganizationRoleChangeNotification(updated);
 
         return userOrganizationRepo.save(updated);
     }
 
-    public Optional<UserOrganization> getById(String id) {
+    private void updateUserRoles(User user) {
+        List<UserOrganization> userOrganizations = getAllUserOrganizationsByUserId(user.getId());
+        for (Role toCheckRole : Arrays.asList(Role.MEMBER, Role.ORGANIZATION_LEADER)) {
+            updateUserRole(user, userOrganizations, toCheckRole);
+        }
+    }
+
+    private void updateUserRole(User user, List<UserOrganization> userOrganizations, Role roleToCheck) {
+        if (userOrganizations.stream().anyMatch(uo -> uo.getRole() == roleToCheck && uo.getStatus() == MemberRequestStatus.ACCEPTED)) {
+            userService.addRole(user, roleToCheck);
+        } else {
+            userService.removeRole(user, roleToCheck);
+        }
+    }
+
+    public Optional<UserOrganization> findById(String id) {
         return userOrganizationRepo.findById(id);
+    }
+
+    public UserOrganization getById(String id) {
+        Optional<UserOrganization> byId = findById(id);
+        if (byId.isPresent()) {
+            return byId.get();
+        }
+        throw new NotFoundException("No userOrganization found with id " + id);
     }
 
     public List<UserOrganization> getAllUserOrganizationsByUserId(String userId) {

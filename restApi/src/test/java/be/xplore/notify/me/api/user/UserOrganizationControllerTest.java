@@ -1,4 +1,4 @@
-package be.xplore.notify.me.api;
+package be.xplore.notify.me.api.user;
 
 import be.xplore.notify.me.domain.Organization;
 import be.xplore.notify.me.domain.user.Role;
@@ -155,12 +155,36 @@ class UserOrganizationControllerTest {
         try {
             mockAll();
             ResultActions request = TestUtils.performPost(mockMvc, null, "/userorganization/" + userOrganization.getId() + "/promote");
-            TestUtils.expectStatus(request, HttpStatus.OK);
-            UserOrganizationDto userOrganizationDto = mapper.readValue(TestUtils.getContentAsString(request), UserOrganizationDto.class);
-            assertEquals(Role.ORGANIZATION_LEADER, userOrganizationDto.getRole());
+            assertPromoteDemoteMemberSuccess(request, Role.ORGANIZATION_LEADER);
         } catch (Exception e) {
             TestUtils.failTest(e);
         }
+    }
+
+    @Test
+    void promoteMemberNoAdminRole() {
+        TestUtils.setRoles(new Role[]{Role.ORGANIZATION_LEADER});
+        try {
+            mockAll();
+            ResultActions request = TestUtils.performPost(mockMvc, null, "/userorganization/" + userOrganization.getId() + "/promote");
+            assertPromoteDemoteMemberSuccess(request, Role.ORGANIZATION_LEADER);
+        } catch (Exception e) {
+            TestUtils.failTest(e);
+        }
+        TestUtils.setRoles(Role.values());
+    }
+
+    @Test
+    void promoteMemberNoValidRole() {
+        TestUtils.setRoles(new Role[]{Role.MEMBER});
+        try {
+            mockAll();
+            ResultActions request = TestUtils.performPost(mockMvc, null, "/userorganization/" + userOrganization.getId() + "/promote");
+            TestUtils.expectStatus(request, HttpStatus.UNAUTHORIZED);
+        } catch (Exception e) {
+            TestUtils.failTest(e);
+        }
+        TestUtils.setRoles(Role.values());
     }
 
     @Test
@@ -190,9 +214,7 @@ class UserOrganizationControllerTest {
         try {
             mockAll();
             ResultActions request = TestUtils.performPost(mockMvc, null, "/userorganization/" + userOrganization.getId() + "/demote");
-            TestUtils.expectStatus(request, HttpStatus.OK);
-            UserOrganizationDto userOrganizationDto = mapper.readValue(TestUtils.getContentAsString(request), UserOrganizationDto.class);
-            assertEquals(Role.MEMBER, userOrganizationDto.getRole());
+            assertPromoteDemoteMemberSuccess(request, Role.MEMBER);
         } catch (Exception e) {
             TestUtils.failTest(e);
         }
@@ -209,6 +231,12 @@ class UserOrganizationControllerTest {
         } catch (Exception e) {
             TestUtils.failTest(e);
         }
+    }
+
+    private void assertPromoteDemoteMemberSuccess(ResultActions request, Role organizationLeader) throws Exception {
+        TestUtils.expectStatus(request, HttpStatus.OK);
+        UserOrganizationDto userOrganizationDto = mapper.readValue(TestUtils.getContentAsString(request), UserOrganizationDto.class);
+        assertEquals(organizationLeader, userOrganizationDto.getRole());
     }
 
     private void mockAll() {

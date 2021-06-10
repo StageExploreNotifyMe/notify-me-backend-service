@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Value;
 
 import java.util.List;
+import java.util.Set;
 
 @Value
 @Builder
@@ -18,4 +19,5 @@ public class User {
     String passwordHash;
     List<Notification> inbox;
     List<Notification> notificationQueue;
+    Set<Role> roles;
 }

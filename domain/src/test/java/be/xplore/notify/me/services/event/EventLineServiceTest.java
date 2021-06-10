@@ -4,6 +4,7 @@ import be.xplore.notify.me.domain.Organization;
 import be.xplore.notify.me.domain.event.EventLine;
 import be.xplore.notify.me.domain.event.EventLineStatus;
 import be.xplore.notify.me.domain.event.Line;
+import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.domain.user.UserOrganization;
 import be.xplore.notify.me.persistence.EventLineRepo;
@@ -76,16 +77,14 @@ class EventLineServiceTest {
     @Test
     void getById() {
         mockFindById();
-        Optional<EventLine> eventLineOptional = eventLineService.getById(eventLine.getId());
-        assertTrue(eventLineOptional.isPresent());
-        assertEquals(eventLine.getId(), eventLineOptional.get().getId());
+        EventLine found = eventLineService.getById(eventLine.getId());
+        assertEquals(eventLine.getId(), found.getId());
     }
 
     @Test
     void getByIdNotFound() {
         mockFindById();
-        Optional<EventLine> eventLineOptional = eventLineService.getById("qdsf");
-        assertTrue(eventLineOptional.isEmpty());
+        assertThrows(NotFoundException.class, () -> eventLineService.getById("qdsf"));
     }
 
     @Test

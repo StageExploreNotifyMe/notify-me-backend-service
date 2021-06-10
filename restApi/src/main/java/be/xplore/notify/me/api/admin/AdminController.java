@@ -1,10 +1,11 @@
-package be.xplore.notify.me.api;
+package be.xplore.notify.me.api.admin;
 
 import be.xplore.notify.me.domain.notification.Notification;
 import be.xplore.notify.me.domain.notification.NotificationType;
 import be.xplore.notify.me.dto.NotificationChannelAmountDto;
 import be.xplore.notify.me.dto.NotificationDto;
 import be.xplore.notify.me.dto.NotificationTypeDto;
+import be.xplore.notify.me.dto.event.EventIdsDto;
 import be.xplore.notify.me.mappers.NotificationDtoMapper;
 import be.xplore.notify.me.services.notification.NotificationService;
 import org.springframework.data.domain.Page;
@@ -76,9 +77,9 @@ public class AdminController {
     }
 
     @GetMapping("/eventId")
-    public ResponseEntity<List<String>> getAllEvents() {
+    public ResponseEntity<EventIdsDto> getAllEvents() {
         List<String> eventIds = notificationService.getAllEventIds();
-        return new ResponseEntity<>(eventIds, HttpStatus.OK);
+        return new ResponseEntity<>(new EventIdsDto(eventIds), HttpStatus.OK);
     }
 
 }

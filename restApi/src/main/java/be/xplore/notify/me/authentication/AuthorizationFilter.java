@@ -1,7 +1,6 @@
 package be.xplore.notify.me.authentication;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,21 +12,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class AuthorizationFilter extends BasicAuthenticationFilter {
-    private final String header;
-    private final String key;
+    private final JwtService jwtService;
 
-    public AuthorizationFilter(AuthenticationManager authenticationManager, String header, String key) {
+    public AuthorizationFilter(AuthenticationManager authenticationManager, JwtService jwtService) {
         super(authenticationManager);
-        this.header = header;
-        this.key = key;
+        this.jwtService = jwtService;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        String header = request.getHeader(this.header);
+        String header = request.getHeader(jwtService.getJwtHeader());
 
         if (header == null) {
             chain.doFilter(request, response);
@@ -35,19 +31,13 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
         }
 
         UsernamePasswordAuthenticationToken authentication = authenticate(request);
-
         SecurityContextHolder.getContext().setAuthentication(authentication);
         chain.doFilter(request, response);
     }
 
     private UsernamePasswordAuthenticationToken authenticate(HttpServletRequest request) {
-        String token = request.getHeader(header);
-
-        Claims user = Jwts.parser()
-                .setSigningKey(this.key)
-                .parseClaimsJws(token)
-                .getBody();
-
-        return new UsernamePasswordAuthenticationToken(user, null, new ArrayList<>());
+        String jwt = jwtService.getTokenFromHttpServletRequest(request);
+        Claims claims = jwtService.getClaimsFromToken(jwt);
+        return new UsernamePasswordAuthenticationToken(claims, null, jwtService.getGrantedAuthoritiesFromClaims(claims));
     }
 }

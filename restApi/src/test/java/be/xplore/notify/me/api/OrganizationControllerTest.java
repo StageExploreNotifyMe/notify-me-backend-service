@@ -2,6 +2,7 @@ package be.xplore.notify.me.api;
 
 import be.xplore.notify.me.domain.Organization;
 import be.xplore.notify.me.domain.exceptions.AlreadyExistsException;
+import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.domain.user.UserOrganization;
 import be.xplore.notify.me.dto.organization.CreateOrganizationDto;
@@ -23,7 +24,6 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.any;
@@ -109,10 +109,10 @@ class OrganizationControllerTest {
     @Test
     void createOrganizationsUserNotFound() {
         try {
-            given(userService.getById(any())).willReturn(Optional.empty());
+            mockGetUserById();
             mockCreateOrg();
             mockAddUserOrgLeader();
-            performPostAndExpect("/organization/create", HttpStatus.NOT_FOUND, new CreateOrganizationDto("testName", user.getId()));
+            performPostAndExpect("/organization/create", HttpStatus.NOT_FOUND, new CreateOrganizationDto("testName", "qsdf"));
         } catch (Exception e) {
             TestUtils.failTest(e);
         }
@@ -157,9 +157,9 @@ class OrganizationControllerTest {
     private void mockFetchById() {
         given(organizationService.getById(any())).will(i -> {
             if (i.getArgument(0).equals(organization.getId())) {
-                return Optional.of(organization);
+                return organization;
             }
-            return Optional.empty();
+            throw new NotFoundException("");
         });
     }
 
@@ -184,6 +184,11 @@ class OrganizationControllerTest {
     }
 
     private void mockGetUserById() {
-        given(userService.getById(any())).willReturn(Optional.of(user));
+        given(userService.getById(any())).will(i -> {
+            if (i.getArgument(0).equals(user.getId())) {
+                return user;
+            }
+            throw new NotFoundException("");
+        });
     }
 }

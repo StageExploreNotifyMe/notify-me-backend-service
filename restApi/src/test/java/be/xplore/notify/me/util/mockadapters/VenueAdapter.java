@@ -1,6 +1,7 @@
 package be.xplore.notify.me.util.mockadapters;
 
 import be.xplore.notify.me.domain.Venue;
+import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.persistence.VenueRepo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -29,5 +30,10 @@ public class VenueAdapter implements VenueRepo {
     @Override
     public Optional<Venue> findVenueEntityByName(String name) {
         return Optional.empty();
+    }
+
+    @Override
+    public Page<Venue> getAllVenuesOfUser(User user, PageRequest pageRequest) {
+        return null;
     }
 }

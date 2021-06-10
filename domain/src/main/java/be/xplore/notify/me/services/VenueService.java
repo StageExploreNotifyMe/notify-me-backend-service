@@ -3,8 +3,10 @@ package be.xplore.notify.me.services;
 import be.xplore.notify.me.domain.Venue;
 import be.xplore.notify.me.domain.exceptions.AlreadyExistsException;
 import be.xplore.notify.me.domain.exceptions.NotFoundException;
+import be.xplore.notify.me.domain.user.Role;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.persistence.VenueRepo;
+import be.xplore.notify.me.services.user.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,13 +20,23 @@ import java.util.Optional;
 @Service
 public class VenueService {
     private final VenueRepo repo;
+    private final UserService userService;
 
-    public VenueService(VenueRepo repo) {
+    public VenueService(VenueRepo repo, UserService userService) {
         this.repo = repo;
+        this.userService = userService;
     }
 
-    public Optional<Venue> getById(String id) {
+    public Optional<Venue> findById(String id) {
         return repo.findById(id);
+    }
+
+    public Venue getById(String id) {
+        Optional<Venue> byId = findById(id);
+        if (byId.isPresent()) {
+            return byId.get();
+        }
+        throw new NotFoundException("No venue found for id " + id);
     }
 
     public Venue save(Venue venue) {
@@ -49,14 +61,26 @@ public class VenueService {
     public Venue addVenueManagerToVenue(Venue venue, List<User> users) {
         List<User> venueManagers = venue.getVenueManagers();
         venueManagers.addAll(users);
-        return save(Venue.builder().id(venue.getId()).name(venue.getName()).venueManagers(venueManagers).build());
+        users.forEach(u -> userService.addRole(u, Role.VENUE_MANAGER));
+        return save(Venue.builder()
+            .id(venue.getId())
+            .name(venue.getName())
+            .venueManagers(venueManagers)
+            .lineManagers(venue.getLineManagers())
+            .build());
     }
 
     public Venue updateVenue(Venue venue) {
-        Optional<Venue> optional = getById(venue.getId());
-        if (optional.isEmpty()) {
-            throw new NotFoundException("No venue found for id: " + venue.getId());
-        }
-        return save(Venue.builder().id(venue.getId()).name(venue.getName()).venueManagers(venue.getVenueManagers()).build());
+        getById(venue.getId());
+        return save(Venue.builder()
+                .id(venue.getId())
+                .name(venue.getName())
+                .venueManagers(venue.getVenueManagers())
+                .lineManagers(venue.getLineManagers())
+                .build());
+    }
+
+    public Page<Venue> getAllVenuesOfUser(User user, int page) {
+        return repo.getAllVenuesOfUser(user, PageRequest.of(page, 20));
     }
 }

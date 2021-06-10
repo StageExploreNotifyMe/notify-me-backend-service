@@ -3,6 +3,7 @@ package be.xplore.notify.me.services.event;
 import be.xplore.notify.me.domain.Venue;
 import be.xplore.notify.me.domain.event.Event;
 import be.xplore.notify.me.domain.event.EventStatus;
+import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.persistence.EventRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -40,8 +41,16 @@ public class EventService {
 
     }
 
-    public Optional<Event> getById(String id) {
+    public Optional<Event> findById(String id) {
         return eventRepo.findById(id);
+    }
+
+    public Event getById(String id) {
+        Optional<Event> byId = findById(id);
+        if (byId.isPresent()) {
+            return byId.get();
+        }
+        throw new NotFoundException("No event found for id " + id);
     }
 
     public Event save(Event event) {

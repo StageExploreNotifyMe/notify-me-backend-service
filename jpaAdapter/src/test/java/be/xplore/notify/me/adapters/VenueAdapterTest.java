@@ -1,6 +1,7 @@
 package be.xplore.notify.me.adapters;
 
 import be.xplore.notify.me.domain.Venue;
+import be.xplore.notify.me.domain.user.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -56,5 +57,13 @@ class VenueAdapterTest {
     void findVenueEntityByNameNotFound() {
         Optional<Venue> optional = venueAdapter.findVenueEntityByName("sdfqs");
         assertTrue(optional.isEmpty());
+    }
+
+    @Test
+    void getAllVenuesOfUser() {
+        User user = User.builder().id("4").build();
+        Page<Venue> venues = venueAdapter.getAllVenuesOfUser(user, PageRequest.of(0, 20));
+        assertTrue(venues.hasContent());
+        assertEquals("1", venues.getContent().get(0).getId());
     }
 }

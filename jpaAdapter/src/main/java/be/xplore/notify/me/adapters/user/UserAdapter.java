@@ -38,7 +38,6 @@ public class UserAdapter implements UserRepo {
     }
 
     @Override
-
     public Page<User> findAll(PageRequest pageRequest) {
         Page<UserEntity> entityPage = jpaUserRepo.findAll(pageRequest);
         return entityPage.map(userEntityMapper::fromEntity);

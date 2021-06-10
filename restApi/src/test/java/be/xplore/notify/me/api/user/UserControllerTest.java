@@ -1,6 +1,7 @@
-package be.xplore.notify.me.api;
+package be.xplore.notify.me.api.user;
 
 import be.xplore.notify.me.domain.event.EventLine;
+import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.domain.user.UserPreferences;
 import be.xplore.notify.me.dto.user.UserPreferencesDto;
@@ -121,8 +122,18 @@ class UserControllerTest {
     }
 
     private void mockEverything() {
-        given(userService.getById(any())).will(i -> i.getArgument(0).equals(user.getId()) ? Optional.of(user) : Optional.empty());
+        mockGetUserById();
         given(eventLineService.getAllLinesOfUser(any(), anyInt())).will(i -> new PageImpl<>(Collections.singletonList(eventLine)));
         given(userService.getUsersPage(any())).will(i -> new PageImpl<>(Collections.singletonList(user)));
+    }
+
+    private void mockGetUserById() {
+        given(userService.findById(any())).will(i -> i.getArgument(0).equals(user.getId()) ? Optional.of(user) : Optional.empty());
+        given(userService.getById(any())).will(i -> {
+            if (i.getArgument(0).equals(user.getId())) {
+                return user;
+            }
+            throw new NotFoundException("");
+        });
     }
 }

@@ -5,6 +5,7 @@ import be.xplore.notify.me.domain.event.Event;
 import be.xplore.notify.me.domain.event.EventLine;
 import be.xplore.notify.me.domain.event.EventLineStatus;
 import be.xplore.notify.me.domain.event.Line;
+import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.domain.user.UserOrganization;
 import be.xplore.notify.me.persistence.EventLineRepo;
@@ -69,8 +70,16 @@ public class EventLineService {
         return save(updatedLine);
     }
 
-    public Optional<EventLine> getById(String id) {
+    public Optional<EventLine> findById(String id) {
         return eventLineRepo.findById(id);
+    }
+
+    public EventLine getById(String id) {
+        Optional<EventLine> byId = findById(id);
+        if (byId.isPresent()) {
+            return byId.get();
+        }
+        throw new NotFoundException("No eventline found with id " + id);
     }
 
     public EventLine save(EventLine eventLine) {

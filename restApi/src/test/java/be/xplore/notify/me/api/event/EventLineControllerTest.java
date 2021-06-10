@@ -1,10 +1,12 @@
-package be.xplore.notify.me.api;
+package be.xplore.notify.me.api.event;
 
 import be.xplore.notify.me.domain.Organization;
 import be.xplore.notify.me.domain.event.Event;
 import be.xplore.notify.me.domain.event.EventLine;
 import be.xplore.notify.me.domain.event.EventLineStatus;
 import be.xplore.notify.me.domain.event.Line;
+import be.xplore.notify.me.domain.exceptions.NotFoundException;
+import be.xplore.notify.me.domain.user.Role;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.dto.event.EventLineDto;
 import be.xplore.notify.me.dto.event.StaffingReminderDto;
@@ -30,6 +32,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -55,6 +59,7 @@ class EventLineControllerTest {
     private EventLine eventLineWithoutOrg;
     @Autowired
     private User user;
+    private final User user2 = User.builder().id("2").roles(new HashSet<>(Collections.singletonList(Role.MEMBER))).build();
     @Autowired
     private Organization organization;
 
@@ -72,34 +77,26 @@ class EventLineControllerTest {
     @BeforeEach
     void setUp() {
         eventLineWithoutOrg = EventLine.builder().id("50").event(eventLine.getEvent()).line(eventLine.getLine()).assignedUsers(new ArrayList<>()).build();
+        mockEverything();
+        mockGetUser();
+        TestUtils.reset();
     }
 
     @Test
     void getEventLines() {
-        try {
-            mockEverything();
-            ResultActions resultActions = TestUtils.performGet(mockMvc, "/line/event/" + eventLine.getEvent().getId());
-            TestUtils.expectStatus(resultActions, HttpStatus.OK);
-        } catch (Exception e) {
-            TestUtils.failTest(e);
-        }
+        ResultActions resultActions = TestUtils.performGet(mockMvc, "/line/event/" + eventLine.getEvent().getId());
+        TestUtils.expectStatus(resultActions, HttpStatus.OK);
     }
 
     @Test
     void getEventLinesEventNotFound() {
-        try {
-            mockEverything();
-            ResultActions resultActions = TestUtils.performGet(mockMvc, "/line/event/qdsf");
-            TestUtils.expectStatus(resultActions, HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            TestUtils.failTest(e);
-        }
+        ResultActions resultActions = TestUtils.performGet(mockMvc, "/line/event/qdsf");
+        TestUtils.expectStatus(resultActions, HttpStatus.NOT_FOUND);
     }
 
     @Test
     void assignLineToEvent() {
         try {
-            mockEverything();
             ResultActions resultActions = TestUtils.performPost(mockMvc, new LineAssignEventDto(line.getId(), event.getId(), user.getId()), "/line/event/add");
             TestUtils.expectStatus(resultActions, HttpStatus.CREATED);
             EventLineDto eventLineDto = mapper.readValue(TestUtils.getContentAsString(resultActions), EventLineDto.class);
@@ -112,88 +109,55 @@ class EventLineControllerTest {
 
     @Test
     void assignLineToEventLineNotFound() {
-        try {
-            mockEverything();
-            ResultActions resultActions = TestUtils.performPost(mockMvc, new LineAssignEventDto("qdsf", event.getId(), user.getId()), "/line/event/add");
-            TestUtils.expectStatus(resultActions, HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            TestUtils.failTest(e);
-        }
+        ResultActions resultActions = TestUtils.performPost(mockMvc, new LineAssignEventDto("qdsf", event.getId(), user.getId()), "/line/event/add");
+        TestUtils.expectStatus(resultActions, HttpStatus.NOT_FOUND);
     }
 
     @Test
     void assignLineToEventLineManagerNotFound() {
-        try {
-            mockEverything();
-            ResultActions resultActions = TestUtils.performPost(mockMvc, new LineAssignEventDto(line.getId(), event.getId(), "qsdf"), "/line/event/add");
-            TestUtils.expectStatus(resultActions, HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            TestUtils.failTest(e);
-        }
+        ResultActions resultActions = TestUtils.performPost(mockMvc, new LineAssignEventDto(line.getId(), event.getId(), "qsdf"), "/line/event/add");
+        TestUtils.expectStatus(resultActions, HttpStatus.NOT_FOUND);
     }
 
     @Test
     void assignOrganizationToEventLine() {
-        try {
-            mockEverything();
-            ResultActions resultActions = TestUtils.performPost(mockMvc,
+        ResultActions resultActions = TestUtils.performPost(mockMvc,
                 new LineAssignOrganizationDto(eventLineWithoutOrg.getId(), eventLine.getOrganization().getId()), "/line/" + eventLineWithoutOrg.getId() + "/assign/organization"
-            );
-            TestUtils.expectStatus(resultActions, HttpStatus.OK);
-        } catch (Exception e) {
-            TestUtils.failTest(e);
-        }
+        );
+        TestUtils.expectStatus(resultActions, HttpStatus.OK);
     }
 
     @Test
     void assignOrganizationToEventLineBadRequest() {
-        try {
-            mockEverything();
-            ResultActions resultActions = TestUtils.performPost(mockMvc,
+        ResultActions resultActions = TestUtils.performPost(mockMvc,
                 new LineAssignOrganizationDto(eventLineWithoutOrg.getId(), eventLine.getOrganization().getId()), "/line/qdsf/assign/organization"
-            );
-            TestUtils.expectStatus(resultActions, HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            TestUtils.failTest(e);
-        }
+        );
+        TestUtils.expectStatus(resultActions, HttpStatus.BAD_REQUEST);
     }
 
     @Test
     void assignOrganizationToEventLineNotFound() {
-        try {
-            mockEverything();
-            ResultActions resultActions = TestUtils.performPost(
-                    mockMvc,
-                    new LineAssignOrganizationDto("qdsf", eventLine.getOrganization().getId()),
-                    "/line/qdsf/assign/organization"
-            );
-            TestUtils.expectStatus(resultActions, HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            TestUtils.failTest(e);
-        }
+        ResultActions resultActions = TestUtils.performPost(mockMvc,
+                new LineAssignOrganizationDto("qdsf", eventLine.getOrganization().getId()),
+                "/line/qdsf/assign/organization"
+        );
+        TestUtils.expectStatus(resultActions, HttpStatus.NOT_FOUND);
     }
 
     @Test
     void assignOrganizationToEventLineOrgNotFound() {
-        try {
-            mockEverything();
-            ResultActions resultActions = TestUtils.performPost(
-                    mockMvc,
-                    new LineAssignOrganizationDto(eventLineWithoutOrg.getId(), "dfj"),
-                    "/line/" + eventLineWithoutOrg.getId() + "/assign/organization"
-            );
-            TestUtils.expectStatus(resultActions, HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            TestUtils.failTest(e);
-        }
+        ResultActions resultActions = TestUtils.performPost(mockMvc,
+                new LineAssignOrganizationDto(eventLineWithoutOrg.getId(), "dfj"),
+                "/line/" + eventLineWithoutOrg.getId() + "/assign/organization"
+        );
+        TestUtils.expectStatus(resultActions, HttpStatus.NOT_FOUND);
     }
 
     @Test
     void assignMemberToEventLine() {
         try {
-            mockEverything();
             ResultActions resultActions = TestUtils.performPost(mockMvc,
-                new LineMemberDto(user.getId(), eventLine.getOrganization().getId()), "/line/" + eventLine.getId() + "/assign/member"
+                    new LineMemberDto(user.getId(), eventLine.getOrganization().getId()), "/line/" + eventLine.getId() + "/assign/member"
             );
             TestUtils.expectStatus(resultActions, HttpStatus.OK);
             EventLineDto eventLineDto = mapper.readValue(TestUtils.getContentAsString(resultActions), EventLineDto.class);
@@ -205,37 +169,25 @@ class EventLineControllerTest {
 
     @Test
     void assignMemberToEventLineMemberNotFound() {
-        try {
-            mockEverything();
-            ResultActions resultActions = TestUtils.performPost(
-                    mockMvc,
-                    new LineMemberDto(eventLine.getId(), "qdsf"),
-                    "/line/" + eventLine.getId() + "/assign/member"
-            );
-            TestUtils.expectStatus(resultActions, HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            TestUtils.failTest(e);
-        }
+        ResultActions resultActions = TestUtils.performPost(mockMvc,
+                new LineMemberDto(eventLine.getId(), "qdsf"),
+                "/line/" + eventLine.getId() + "/assign/member"
+        );
+        TestUtils.expectStatus(resultActions, HttpStatus.NOT_FOUND);
     }
 
     @Test
     void assignMemberToEventLineBadRequest() {
-        try {
-            mockEverything();
-            ResultActions resultActions = TestUtils.performPost(mockMvc,
-                    new LineMemberDto(user.getId(), eventLine.getOrganization().getId()),
-                    "/line/qsdf/assign/member"
-            );
-            TestUtils.expectStatus(resultActions, HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            TestUtils.failTest(e);
-        }
+        ResultActions resultActions = TestUtils.performPost(mockMvc,
+                new LineMemberDto(user.getId(), eventLine.getOrganization().getId()),
+                "/line/qsdf/assign/member"
+        );
+        TestUtils.expectStatus(resultActions, HttpStatus.BAD_REQUEST);
     }
 
     @Test
     void getEventLine() {
         try {
-            mockEverything();
             ResultActions resultActions = TestUtils.performGet(mockMvc, "/line/" + event.getId());
             TestUtils.expectStatus(resultActions, HttpStatus.OK);
             EventLineDto eventLineDto = mapper.readValue(TestUtils.getContentAsString(resultActions), EventLineDto.class);
@@ -247,47 +199,42 @@ class EventLineControllerTest {
 
     @Test
     void getEventLinesOfOrganization() {
-        try {
-            mockEverything();
-            ResultActions resultActions = TestUtils.performGet(mockMvc, "/line/organization/" + organization.getId() + "?page=1");
-            TestUtils.expectStatus(resultActions, HttpStatus.OK);
-        } catch (Exception e) {
-            TestUtils.failTest(e);
-        }
+        ResultActions resultActions = TestUtils.performGet(mockMvc, "/line/organization/" + organization.getId() + "?page=1");
+        TestUtils.expectStatus(resultActions, HttpStatus.OK);
     }
 
     @Test
     void cancelMemberEventLine() {
-        try {
-            mockEverything();
-            ResultActions resultActions = TestUtils.performPost(mockMvc,
-                    new LineMemberDto(eventLine.getId(), user.getId()),
-                    "/line/" + eventLine.getId() + "/cancel/member"
-            );
-            TestUtils.expectStatus(resultActions, HttpStatus.OK);
-        } catch (Exception e) {
-            TestUtils.failTest(e);
-        }
+        ResultActions resultActions = TestUtils.performPost(mockMvc,
+                new LineMemberDto(eventLine.getId(), user.getId()),
+                "/line/" + eventLine.getId() + "/cancel/member"
+        );
+        TestUtils.expectStatus(resultActions, HttpStatus.OK);
     }
 
     @Test
     void cancelMemberEventLineBadRequest() {
-        try {
-            mockEverything();
-            ResultActions resultActions = TestUtils.performPost(mockMvc,
-                    new LineMemberDto(eventLine.getId(), user.getId()),
-                    "/line/qsdf/cancel/member"
-            );
-            TestUtils.expectStatus(resultActions, HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            TestUtils.failTest(e);
-        }
+        ResultActions resultActions = TestUtils.performPost(mockMvc,
+                new LineMemberDto(eventLine.getId(), user.getId()),
+                "/line/qsdf/cancel/member"
+        );
+        TestUtils.expectStatus(resultActions, HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void cancelMemberEventLineWrongMember() {
+        TestUtils.setUserId("2");
+        TestUtils.setRoles(new Role[]{Role.MEMBER});
+        ResultActions resultActions = TestUtils.performPost(mockMvc,
+                new LineMemberDto(eventLine.getId(), user.getId()),
+                "/line/" + eventLine.getId() + "/cancel/member"
+        );
+        TestUtils.expectStatus(resultActions, HttpStatus.UNAUTHORIZED);
     }
 
     @Test
     void cancelEventLine() {
         try {
-            mockEverything();
             mockCancelEventLine();
             ResultActions resultActions = TestUtils.performPost(mockMvc, new EventLineDto(), "/line/" + eventLine.getId() + "/cancel");
             TestUtils.expectStatus(resultActions, HttpStatus.OK);
@@ -301,7 +248,6 @@ class EventLineControllerTest {
     @Test
     void sendStaffingReminder() {
         try {
-            mockEverything();
             ResultActions resultActions = TestUtils.performPost(mockMvc, new StaffingReminderDto(eventLine.getId(), null), "/line/" + eventLine.getId() + "/staffingreminder");
             TestUtils.expectStatus(resultActions, HttpStatus.OK);
             StaffingReminderDto dto = mapper.readValue(TestUtils.getContentAsString(resultActions), StaffingReminderDto.class);
@@ -314,12 +260,12 @@ class EventLineControllerTest {
     private void mockEverything() {
         mockGetEventLinesByEvent();
         mockGetLinesByVenue();
-        mockAddLineToEvent();
         mockAssignOrgToLine();
         mockGetByIds();
         mockAssignUserToLine();
         mockGetLinesOfOrg();
-        mockCancelMemberLine();
+        given(eventLineService.addLineToEvent(any(), any(), any())).willReturn(eventLine);
+        given(eventLineService.cancelUserEventLine(any(), any(EventLine.class))).willReturn(eventLine);
     }
 
     private void mockGetLinesOfOrg() {
@@ -338,21 +284,64 @@ class EventLineControllerTest {
         });
     }
 
-    private void mockCancelMemberLine() {
-        given(eventLineService.cancelUserEventLine(any(), any(EventLine.class))).willReturn(eventLine);
+    private void mockGetByIds() {
+        mockGetEventLineById();
+        mockGetLineById();
+        mockGetEventById();
+        mockGetOrganizationById();
     }
 
-    private void mockGetByIds() {
-        given(userService.getById(any())).will(i -> i.getArgument(0).equals(user.getId()) ? Optional.of(user) : Optional.empty());
-        mockGetEventLineById();
-        given(lineService.getById(any())).will(i -> i.getArgument(0).equals(line.getId()) ? Optional.of(line) : Optional.empty());
-        given(eventService.getById(any())).will(i -> i.getArgument(0).equals(event.getId()) ? Optional.of(event) : Optional.empty());
-        given(organizationService.getById(any()))
-                .will(i -> i.getArgument(0).equals(eventLine.getOrganization().getId()) ? Optional.of(eventLine.getOrganization()) : Optional.empty());
+    private void mockGetOrganizationById() {
+        given(organizationService.getById(any())).will(i -> {
+            if (i.getArgument(0).equals(organization.getId())) {
+                return organization;
+            }
+            throw new NotFoundException("");
+        });
+    }
+
+    private void mockGetEventById() {
+        given(eventService.getById(any())).will(i -> {
+            if (i.getArgument(0).equals(event.getId())) {
+                return event;
+            }
+            throw new NotFoundException("");
+        });
+    }
+
+    private void mockGetLineById() {
+        given(lineService.getById(any())).will(i -> {
+            if (i.getArgument(0).equals(line.getId())) {
+                return line;
+            }
+            throw new NotFoundException("");
+        });
+    }
+
+    private void mockGetUser() {
+        given(userService.getById(any())).will(i -> {
+            if (i.getArgument(0).equals(user.getId())) {
+                return user;
+            } else if (i.getArgument(0).equals(user2.getId())) {
+                return user2;
+            }
+            throw new NotFoundException("");
+        });
     }
 
     private void mockGetEventLineById() {
         given(eventLineService.getById(any())).will(i -> {
+            Optional<EventLine> byId = eventLineService.findById(i.getArgument(0));
+            if (byId.isPresent()) {
+                return byId.get();
+            }
+            throw new NotFoundException("");
+        });
+        mockFindEventLineById();
+    }
+
+    private void mockFindEventLineById() {
+        given(eventLineService.findById(any())).will(i -> {
             String id = i.getArgument(0);
             EventLine line = null;
             if (id.equals(eventLine.getId())) {
@@ -382,10 +371,6 @@ class EventLineControllerTest {
                 .event(eventLine.getEvent())
                 .assignedUsers(eventLine.getAssignedUsers()).build();
         });
-    }
-
-    private void mockAddLineToEvent() {
-        given(eventLineService.addLineToEvent(any(), any(), any())).willReturn(eventLine);
     }
 
     private void mockGetLinesByVenue() {

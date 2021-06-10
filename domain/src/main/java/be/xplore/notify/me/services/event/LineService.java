@@ -24,8 +24,16 @@ public class LineService {
         return lineRepo.getAllByVenue(venueId, PageRequest.of(page, 20));
     }
 
-    public Optional<Line> getById(String id) {
+    public Optional<Line> findById(String id) {
         return lineRepo.findById(id);
+    }
+
+    public Line getById(String id) {
+        Optional<Line> byId = findById(id);
+        if (byId.isPresent()) {
+            return byId.get();
+        }
+        throw new NotFoundException("No line found for id " + id);
     }
 
     public Line save(Line line) {
@@ -50,7 +58,7 @@ public class LineService {
     }
 
     private Line lineById(String id) {
-        Optional<Line> optionalLine = getById(id);
+        Optional<Line> optionalLine = findById(id);
         if (optionalLine.isEmpty()) {
             throw new NotFoundException("No line with id " + id + " found");
         }

@@ -1,4 +1,4 @@
-package be.xplore.notify.me.api;
+package be.xplore.notify.me.api.user;
 
 import be.xplore.notify.me.domain.exceptions.BadRequestException;
 import be.xplore.notify.me.domain.user.User;
@@ -32,7 +32,6 @@ public class AuthenticationController {
     }
 
     private User validateAndConvertRegisterDto(UserRegisterDto userRegisterDto) {
-
         return User.builder()
             .firstname(validateNotEmpty(userRegisterDto.getFirstname(), "Firstname"))
             .lastname(validateNotEmpty(userRegisterDto.getLastname(), "LastName"))

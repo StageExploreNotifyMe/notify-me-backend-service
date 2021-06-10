@@ -45,4 +45,10 @@ class UserAdapterTest {
         Page<User> all = userAdapter.findAll(PageRequest.of(0, 20));
         assertTrue(all.hasContent());
     }
+
+    @Test
+    void getUserByEmail() {
+        Optional<User> userByEmail = userAdapter.getUserByEmail("test@email.com");
+        assertTrue(userByEmail.isPresent());
+    }
 }
