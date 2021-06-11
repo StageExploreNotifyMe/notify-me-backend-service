@@ -11,6 +11,7 @@ import be.xplore.notify.me.domain.notification.Notification;
 import be.xplore.notify.me.domain.notification.NotificationChannel;
 import be.xplore.notify.me.domain.notification.NotificationType;
 import be.xplore.notify.me.domain.notification.NotificationUrgency;
+import be.xplore.notify.me.domain.user.AuthenticationCode;
 import be.xplore.notify.me.domain.user.MemberRequestStatus;
 import be.xplore.notify.me.domain.user.Role;
 import be.xplore.notify.me.domain.user.User;
@@ -22,6 +23,7 @@ import org.springframework.context.annotation.Configuration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,11 +34,22 @@ public class Testdata {
     User testUser() {
         UserPreferences userPreferences = UserPreferences.builder().id("1")
                 .normalChannel(NotificationChannel.EMAIL).urgentChannel(NotificationChannel.SMS).build();
-        return User.builder().id("1").userPreferences(userPreferences).firstname("John").lastname("Doe")
-                .email("test@email.com").mobileNumber("+00000000000").passwordHash("$2a$10$286Mu.FRsWEpatglg/hFIu.wKwyw9g.cN/aAR4R0amhEZ3wHX5MwS")
+        return User.builder()
+                .id("1")
+                .userPreferences(userPreferences)
+                .firstname("John").lastname("Doe")
+                .email("test@email.com").mobileNumber("+00000000000")
+                .passwordHash("$2a$10$286Mu.FRsWEpatglg/hFIu.wKwyw9g.cN/aAR4R0amhEZ3wHX5MwS")
                 .inbox(new ArrayList<>()).notificationQueue(new ArrayList<>())
                 .roles(Arrays.stream(Role.values()).collect(Collectors.toSet()))
+                .authenticationCodes(Collections.singletonList(testAuthCode()))
                 .build();
+    }
+
+    @Bean
+    AuthenticationCode testAuthCode() {
+        return AuthenticationCode.builder().id("1").code("0000")
+                .creationDate(LocalDateTime.now()).notificationChannel(NotificationChannel.EMAIL).build();
     }
 
     @Bean

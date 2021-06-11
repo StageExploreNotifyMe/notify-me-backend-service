@@ -17,6 +17,7 @@ import be.xplore.notify.me.services.OrganizationService;
 import be.xplore.notify.me.services.event.EventLineService;
 import be.xplore.notify.me.services.event.EventService;
 import be.xplore.notify.me.services.event.LineService;
+import be.xplore.notify.me.services.user.UserOrganizationService;
 import be.xplore.notify.me.services.user.UserService;
 import be.xplore.notify.me.util.TestUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -73,6 +74,8 @@ class EventLineControllerTest {
     private OrganizationService organizationService;
     @MockBean
     private UserService userService;
+    @MockBean
+    private UserOrganizationService userOrganizationService;
 
     @BeforeEach
     void setUp() {
@@ -223,6 +226,7 @@ class EventLineControllerTest {
 
     @Test
     void cancelMemberEventLineWrongMember() {
+        given(userOrganizationService.getAllUserOrganizationsByUserId(any())).willReturn(new ArrayList<>());
         TestUtils.setUserId("2");
         TestUtils.setRoles(new Role[]{Role.MEMBER});
         ResultActions resultActions = TestUtils.performPost(mockMvc,

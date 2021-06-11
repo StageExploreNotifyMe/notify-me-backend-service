@@ -49,6 +49,10 @@ class UserServiceTest {
     private User user;
     @Autowired
     private Notification notification;
+    @Autowired
+    private List<AuthenticationCode> authenticationCode;
+
+    private boolean codesSaved;
 
     private void mockGetById() {
         given(userRepo.findById(any())).will(i -> {
@@ -62,6 +66,7 @@ class UserServiceTest {
     @BeforeEach
     void setUp() {
         mockSave();
+        codesSaved = false;
     }
 
     @Test
@@ -196,5 +201,24 @@ class UserServiceTest {
 
     private void mockSave() {
         given(userRepo.save(any())).will(i -> i.getArgument(0));
+    }
+
+    @Test
+    void setAuthenticationCodes() {
+        assertTrue(user.getAuthenticationCodes().isEmpty());
+        User user = userService.setAuthenticationCodes(this.user, authenticationCode);
+        assertEquals(authenticationCode.get(0), user.getAuthenticationCodes().get(0));
+    }
+
+    @Test
+    void requestLoginAuthCode() {
+
+        given(authenticationCodeService.generateAuthCode(any())).willReturn(authenticationCode.get(0));
+        given(authenticationCodeService.saveAll(any())).will(i -> {
+            codesSaved = true;
+            return i.getArgument(0);
+        });
+        userService.requestLoginAuthCode(user);
+        assertTrue(codesSaved);
     }
 }

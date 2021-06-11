@@ -1,6 +1,7 @@
 package be.xplore.notify.me.authentication;
 
 import be.xplore.notify.me.domain.user.Role;
+import be.xplore.notify.me.services.user.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
@@ -24,17 +25,20 @@ public class WebSecurityConfigurerAdapterImpl extends WebSecurityConfigurerAdapt
     private final UserServiceSecurityAdapter userServiceSecurityAdapter;
     private final ObjectMapper objectMapper;
     private final JwtService jwtService;
+    private final UserService userService;
 
     public WebSecurityConfigurerAdapterImpl(
             PasswordEncoder passwordEncoder,
             UserServiceSecurityAdapter userServiceSecurityAdapter,
             ObjectMapper objectMapper,
-            JwtService jwtService
+            JwtService jwtService,
+            UserService userService
     ) {
         this.passwordEncoder = passwordEncoder;
         this.userServiceSecurityAdapter = userServiceSecurityAdapter;
         this.objectMapper = objectMapper;
         this.jwtService = jwtService;
+        this.userService = userService;
     }
 
     @Override
@@ -44,6 +48,7 @@ public class WebSecurityConfigurerAdapterImpl extends WebSecurityConfigurerAdapt
             .antMatchers(HttpMethod.OPTIONS).permitAll()
             .antMatchers("/authentication/register").permitAll()
             .antMatchers("/authentication/confirmed").permitAll()
+            .antMatchers("/authentication/login").permitAll()
             .antMatchers("/user/**").authenticated()
             .antMatchers("/admin/**").access(getAccessString(Collections.singletonList(Role.ADMIN)))
             .antMatchers("/line/**").access(getAccessString(Arrays.asList(Role.MEMBER, Role.ORGANIZATION_LEADER, Role.LINE_MANAGER, Role.VENUE_MANAGER)))
@@ -52,7 +57,7 @@ public class WebSecurityConfigurerAdapterImpl extends WebSecurityConfigurerAdapt
             .antMatchers("/organization/**").access(getAccessString(Arrays.asList(Role.MEMBER, Role.ORGANIZATION_LEADER, Role.LINE_MANAGER, Role.VENUE_MANAGER)))
             .anyRequest().authenticated()
             .and()
-            .addFilter(new AuthenticationFilter(authenticationManager(), objectMapper, jwtService))
+            .addFilter(new AuthenticationFilter(authenticationManager(), objectMapper, jwtService, userService))
             .addFilter(new AuthorizationFilter(authenticationManager(), jwtService));
     }
 
