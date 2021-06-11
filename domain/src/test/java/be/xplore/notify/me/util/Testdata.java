@@ -11,7 +11,9 @@ import be.xplore.notify.me.domain.notification.Notification;
 import be.xplore.notify.me.domain.notification.NotificationChannel;
 import be.xplore.notify.me.domain.notification.NotificationType;
 import be.xplore.notify.me.domain.notification.NotificationUrgency;
+import be.xplore.notify.me.domain.user.AuthenticationCode;
 import be.xplore.notify.me.domain.user.MemberRequestStatus;
+import be.xplore.notify.me.domain.user.RegistrationStatus;
 import be.xplore.notify.me.domain.user.Role;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.domain.user.UserOrganization;
@@ -22,6 +24,7 @@ import org.springframework.context.annotation.Configuration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 @Configuration
 public class Testdata {
@@ -30,8 +33,8 @@ public class Testdata {
     User testUser() {
         UserPreferences userPreferences = UserPreferences.builder().id("1")
                 .normalChannel(NotificationChannel.EMAIL).urgentChannel(NotificationChannel.SMS).build();
-        return User.builder().id("1").userPreferences(userPreferences).firstname("John").lastname("Doe")
-                .inbox(new ArrayList<>()).notificationQueue(new ArrayList<>()).roles(new HashSet<>()).build();
+        return User.builder().id("1").userPreferences(userPreferences).firstname("John").lastname("Doe").registrationStatus(RegistrationStatus.OK)
+             .inbox(new ArrayList<>()).notificationQueue(new ArrayList<>()).roles(new HashSet<>()).authenticationCodes(new ArrayList<>()).build();
     }
 
     @Bean
@@ -42,14 +45,14 @@ public class Testdata {
     @Bean
     Notification testNotification() {
         return Notification.builder().id("1").userId(testUser().getId()).title("Test").body("This is a test")
-            .usedChannel(NotificationChannel.EMAIL).type(NotificationType.USER_JOINED).urgency(NotificationUrgency.NORMAL)
-            .build();
+                .usedChannel(NotificationChannel.EMAIL).type(NotificationType.USER_JOINED).urgency(NotificationUrgency.NORMAL)
+                .build();
     }
 
     @Bean
     UserOrganization testUserOrganization() {
         return UserOrganization.builder().id("1").user(testUser()).organization(testOrganization())
-            .role(Role.MEMBER).status(MemberRequestStatus.PENDING).build();
+                .role(Role.MEMBER).status(MemberRequestStatus.PENDING).build();
     }
 
     @Bean
@@ -77,6 +80,19 @@ public class Testdata {
             .eventLineStatus(EventLineStatus.CREATED)
             .lineManager(testUser())
             .build();
+    }
+
+    @Bean
+    List<AuthenticationCode> testAuthenticationCodes() {
+        AuthenticationCode authenticationCode = AuthenticationCode.builder()
+                .id("1")
+                .code("2525")
+                .creationDate(LocalDateTime.now())
+                .notificationChannel(NotificationChannel.EMAIL)
+                .build();
+        List<AuthenticationCode> authenticationCodes = new ArrayList<>();
+        authenticationCodes.add(authenticationCode);
+        return authenticationCodes;
     }
 
 }
