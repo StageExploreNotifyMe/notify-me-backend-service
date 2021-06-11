@@ -11,16 +11,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface JpaEventLineRepo extends JpaRepository<EventLineEntity, String> {
-    Page<EventLineEntity> getAllByEvent_IdOrderByLine(String event_id, Pageable pageable);
+public interface JpaEventLineRepo extends JpaRepository<EventLineEntity, Long> {
+    Page<EventLineEntity> getAllByEvent_IdOrderByLine(long event_id, Pageable pageable);
 
-    Page<EventLineEntity> getAllByOrganization_IdOrderByEvent_date(String organization_id, Pageable pageable);
+    Page<EventLineEntity> getAllByOrganization_IdOrderByEvent_date(long organization_id, Pageable pageable);
 
     Page<EventLineEntity> getAllByAssignedUsersContainsOrderByEvent_date(UserEntity assignedUsers, Pageable pageable);
 
     List<EventLineEntity> getAllByEvent(EventEntity event);
 
     List<EventLineEntity> getAllByLineManager_IdAndEventLineStatusNotAndEvent_EventStatusNotOrderByEvent_date(
-            String lineManager_id, EventLineStatus eventLineStatus, EventStatus event_eventStatus
+            long lineManager_id, EventLineStatus eventLineStatus, EventStatus event_eventStatus
     );
 }

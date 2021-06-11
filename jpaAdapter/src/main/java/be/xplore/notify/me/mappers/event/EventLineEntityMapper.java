@@ -5,6 +5,7 @@ import be.xplore.notify.me.entity.event.EventLineEntity;
 import be.xplore.notify.me.mappers.EntityMapper;
 import be.xplore.notify.me.mappers.OrganizationEntityMapper;
 import be.xplore.notify.me.mappers.user.UserEntityMapper;
+import be.xplore.notify.me.util.LongParser;
 import org.springframework.stereotype.Component;
 
 import java.util.stream.Collectors;
@@ -32,7 +33,7 @@ public class EventLineEntityMapper implements EntityMapper<EventLineEntity, Even
     @Override
     public EventLine fromEntity(EventLineEntity eventLineEntity) {
         return EventLine.builder()
-                .id(eventLineEntity.getId())
+                .id(String.valueOf(eventLineEntity.getId()))
                 .event(eventEntityMapper.fromEntity(eventLineEntity.getEvent()))
                 .organization(organizationEntityMapper.fromEntity(eventLineEntity.getOrganization()))
                 .assignedUsers(eventLineEntity.getAssignedUsers().stream().map(userEntityMapper::fromEntity).collect(Collectors.toList()))
@@ -45,13 +46,13 @@ public class EventLineEntityMapper implements EntityMapper<EventLineEntity, Even
     @Override
     public EventLineEntity toEntity(EventLine eventLine) {
         return new EventLineEntity(
-        eventLine.getId(),
-        lineEntityMapper.toEntity(eventLine.getLine()),
-        eventEntityMapper.toEntity(eventLine.getEvent()),
-        eventLine.getEventLineStatus(),
-        organizationEntityMapper.toEntity(eventLine.getOrganization()),
-        eventLine.getAssignedUsers().stream().map(userEntityMapper::toEntity).collect(Collectors.toList()),
-        userEntityMapper.toEntity(eventLine.getLineManager())
+            LongParser.parseLong(eventLine.getId()),
+            lineEntityMapper.toEntity(eventLine.getLine()),
+            eventEntityMapper.toEntity(eventLine.getEvent()),
+            eventLine.getEventLineStatus(),
+            organizationEntityMapper.toEntity(eventLine.getOrganization()),
+            eventLine.getAssignedUsers().stream().map(userEntityMapper::toEntity).collect(Collectors.toList()),
+            userEntityMapper.toEntity(eventLine.getLineManager())
         );
     }
 }

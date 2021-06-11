@@ -17,11 +17,11 @@ class UserOrganizationEntityMapperTest {
 
     @Test
     void toAndFromEntity() {
-        UserOrganization object = UserOrganization.builder().id("ThisIsATest").build();
+        UserOrganization object = UserOrganization.builder().id("500").build();
 
         UserOrganizationEntity entity = mapper.toEntity(object);
         assertNotNull(entity);
-        assertEquals(object.getId(), entity.getId());
+        assertEquals(Long.parseLong(object.getId()), entity.getId());
 
         UserOrganization fromEntity = mapper.fromEntity(entity);
         assertNotNull(fromEntity);

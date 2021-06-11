@@ -17,7 +17,7 @@ import javax.persistence.Id;
 public class OrganizationEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String id;
+    private Long id;
     @Column(unique = true)
     private String name;
 }

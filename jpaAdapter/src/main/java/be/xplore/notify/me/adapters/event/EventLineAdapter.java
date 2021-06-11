@@ -12,6 +12,7 @@ import be.xplore.notify.me.mappers.event.EventLineEntityMapper;
 import be.xplore.notify.me.mappers.user.UserEntityMapper;
 import be.xplore.notify.me.persistence.EventLineRepo;
 import be.xplore.notify.me.repositories.JpaEventLineRepo;
+import be.xplore.notify.me.util.LongParser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -53,7 +54,7 @@ public class EventLineAdapter implements EventLineRepo {
 
     @Override
     public Optional<EventLine> findById(String id) {
-        Optional<EventLineEntity> optional = jpaEventLineRepo.findById(id);
+        Optional<EventLineEntity> optional = jpaEventLineRepo.findById(LongParser.parseLong(id));
         if (optional.isEmpty()) {
             return Optional.empty();
         }
@@ -69,7 +70,7 @@ public class EventLineAdapter implements EventLineRepo {
 
     @Override
     public Page<EventLine> getAllLinesOfOrganization(String id, PageRequest pageRequest) {
-        Page<EventLineEntity> eventLineEntityPage = jpaEventLineRepo.getAllByOrganization_IdOrderByEvent_date(id, pageRequest);
+        Page<EventLineEntity> eventLineEntityPage = jpaEventLineRepo.getAllByOrganization_IdOrderByEvent_date(LongParser.parseLong(id), pageRequest);
         return eventLineEntityPage.map(eventLineEntityMapper::fromEntity);
     }
 
@@ -81,7 +82,7 @@ public class EventLineAdapter implements EventLineRepo {
 
     @Override
     public Page<EventLine> getAllLinesOfEvent(String eventId, PageRequest pageRequest) {
-        Page<EventLineEntity> lineEntityPage = jpaEventLineRepo.getAllByEvent_IdOrderByLine(eventId, pageRequest);
+        Page<EventLineEntity> lineEntityPage = jpaEventLineRepo.getAllByEvent_IdOrderByLine(LongParser.parseLong(eventId), pageRequest);
         return lineEntityPage.map(eventLineEntityMapper::fromEntity);
     }
 
@@ -90,7 +91,7 @@ public class EventLineAdapter implements EventLineRepo {
     public List<EventLine> getAllActiveEventLinesOfLineManager(String lineManagerId) {
         List<EventLineEntity> eventLines =
                 jpaEventLineRepo.getAllByLineManager_IdAndEventLineStatusNotAndEvent_EventStatusNotOrderByEvent_date(
-                    lineManagerId, EventLineStatus.CANCELED, EventStatus.CANCELED
+                    LongParser.parseLong(lineManagerId), EventLineStatus.CANCELED, EventStatus.CANCELED
                 );
         return eventLines.stream().map(eventLineEntityMapper::fromEntity).collect(Collectors.toList());
     }

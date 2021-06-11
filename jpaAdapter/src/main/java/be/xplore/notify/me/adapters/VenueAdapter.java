@@ -8,6 +8,7 @@ import be.xplore.notify.me.mappers.VenueEntityMapper;
 import be.xplore.notify.me.mappers.user.UserEntityMapper;
 import be.xplore.notify.me.persistence.VenueRepo;
 import be.xplore.notify.me.repositories.JpaVenueRepo;
+import be.xplore.notify.me.util.LongParser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,7 +36,7 @@ public class VenueAdapter implements VenueRepo {
     }
 
     public Optional<Venue> findById(String id) {
-        Optional<VenueEntity> optional = repo.findById(id);
+        Optional<VenueEntity> optional = repo.findById(LongParser.parseLong(id));
         if (optional.isEmpty()) {
             return Optional.empty();
         }

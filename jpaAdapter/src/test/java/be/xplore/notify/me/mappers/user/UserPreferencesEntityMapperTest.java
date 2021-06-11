@@ -17,11 +17,11 @@ class UserPreferencesEntityMapperTest {
 
     @Test
     void toAndFromEntity() {
-        UserPreferences object = UserPreferences.builder().id("ThisIsATest").build();
+        UserPreferences object = UserPreferences.builder().id("500").build();
 
         UserPreferencesEntity entity = mapper.toEntity(object);
         assertNotNull(entity);
-        assertEquals(object.getId(), entity.getId());
+        assertEquals(Long.parseLong(object.getId()), entity.getId());
 
         UserPreferences fromEntity = mapper.fromEntity(entity);
         assertNotNull(fromEntity);

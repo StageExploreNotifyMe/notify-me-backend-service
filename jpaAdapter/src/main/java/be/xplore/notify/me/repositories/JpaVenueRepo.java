@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface JpaVenueRepo extends JpaRepository<VenueEntity, String> {
+public interface JpaVenueRepo extends JpaRepository<VenueEntity, Long> {
 
     Optional<VenueEntity> findVenueEntityByName(String name);
 

@@ -6,6 +6,7 @@ import be.xplore.notify.me.entity.notification.NotificationEntity;
 import be.xplore.notify.me.mappers.notification.NotificationEntityMapper;
 import be.xplore.notify.me.persistence.NotificationRepo;
 import be.xplore.notify.me.repositories.JpaNotificationRepo;
+import be.xplore.notify.me.util.LongParser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,7 +42,7 @@ public class NotificationAdapter implements NotificationRepo {
 
     @Override
     public Optional<Notification> findById(String id) {
-        Optional<NotificationEntity> optional = jpaNotificationRepo.findById(id);
+        Optional<NotificationEntity> optional = jpaNotificationRepo.findById(LongParser.parseLong(id));
         if (optional.isEmpty()) {
             return Optional.empty();
         }

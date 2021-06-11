@@ -37,6 +37,9 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
 
     private UsernamePasswordAuthenticationToken authenticate(HttpServletRequest request) {
         String jwt = jwtService.getTokenFromHttpServletRequest(request);
+        if (jwt == null || jwt.isBlank()) {
+            return null;
+        }
         Claims claims = jwtService.getClaimsFromToken(jwt);
         return new UsernamePasswordAuthenticationToken(claims, null, jwtService.getGrantedAuthoritiesFromClaims(claims));
     }

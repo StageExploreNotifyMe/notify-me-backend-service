@@ -4,6 +4,7 @@ import be.xplore.notify.me.domain.user.UserOrganization;
 import be.xplore.notify.me.entity.user.UserOrganizationEntity;
 import be.xplore.notify.me.mappers.EntityMapper;
 import be.xplore.notify.me.mappers.OrganizationEntityMapper;
+import be.xplore.notify.me.util.LongParser;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -20,7 +21,7 @@ public class UserOrganizationEntityMapper implements EntityMapper<UserOrganizati
     @Override
     public UserOrganization fromEntity(UserOrganizationEntity userOrganizationEntity) {
         return UserOrganization.builder()
-            .id(userOrganizationEntity.getId())
+            .id(String.valueOf(userOrganizationEntity.getId()))
             .user(userEntityMapper.fromEntity(userOrganizationEntity.getUserEntity()))
             .organization(organizationEntityMapper.fromEntity(userOrganizationEntity.getOrganizationEntity()))
             .role(userOrganizationEntity.getRole())
@@ -31,7 +32,7 @@ public class UserOrganizationEntityMapper implements EntityMapper<UserOrganizati
     @Override
     public UserOrganizationEntity toEntity(UserOrganization userOrganization) {
         return new UserOrganizationEntity(
-                userOrganization.getId(),
+                LongParser.parseLong(userOrganization.getId()),
                 userEntityMapper.toEntity(userOrganization.getUser()),
                 organizationEntityMapper.toEntity(userOrganization.getOrganization()),
                 userOrganization.getRole(),

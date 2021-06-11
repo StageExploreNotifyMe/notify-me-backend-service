@@ -17,11 +17,11 @@ class NotificationEntityMapperTest {
 
     @Test
     void toAndFromEntity() {
-        Notification object = Notification.builder().id("ThisIsATest").build();
+        Notification object = Notification.builder().id("500").build();
 
         NotificationEntity entity = mapper.toEntity(object);
         assertNotNull(entity);
-        assertEquals(object.getId(), entity.getId());
+        assertEquals(Long.parseLong(object.getId()), entity.getId());
 
         Notification fromEntity = mapper.fromEntity(entity);
         assertNotNull(fromEntity);

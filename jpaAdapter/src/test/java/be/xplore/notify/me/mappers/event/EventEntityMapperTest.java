@@ -17,11 +17,11 @@ class EventEntityMapperTest {
 
     @Test
     void toAndFromEntity() {
-        Event object = Event.builder().id("ThisIsATest").build();
+        Event object = Event.builder().id("500").build();
 
         EventEntity entity = mapper.toEntity(object);
         assertNotNull(entity);
-        assertEquals(object.getId(), entity.getId());
+        assertEquals(Long.parseLong(object.getId()), entity.getId());
 
         Event fromEntity = mapper.fromEntity(entity);
         assertNotNull(fromEntity);

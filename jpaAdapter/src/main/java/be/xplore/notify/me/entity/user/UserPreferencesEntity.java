@@ -17,7 +17,7 @@ import javax.persistence.Id;
 public class UserPreferencesEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String id;
+    private Long id;
     private NotificationChannel normalChannel;
     private NotificationChannel urgentChannel;
 }

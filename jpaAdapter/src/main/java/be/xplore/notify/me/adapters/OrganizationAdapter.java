@@ -5,6 +5,7 @@ import be.xplore.notify.me.entity.OrganizationEntity;
 import be.xplore.notify.me.mappers.OrganizationEntityMapper;
 import be.xplore.notify.me.persistence.OrganizationRepo;
 import be.xplore.notify.me.repositories.JpaOrganizationRepo;
+import be.xplore.notify.me.util.LongParser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -38,7 +39,7 @@ public class OrganizationAdapter implements OrganizationRepo {
 
     @Override
     public Optional<Organization> findById(String id) {
-        Optional<OrganizationEntity> optional = jpaOrganizationRepo.findById(id);
+        Optional<OrganizationEntity> optional = jpaOrganizationRepo.findById(LongParser.parseLong(id));
         return parseOptional(optional);
     }
 

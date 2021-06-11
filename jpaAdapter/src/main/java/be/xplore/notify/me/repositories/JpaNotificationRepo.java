@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface JpaNotificationRepo extends JpaRepository<NotificationEntity, String> {
+public interface JpaNotificationRepo extends JpaRepository<NotificationEntity, Long> {
     Page<NotificationEntity> getAllByUserId(String userId, Pageable pageable);
 
     Page<NotificationEntity> getAllByType(NotificationType notificationType, Pageable pageable);

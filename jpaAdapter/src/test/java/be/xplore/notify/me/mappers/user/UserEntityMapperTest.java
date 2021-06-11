@@ -19,7 +19,7 @@ class UserEntityMapperTest {
 
     @Test
     void toAndFromEntity() {
-        User object = User.builder().id("ThisIsATest").inbox(new ArrayList<>()).notificationQueue(new ArrayList<>()).build();
+        User object = User.builder().id("500").inbox(new ArrayList<>()).notificationQueue(new ArrayList<>()).build();
 
         UserEntity entity = mapper.toEntity(object);
         doEntityAsserts(object, entity);
@@ -30,7 +30,7 @@ class UserEntityMapperTest {
 
     @Test
     void toAndFromEntityWithNulls() {
-        User object = User.builder().id("ThisIsATest").inbox(null).notificationQueue(null).build();
+        User object = User.builder().id("500").inbox(null).notificationQueue(null).build();
 
         UserEntity entity = mapper.toEntity(object);
         doEntityAsserts(object, entity);
@@ -43,7 +43,7 @@ class UserEntityMapperTest {
 
     private void doEntityAsserts(User object, UserEntity entity) {
         assertNotNull(entity);
-        assertEquals(object.getId(), entity.getId());
+        assertEquals(Long.parseLong(object.getId()), entity.getId());
     }
 
     private void doObjectAsserts(User object, User fromEntity) {

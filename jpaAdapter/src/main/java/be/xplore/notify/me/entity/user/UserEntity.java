@@ -28,7 +28,7 @@ import java.util.Set;
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String id;
+    private Long id;
     @OneToOne
     private UserPreferencesEntity userPreferences;
     private String firstname;

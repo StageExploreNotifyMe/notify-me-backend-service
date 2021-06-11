@@ -7,6 +7,7 @@ import be.xplore.notify.me.entity.user.UserOrganizationEntity;
 import be.xplore.notify.me.mappers.user.UserOrganizationEntityMapper;
 import be.xplore.notify.me.persistence.UserOrganizationRepo;
 import be.xplore.notify.me.repositories.JpaUserOrganizationRepo;
+import be.xplore.notify.me.util.LongParser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -36,7 +37,7 @@ public class UserOrganizationAdapter implements UserOrganizationRepo {
     @Override
     public Page<UserOrganization> getUserByOrganizationAndStatus(String organizationId, MemberRequestStatus status, PageRequest pageRequest) {
         Page<UserOrganizationEntity> userOrganisationPage =
-                jpaUserOrganizationRepo.getUserOrganisationByOrganizationEntity_IdAndStatusOrderByUserEntity(organizationId, status, pageRequest);
+                jpaUserOrganizationRepo.getUserOrganisationByOrganizationEntity_IdAndStatusOrderByUserEntity(LongParser.parseLong(organizationId), status, pageRequest);
         return userOrganisationPage.map(userOrganizationEntityMapper::fromEntity);
     }
 
@@ -44,7 +45,7 @@ public class UserOrganizationAdapter implements UserOrganizationRepo {
     @Transactional
     public List<UserOrganization> getAllOrganizationLeadersByOrganizationId(String organizationId) {
         List<UserOrganizationEntity> userOrganizationEntities =
-                jpaUserOrganizationRepo.getUserOrganizationEntityByOrganizationEntity_Id(organizationId);
+                jpaUserOrganizationRepo.getUserOrganizationEntityByOrganizationEntity_Id(LongParser.parseLong(organizationId));
         return userOrganizationEntities
             .stream()
             .map(userOrganizationEntityMapper::fromEntity)
@@ -60,7 +61,7 @@ public class UserOrganizationAdapter implements UserOrganizationRepo {
 
     @Override
     public Optional<UserOrganization> findById(String userOrganizationId) {
-        Optional<UserOrganizationEntity> optional = jpaUserOrganizationRepo.findById(userOrganizationId);
+        Optional<UserOrganizationEntity> optional = jpaUserOrganizationRepo.findById(LongParser.parseLong(userOrganizationId));
         if (optional.isEmpty()) {
             return Optional.empty();
         }
@@ -70,7 +71,7 @@ public class UserOrganizationAdapter implements UserOrganizationRepo {
 
     @Override
     public List<UserOrganization> getAllUserOrganizationsByUserId(String userId) {
-        List<UserOrganizationEntity> entities = jpaUserOrganizationRepo.getUserOrganizationEntitiesByUserEntity_Id(userId);
+        List<UserOrganizationEntity> entities = jpaUserOrganizationRepo.getUserOrganizationEntitiesByUserEntity_Id(LongParser.parseLong(userId));
         return entities.stream().map(userOrganizationEntityMapper::fromEntity).collect(Collectors.toList());
     }
 }

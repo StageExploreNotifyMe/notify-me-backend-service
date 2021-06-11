@@ -29,13 +29,13 @@ class UserAdapterTest {
 
     @Test
     void findByIdNotFound() {
-        Optional<User> byId = userAdapter.findById("qmlsdfkj");
+        Optional<User> byId = userAdapter.findById("500");
         assertTrue(byId.isEmpty());
     }
 
     @Test
     void save() {
-        User user = User.builder().firstname("Test").build();
+        User user = User.builder().id("501").firstname("Test").build();
         User save = userAdapter.save(user);
         assertEquals(user.getFirstname(), save.getFirstname());
     }

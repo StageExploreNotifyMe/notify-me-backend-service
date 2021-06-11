@@ -4,6 +4,7 @@ import be.xplore.notify.me.domain.event.Line;
 import be.xplore.notify.me.entity.event.LineEntity;
 import be.xplore.notify.me.mappers.EntityMapper;
 import be.xplore.notify.me.mappers.VenueEntityMapper;
+import be.xplore.notify.me.util.LongParser;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -21,7 +22,7 @@ public class LineEntityMapper implements EntityMapper<LineEntity, Line> {
             return null;
         }
         return Line.builder()
-                .id(lineEntity.getId())
+                .id(String.valueOf(lineEntity.getId()))
                 .name(lineEntity.getName())
                 .description(lineEntity.getDescription())
                 .venue(venueEntityMapper.fromEntity(lineEntity.getVenueEntity()))
@@ -35,7 +36,7 @@ public class LineEntityMapper implements EntityMapper<LineEntity, Line> {
             return null;
         }
         return new LineEntity(
-                line.getId(),
+                LongParser.parseLong(line.getId()),
                 line.getName(),
                 line.getDescription(),
                 venueEntityMapper.toEntity(line.getVenue()),

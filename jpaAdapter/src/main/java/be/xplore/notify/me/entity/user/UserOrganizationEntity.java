@@ -20,7 +20,7 @@ import javax.persistence.ManyToOne;
 public class UserOrganizationEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String id;
+    private Long id;
     @ManyToOne
     private UserEntity userEntity;
     @ManyToOne

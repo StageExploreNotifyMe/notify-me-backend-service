@@ -36,13 +36,13 @@ class EventAdapterTest {
 
     @Test
     void findByIdNotFound() {
-        Optional<Event> byId = eventAdapter.findById("qmfdqf");
+        Optional<Event> byId = eventAdapter.findById("500");
         assertTrue(byId.isEmpty());
     }
 
     @Test
     void save() {
-        Event event = Event.builder().name("test").build();
+        Event event = Event.builder().id("501").name("Test").build();
         Event save = eventAdapter.save(event);
         assertEquals(event.getName(), save.getName());
     }

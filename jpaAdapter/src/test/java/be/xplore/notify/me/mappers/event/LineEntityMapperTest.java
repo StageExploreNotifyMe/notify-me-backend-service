@@ -17,11 +17,11 @@ class LineEntityMapperTest {
 
     @Test
     void toAndFromEntity() {
-        Line object = Line.builder().id("ThisIsATest").build();
+        Line object = Line.builder().id("500").build();
 
         LineEntity entity = mapper.toEntity(object);
         assertNotNull(entity);
-        assertEquals(object.getId(), entity.getId());
+        assertEquals(Long.parseLong(object.getId()), entity.getId());
 
         Line fromEntity = mapper.fromEntity(entity);
         assertNotNull(fromEntity);

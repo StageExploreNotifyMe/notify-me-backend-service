@@ -30,7 +30,7 @@ class OrganizationAdapterTest {
 
     @Test
     void save() {
-        Organization organization = Organization.builder().name("test").build();
+        Organization organization = Organization.builder().id("501").name("Test").build();
         Organization save = organizationAdapter.save(organization);
         assertEquals(organization.getName(), save.getName());
     }
@@ -43,7 +43,7 @@ class OrganizationAdapterTest {
 
     @Test
     void findByIdNotFound() {
-        Optional<Organization> organization = organizationAdapter.findById("rkqdsf");
+        Optional<Organization> organization = organizationAdapter.findById("500");
         assertTrue(organization.isEmpty());
     }
 

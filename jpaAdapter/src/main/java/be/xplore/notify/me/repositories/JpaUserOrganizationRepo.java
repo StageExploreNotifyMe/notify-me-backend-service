@@ -10,10 +10,10 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface JpaUserOrganizationRepo extends JpaRepository<UserOrganizationEntity, String> {
-    Page<UserOrganizationEntity> getUserOrganisationByOrganizationEntity_IdAndStatusOrderByUserEntity(String organizationEntity_id, MemberRequestStatus status, Pageable pageable);
+public interface JpaUserOrganizationRepo extends JpaRepository<UserOrganizationEntity, Long> {
+    Page<UserOrganizationEntity> getUserOrganisationByOrganizationEntity_IdAndStatusOrderByUserEntity(long organizationEntity_id, MemberRequestStatus status, Pageable pageable);
 
-    List<UserOrganizationEntity> getUserOrganizationEntityByOrganizationEntity_Id(String organizationEntity_id);
+    List<UserOrganizationEntity> getUserOrganizationEntityByOrganizationEntity_Id(long organizationEntity_id);
 
-    List<UserOrganizationEntity> getUserOrganizationEntitiesByUserEntity_Id(String userEntity_Id);
+    List<UserOrganizationEntity> getUserOrganizationEntitiesByUserEntity_Id(long userEntity_id);
 }

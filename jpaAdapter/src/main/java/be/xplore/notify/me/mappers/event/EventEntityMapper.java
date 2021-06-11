@@ -4,6 +4,7 @@ import be.xplore.notify.me.domain.event.Event;
 import be.xplore.notify.me.entity.event.EventEntity;
 import be.xplore.notify.me.mappers.EntityMapper;
 import be.xplore.notify.me.mappers.VenueEntityMapper;
+import be.xplore.notify.me.util.LongParser;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -20,7 +21,7 @@ public class EventEntityMapper implements EntityMapper<EventEntity, Event> {
         if (eventEntity == null) {
             return null;
         }
-        return Event.builder().id(eventEntity.getId())
+        return Event.builder().id(String.valueOf(eventEntity.getId()))
             .date(eventEntity.getDate())
             .eventStatus(eventEntity.getEventStatus())
             .venue(venueEntityMapper.fromEntity(eventEntity.getVenue()))
@@ -33,6 +34,6 @@ public class EventEntityMapper implements EntityMapper<EventEntity, Event> {
         if (event == null) {
             return null;
         }
-        return new EventEntity(event.getId(), event.getName(), event.getDate(), event.getEventStatus(), venueEntityMapper.toEntity(event.getVenue()));
+        return new EventEntity(LongParser.parseLong(event.getId()), event.getName(), event.getDate(), event.getEventStatus(), venueEntityMapper.toEntity(event.getVenue()));
     }
 }

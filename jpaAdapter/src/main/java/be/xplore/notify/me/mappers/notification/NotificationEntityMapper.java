@@ -3,6 +3,7 @@ package be.xplore.notify.me.mappers.notification;
 import be.xplore.notify.me.domain.notification.Notification;
 import be.xplore.notify.me.entity.notification.NotificationEntity;
 import be.xplore.notify.me.mappers.EntityMapper;
+import be.xplore.notify.me.util.LongParser;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -11,7 +12,7 @@ public class NotificationEntityMapper implements EntityMapper<NotificationEntity
     @Override
     public Notification fromEntity(NotificationEntity notificationEntity) {
         return Notification.builder()
-            .id(notificationEntity.getId())
+            .id(String.valueOf(notificationEntity.getId()))
             .userId(notificationEntity.getUserId())
             .type(notificationEntity.getType())
             .urgency(notificationEntity.getUrgency())
@@ -29,7 +30,7 @@ public class NotificationEntityMapper implements EntityMapper<NotificationEntity
     @Override
     public NotificationEntity toEntity(Notification notification) {
         return new NotificationEntity(
-                notification.getId(),
+                LongParser.parseLong(notification.getId()),
                 notification.getUserId(),
                 notification.getTitle(),
                 notification.getBody(),

@@ -3,6 +3,7 @@ package be.xplore.notify.me.mappers.user;
 import be.xplore.notify.me.domain.user.UserPreferences;
 import be.xplore.notify.me.entity.user.UserPreferencesEntity;
 import be.xplore.notify.me.mappers.EntityMapper;
+import be.xplore.notify.me.util.LongParser;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -14,7 +15,7 @@ public class UserPreferencesEntityMapper implements EntityMapper<UserPreferences
             return null;
         }
         return UserPreferences.builder()
-                .id(userPreferencesEntity.getId())
+                .id(String.valueOf(userPreferencesEntity.getId()))
                 .normalChannel(userPreferencesEntity.getNormalChannel())
                 .urgentChannel(userPreferencesEntity.getUrgentChannel())
                 .build();
@@ -25,6 +26,6 @@ public class UserPreferencesEntityMapper implements EntityMapper<UserPreferences
         if (userPreferences == null) {
             return null;
         }
-        return new UserPreferencesEntity(userPreferences.getId(), userPreferences.getNormalChannel(), userPreferences.getUrgentChannel());
+        return new UserPreferencesEntity(LongParser.parseLong(userPreferences.getId()), userPreferences.getNormalChannel(), userPreferences.getUrgentChannel());
     }
 }
