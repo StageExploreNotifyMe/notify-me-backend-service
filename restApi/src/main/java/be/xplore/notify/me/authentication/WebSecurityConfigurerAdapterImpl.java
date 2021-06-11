@@ -43,6 +43,7 @@ public class WebSecurityConfigurerAdapterImpl extends WebSecurityConfigurerAdapt
             .authorizeRequests()
             .antMatchers(HttpMethod.OPTIONS).permitAll()
             .antMatchers("/authentication/register").permitAll()
+            .antMatchers("/authentication/confirmed").permitAll()
             .antMatchers("/user/**").authenticated()
             .antMatchers("/admin/**").access(getAccessString(Collections.singletonList(Role.ADMIN)))
             .antMatchers("/line/**").access(getAccessString(Arrays.asList(Role.MEMBER, Role.ORGANIZATION_LEADER, Role.LINE_MANAGER, Role.VENUE_MANAGER)))

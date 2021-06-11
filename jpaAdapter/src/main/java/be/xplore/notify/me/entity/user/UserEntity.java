@@ -1,5 +1,6 @@
 package be.xplore.notify.me.entity.user;
 
+import be.xplore.notify.me.domain.user.RegistrationStatus;
 import be.xplore.notify.me.domain.user.Role;
 import be.xplore.notify.me.entity.notification.NotificationEntity;
 import lombok.AllArgsConstructor;
@@ -37,10 +38,13 @@ public class UserEntity {
     @Column(unique = true)
     private String email;
     private String passwordHash;
+    private RegistrationStatus registrationStatus;
     @OneToMany
     private List<NotificationEntity> inbox = new ArrayList<>();
     @OneToMany
     private List<NotificationEntity> notificationQueue = new ArrayList<>();
+    @OneToMany
+    private List<AuthenticationCodeEntity> authenticationCodes = new ArrayList<>();
     @ElementCollection(fetch = FetchType.EAGER)
     private Set<Role> roles = new HashSet<>();
 }

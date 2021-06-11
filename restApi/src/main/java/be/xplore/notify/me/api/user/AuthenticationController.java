@@ -2,6 +2,7 @@ package be.xplore.notify.me.api.user;
 
 import be.xplore.notify.me.domain.exceptions.BadRequestException;
 import be.xplore.notify.me.domain.user.User;
+import be.xplore.notify.me.dto.user.AuthenticationCodeDto;
 import be.xplore.notify.me.dto.user.UserDto;
 import be.xplore.notify.me.dto.user.UserRegisterDto;
 import be.xplore.notify.me.mappers.user.UserDtoMapper;
@@ -29,6 +30,13 @@ public class AuthenticationController {
     public ResponseEntity<UserDto> register(@RequestBody UserRegisterDto userRegisterDto) {
         User user = userService.registerNewUser(validateAndConvertRegisterDto(userRegisterDto));
         return new ResponseEntity<>(userDtoMapper.toDto(user), HttpStatus.OK);
+    }
+
+    @PostMapping("/confirmed")
+    public ResponseEntity<UserDto> confirmRegister(@RequestBody AuthenticationCodeDto authenticationCodeDto) {
+        User user = userService.getById(authenticationCodeDto.getUserId());
+        User updatedUser = userService.confirmRegistration(user, authenticationCodeDto.getEmailCode(), authenticationCodeDto.getSmsCode());
+        return new ResponseEntity<>(userDtoMapper.toDto(updatedUser), HttpStatus.OK);
     }
 
     private User validateAndConvertRegisterDto(UserRegisterDto userRegisterDto) {
