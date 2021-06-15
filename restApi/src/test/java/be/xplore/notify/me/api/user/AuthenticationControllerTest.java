@@ -140,20 +140,6 @@ class AuthenticationControllerTest {
         TestUtils.expectStatus(resultActions, HttpStatus.BAD_REQUEST);
     }
 
-    @Test
-    void confirmRegister() {
-        try {
-            mockGetUser();
-            mockRegisterNewUser();
-            given(userService.confirmRegistration(any(), any(), any())).will(i -> i.getArgument(0));
-            AuthenticationCodeDto authenticationCodeDto = new AuthenticationCodeDto(user.getId(), "4545", "5454");
-            ResultActions resultActions = TestUtils.performPost(mockMvc, authenticationCodeDto, "/authentication/confirmed");
-            TestUtils.expectStatus(resultActions, HttpStatus.OK);
-        } catch (Exception e) {
-            TestUtils.failTest(e);
-        }
-    }
-
     private UserRegisterDto generateRegisterUserDto(String s) {
         return new UserRegisterDto(user.getFirstname(), user.getLastname(), s, user.getMobileNumber(), "test");
     }
