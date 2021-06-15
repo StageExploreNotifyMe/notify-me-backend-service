@@ -17,7 +17,9 @@ public class User {
     String mobileNumber;
     String email;
     String passwordHash;
+    RegistrationStatus registrationStatus;
     List<Notification> inbox;
     List<Notification> notificationQueue;
+    List<AuthenticationCode> authenticationCodes;
     Set<Role> roles;
 }

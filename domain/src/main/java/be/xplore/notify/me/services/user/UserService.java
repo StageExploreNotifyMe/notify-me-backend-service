@@ -1,9 +1,11 @@
 package be.xplore.notify.me.services.user;
 
 import be.xplore.notify.me.domain.exceptions.AlreadyExistsException;
+import be.xplore.notify.me.domain.exceptions.BadRequestException;
 import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.notification.Notification;
 import be.xplore.notify.me.domain.notification.NotificationChannel;
+import be.xplore.notify.me.domain.user.RegistrationStatus;
 import be.xplore.notify.me.domain.user.Role;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.persistence.UserRepo;
@@ -23,11 +25,13 @@ public class UserService {
     private final UserRepo userRepo;
     private final UserPreferencesService userPreferencesService;
     private final PasswordService passwordService;
+    private final AuthenticationCodeService authenticationCodeService;
 
-    public UserService(UserRepo userRepo, UserPreferencesService userPreferencesService, PasswordService passwordService) {
+    public UserService(UserRepo userRepo, UserPreferencesService userPreferencesService, PasswordService passwordService, AuthenticationCodeService authenticationCodeService) {
         this.userRepo = userRepo;
         this.userPreferencesService = userPreferencesService;
         this.passwordService = passwordService;
+        this.authenticationCodeService = authenticationCodeService;
     }
 
     public User addNotificationToInbox(Notification notification, User user) {
@@ -83,7 +87,6 @@ public class UserService {
 
     public User registerNewUser(User user) {
         preRegistrationChecks(user);
-
         User toSave = User.builder()
                 .userPreferences(userPreferencesService.generateDefaultPreferences())
                 .email(user.getEmail())
@@ -94,11 +97,37 @@ public class UserService {
                 .firstname(user.getFirstname())
                 .lastname(user.getLastname())
                 .passwordHash(passwordService.generatePasswordHash(user.getPasswordHash()))
+                .registrationStatus(RegistrationStatus.PENDING)
+                .authenticationCodes(authenticationCodeService.generateUserAuthCodes())
                 .build();
 
         User savedUser = save(toSave);
         log.trace("Registered a new user: {} {}", savedUser.getFirstname(), savedUser.getLastname());
+        authenticationCodeService.sendUserAuthCodes(savedUser, savedUser.getAuthenticationCodes());
         return savedUser;
+    }
+
+    public User confirmRegistration(User user, String emailCode, String smsCode) {
+        boolean email = user.getAuthenticationCodes().stream().anyMatch(c -> c.getNotificationChannel() == NotificationChannel.EMAIL && c.getCode().equals(emailCode));
+        boolean sms = user.getAuthenticationCodes().stream().anyMatch(c -> c.getNotificationChannel() == NotificationChannel.SMS && c.getCode().equals(smsCode));
+        if (!email || !sms) {
+            throw new BadRequestException("Email or sms code was incorrect");
+        }
+        User toSave = User.builder()
+                .id(user.getId())
+                .userPreferences(user.getUserPreferences())
+                .email(user.getEmail())
+                .mobileNumber(user.getMobileNumber())
+                .inbox(user.getInbox())
+                .notificationQueue(user.getNotificationQueue())
+                .roles(user.getRoles())
+                .firstname(user.getFirstname())
+                .lastname(user.getLastname())
+                .passwordHash(user.getPasswordHash())
+                .registrationStatus(RegistrationStatus.OK)
+                .authenticationCodes(new ArrayList<>())
+                .build();
+        return save(toSave);
     }
 
     public User addRole(User user, Role role) {

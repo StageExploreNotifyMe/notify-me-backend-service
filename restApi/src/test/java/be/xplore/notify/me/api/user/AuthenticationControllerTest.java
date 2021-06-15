@@ -1,6 +1,7 @@
 package be.xplore.notify.me.api.user;
 
 import be.xplore.notify.me.domain.user.User;
+import be.xplore.notify.me.dto.user.AuthenticationCodeDto;
 import be.xplore.notify.me.dto.user.LoggedInDto;
 import be.xplore.notify.me.dto.user.LoginDto;
 import be.xplore.notify.me.dto.user.UserDto;
@@ -119,6 +120,20 @@ class AuthenticationControllerTest {
             UserRegisterDto userRegisterDto = generateRegisterUserDto("qsdf.qdf");
             ResultActions resultActions = TestUtils.performPost(mockMvc, userRegisterDto, "/authentication/register");
             TestUtils.expectStatus(resultActions, HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            TestUtils.failTest(e);
+        }
+    }
+
+    @Test
+    void confirmRegister() {
+        try {
+            mockGetUser();
+            mockRegisterNewUser();
+            given(userService.confirmRegistration(any(), any(), any())).will(i -> i.getArgument(0));
+            AuthenticationCodeDto authenticationCodeDto = new AuthenticationCodeDto(user.getId(), "4545", "5454");
+            ResultActions resultActions = TestUtils.performPost(mockMvc, authenticationCodeDto, "/authentication/confirmed");
+            TestUtils.expectStatus(resultActions, HttpStatus.OK);
         } catch (Exception e) {
             TestUtils.failTest(e);
         }
