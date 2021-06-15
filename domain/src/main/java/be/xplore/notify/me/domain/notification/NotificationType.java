@@ -15,5 +15,6 @@ public enum NotificationType {
     WEEKLY_DIGEST,
     STAFFING_REMINDER,
     LINE_ASSIGNED,
-    LINE_CANCELED
+    LINE_CANCELED,
+    AUTHENTICATION_CODE
 }

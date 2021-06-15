@@ -173,4 +173,8 @@ public class UserService {
         User updatedUser = setAuthenticationCodes(user, Collections.singletonList(authenticationCodes.get(0)));
         authenticationCodeService.sendUserAuthCode(updatedUser, authenticationCode);
     }
+
+    public List<User> getAllById(ArrayList<String> ids) {
+        return userRepo.findAllByIds(ids);
+    }
 }

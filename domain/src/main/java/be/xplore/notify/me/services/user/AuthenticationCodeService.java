@@ -2,6 +2,8 @@ package be.xplore.notify.me.services.user;
 
 import be.xplore.notify.me.domain.notification.Notification;
 import be.xplore.notify.me.domain.notification.NotificationChannel;
+import be.xplore.notify.me.domain.notification.NotificationType;
+import be.xplore.notify.me.domain.notification.NotificationUrgency;
 import be.xplore.notify.me.domain.user.AuthenticationCode;
 import be.xplore.notify.me.domain.user.User;
 import be.xplore.notify.me.persistence.AuthenticationCodeRepo;
@@ -57,8 +59,10 @@ public class AuthenticationCodeService {
         Notification notification = Notification.builder()
                 .userId(user.getId())
                 .usedChannel(authenticationCode.getNotificationChannel())
+                .urgency(NotificationUrgency.NORMAL)
                 .creationDate(LocalDateTime.now()).title("Confirmation token")
                 .body(String.format("Hi %s %s your confirmation token is: %s", user.getFirstname(), user.getLastname(), authenticationCode.getCode()))
+                .type(NotificationType.AUTHENTICATION_CODE)
                 .build();
         notificationService.sendNotificationWithoutInbox(notification, user);
     }

@@ -1,7 +1,7 @@
 package be.xplore.notify.me.api;
 
 import be.xplore.notify.me.domain.notification.Notification;
-import be.xplore.notify.me.dto.NotificationDto;
+import be.xplore.notify.me.dto.notification.NotificationDto;
 import be.xplore.notify.me.mappers.NotificationDtoMapper;
 import be.xplore.notify.me.services.notification.NotificationService;
 import org.springframework.data.domain.Page;

@@ -103,6 +103,7 @@ public class EventNotificationService {
                 .urgency(NotificationService.getNormalNotificationUrgency(event))
                 .creationDate(LocalDateTime.now())
                 .title("Event canceled")
+                .eventId(event.getId())
                 .body(body)
                 .build();
         notificationService.sendNotification(notification, user);

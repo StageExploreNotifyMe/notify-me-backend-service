@@ -1,8 +1,11 @@
 package be.xplore.notify.me.api.admin;
 
 import be.xplore.notify.me.domain.notification.Notification;
+import be.xplore.notify.me.services.event.EventService;
 import be.xplore.notify.me.services.notification.NotificationService;
+import be.xplore.notify.me.services.user.UserService;
 import be.xplore.notify.me.util.TestUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -32,6 +35,16 @@ class AdminControllerTest {
 
     @MockBean
     private NotificationService notificationService;
+    @MockBean
+    private EventService eventService;
+    @MockBean
+    private UserService userService;
+
+    @BeforeEach
+    void setUp() {
+        given(eventService.getAllById(any())).willReturn(new ArrayList<>());
+        given(userService.getAllById(any())).willReturn(new ArrayList<>());
+    }
 
     @Test
     void getAllNotifications() {

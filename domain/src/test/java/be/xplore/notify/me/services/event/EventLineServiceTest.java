@@ -121,7 +121,7 @@ class EventLineServiceTest {
 
     @Test
     void cancelUserEventLineNotAssigned() {
-        assertThrows(IllegalArgumentException.class, () -> eventLineService.cancelUserEventLine(user.getId(), eventLine));
+        assertThrows(IllegalArgumentException.class, () -> eventLineService.cancelUserEventLine(user, eventLine));
     }
 
     private EventLine updateAssignedUsers(EventLine line, List<User> users) {
@@ -142,7 +142,7 @@ class EventLineServiceTest {
         mockSave();
         List<User> users = new ArrayList<>();
         users.add(user);
-        EventLine eventLine = eventLineService.cancelUserEventLine(user.getId(), updateAssignedUsers(this.eventLine, users));
+        EventLine eventLine = eventLineService.cancelUserEventLine(user, updateAssignedUsers(this.eventLine, users));
         assertTrue(eventLine.getAssignedUsers().stream().noneMatch(u -> u.getId().equals(user.getId())));
     }
 

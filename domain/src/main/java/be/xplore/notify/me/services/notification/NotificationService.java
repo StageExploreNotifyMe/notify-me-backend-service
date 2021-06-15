@@ -35,13 +35,14 @@ public class NotificationService {
     }
 
     public Notification sendNotification(Notification notification, User user) {
-        Notification savedNotification = save(sendNotificationWithoutInbox(notification, user));
+        Notification savedNotification = sendNotificationWithoutInbox(notification, user);
         userService.addNotificationToInbox(savedNotification, user);
         return savedNotification;
     }
 
     public Notification sendNotificationWithoutInbox(Notification notification, User user) {
-        return senderService.sendNotification(notification, user);
+        Notification sent = senderService.sendNotification(notification, user);
+        return save(sent);
     }
 
     public Notification queueNotification(Notification notification, User user) {

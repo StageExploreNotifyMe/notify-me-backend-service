@@ -14,7 +14,9 @@ import org.springframework.stereotype.Component;
 import javax.transaction.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -30,7 +32,7 @@ public class EventAdapter implements EventRepo {
 
     @Override
     public Page<Event> getEventsOfVenue(String venueId, PageRequest pageRequest) {
-        Page<EventEntity> eventEntityPage = jpaEventRepo.getAllByVenue_IdOrderByDate(LongParser.parseLong(venueId), pageRequest);
+        Page<EventEntity> eventEntityPage = jpaEventRepo.getAllByVenue_IdOrderByDateDesc(LongParser.parseLong(venueId), pageRequest);
         return eventEntityPage.map(eventEntityMapper::fromEntity);
     }
 
@@ -53,8 +55,15 @@ public class EventAdapter implements EventRepo {
     @Transactional
     @Override
     public Page<Event> getAllEventsBetween(LocalDateTime dateTimeStart, LocalDateTime dateTimeEnd, PageRequest pageRequest) {
-        Page<EventEntity> eventEntitiesPage = jpaEventRepo.getAllByDateBetweenOrderByDate(dateTimeStart, dateTimeEnd, pageRequest);
+        Page<EventEntity> eventEntitiesPage = jpaEventRepo.getAllByDateBetweenOrderByDateDesc(dateTimeStart, dateTimeEnd, pageRequest);
         return eventEntitiesPage.map(eventEntityMapper::fromEntity);
+    }
+
+    @Override
+    public List<Event> findAllByIds(List<String> ids) {
+        List<Long> longIds = ids.stream().map(LongParser::parseLong).collect(Collectors.toList());
+        List<EventEntity> eventEntities = jpaEventRepo.findAllByIds(longIds);
+        return eventEntities.stream().map(eventEntityMapper::fromEntity).collect(Collectors.toList());
     }
 
 }
