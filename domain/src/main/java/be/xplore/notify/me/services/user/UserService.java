@@ -5,6 +5,7 @@ import be.xplore.notify.me.domain.exceptions.BadRequestException;
 import be.xplore.notify.me.domain.exceptions.NotFoundException;
 import be.xplore.notify.me.domain.notification.Notification;
 import be.xplore.notify.me.domain.notification.NotificationChannel;
+import be.xplore.notify.me.domain.user.AuthenticationCode;
 import be.xplore.notify.me.domain.user.RegistrationStatus;
 import be.xplore.notify.me.domain.user.Role;
 import be.xplore.notify.me.domain.user.User;
@@ -16,7 +17,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -144,5 +147,30 @@ public class UserService {
         if (getUserByEmail(user.getEmail()).isPresent()) {
             throw new AlreadyExistsException("A user with that email is already registered");
         }
+    }
+
+    public User setAuthenticationCodes(User user, List<AuthenticationCode> authenticationCodeList) {
+        User toSave = User.builder()
+                .id(user.getId())
+                .userPreferences(user.getUserPreferences())
+                .email(user.getEmail())
+                .mobileNumber(user.getMobileNumber())
+                .inbox(user.getInbox())
+                .notificationQueue(user.getNotificationQueue())
+                .roles(user.getRoles())
+                .firstname(user.getFirstname())
+                .lastname(user.getLastname())
+                .passwordHash(user.getPasswordHash())
+                .registrationStatus(user.getRegistrationStatus())
+                .authenticationCodes(authenticationCodeList)
+                .build();
+        return save(toSave);
+    }
+
+    public void requestLoginAuthCode(User user) {
+        AuthenticationCode authenticationCode = authenticationCodeService.generateAuthCode(NotificationChannel.EMAIL);
+        List<AuthenticationCode> authenticationCodes = authenticationCodeService.saveAll(Collections.singletonList(authenticationCode));
+        User updatedUser = setAuthenticationCodes(user, Collections.singletonList(authenticationCodes.get(0)));
+        authenticationCodeService.sendUserAuthCode(updatedUser, authenticationCode);
     }
 }

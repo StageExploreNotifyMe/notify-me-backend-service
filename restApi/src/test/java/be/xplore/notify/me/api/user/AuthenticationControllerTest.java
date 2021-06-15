@@ -44,7 +44,7 @@ class AuthenticationControllerTest {
     void login() {
         try {
             mockGetUser();
-            ResultActions resultActions = TestUtils.performPost(mockMvc, new LoginDto(user.getEmail(), "John"), "/login");
+            ResultActions resultActions = TestUtils.performPost(mockMvc, new LoginDto(user.getEmail(), "John", "0000"), "/login");
             TestUtils.expectStatus(resultActions, HttpStatus.OK);
             LoggedInDto loggedInDto = mapper.readValue(TestUtils.getContentAsString(resultActions), LoggedInDto.class);
             assertEquals(user.getId(), loggedInDto.getUserDto().getId());
@@ -56,23 +56,23 @@ class AuthenticationControllerTest {
 
     @Test
     void loginWrongPassword() {
-        try {
-            mockGetUser();
-            ResultActions resultActions = TestUtils.performPost(mockMvc, new LoginDto(user.getEmail(), "NotJohn"), "/login");
-            TestUtils.expectStatus(resultActions, HttpStatus.valueOf(401));
-        } catch (Exception e) {
-            TestUtils.failTest(e);
-        }
+        mockGetUser();
+        ResultActions resultActions = TestUtils.performPost(mockMvc, new LoginDto(user.getEmail(), "NotJohn", "0000"), "/login");
+        TestUtils.expectStatus(resultActions, HttpStatus.valueOf(401));
     }
 
     @Test
     void loginUnknownUser() {
-        try {
-            ResultActions resultActions = TestUtils.performPost(mockMvc, new LoginDto(user.getEmail(), "NotJohn"), "/login");
-            TestUtils.expectStatus(resultActions, HttpStatus.valueOf(401));
-        } catch (Exception e) {
-            TestUtils.failTest(e);
-        }
+        mockUserNotFound();
+        ResultActions resultActions = TestUtils.performPost(mockMvc, new LoginDto("qdsf", "NotJohn", "0000"), "/login");
+        TestUtils.expectStatus(resultActions, HttpStatus.valueOf(401));
+    }
+
+    @Test
+    void loginBad2FA() {
+        mockGetUser();
+        ResultActions resultActions = TestUtils.performPost(mockMvc, new LoginDto(user.getEmail(), "John", "NotAValidCode"), "/login");
+        TestUtils.expectStatus(resultActions, HttpStatus.valueOf(401));
     }
 
     @Test
@@ -91,52 +91,53 @@ class AuthenticationControllerTest {
 
     @Test
     void registerBadRequestEmailEmpty() {
-        try {
-            mockRegisterNewUser();
-            UserRegisterDto userRegisterDto = generateRegisterUserDto("");
-            ResultActions resultActions = TestUtils.performPost(mockMvc, userRegisterDto, "/authentication/register");
-            TestUtils.expectStatus(resultActions, HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            TestUtils.failTest(e);
-        }
+        mockRegisterNewUser();
+        UserRegisterDto userRegisterDto = generateRegisterUserDto("");
+        ResultActions resultActions = TestUtils.performPost(mockMvc, userRegisterDto, "/authentication/register");
+        TestUtils.expectStatus(resultActions, HttpStatus.BAD_REQUEST);
+
     }
 
     @Test
     void registerBadRequestEmailWithoutDot() {
-        try {
-            mockRegisterNewUser();
-            UserRegisterDto userRegisterDto = generateRegisterUserDto("qsdf@qdf");
-            ResultActions resultActions = TestUtils.performPost(mockMvc, userRegisterDto, "/authentication/register");
-            TestUtils.expectStatus(resultActions, HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            TestUtils.failTest(e);
-        }
+        mockRegisterNewUser();
+        UserRegisterDto userRegisterDto = generateRegisterUserDto("qsdf@qdf");
+        ResultActions resultActions = TestUtils.performPost(mockMvc, userRegisterDto, "/authentication/register");
+        TestUtils.expectStatus(resultActions, HttpStatus.BAD_REQUEST);
+
     }
 
     @Test
     void registerBadRequestEmailWithoutAt() {
-        try {
-            mockRegisterNewUser();
-            UserRegisterDto userRegisterDto = generateRegisterUserDto("qsdf.qdf");
-            ResultActions resultActions = TestUtils.performPost(mockMvc, userRegisterDto, "/authentication/register");
-            TestUtils.expectStatus(resultActions, HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            TestUtils.failTest(e);
-        }
+        mockRegisterNewUser();
+        UserRegisterDto userRegisterDto = generateRegisterUserDto("qsdf.qdf");
+        ResultActions resultActions = TestUtils.performPost(mockMvc, userRegisterDto, "/authentication/register");
+        TestUtils.expectStatus(resultActions, HttpStatus.BAD_REQUEST);
+
     }
 
     @Test
     void confirmRegister() {
-        try {
-            mockGetUser();
-            mockRegisterNewUser();
-            given(userService.confirmRegistration(any(), any(), any())).will(i -> i.getArgument(0));
-            AuthenticationCodeDto authenticationCodeDto = new AuthenticationCodeDto(user.getId(), "4545", "5454");
-            ResultActions resultActions = TestUtils.performPost(mockMvc, authenticationCodeDto, "/authentication/confirmed");
-            TestUtils.expectStatus(resultActions, HttpStatus.OK);
-        } catch (Exception e) {
-            TestUtils.failTest(e);
-        }
+        mockGetUser();
+        mockRegisterNewUser();
+        given(userService.confirmRegistration(any(), any(), any())).will(i -> i.getArgument(0));
+        AuthenticationCodeDto authenticationCodeDto = new AuthenticationCodeDto(user.getId(), "4545", "5454");
+        ResultActions resultActions = TestUtils.performPost(mockMvc, authenticationCodeDto, "/authentication/confirmed");
+        TestUtils.expectStatus(resultActions, HttpStatus.OK);
+    }
+
+    @Test
+    void requestLogin() {
+        mockGetUser();
+        ResultActions resultActions = TestUtils.performPost(mockMvc, new LoginDto(user.getEmail(), "", ""), "/authentication/login");
+        TestUtils.expectStatus(resultActions, HttpStatus.OK);
+    }
+
+    @Test
+    void requestLoginBadRequest() {
+        mockUserNotFound();
+        ResultActions resultActions = TestUtils.performPost(mockMvc, new LoginDto(user.getEmail(), "", ""), "/authentication/login");
+        TestUtils.expectStatus(resultActions, HttpStatus.BAD_REQUEST);
     }
 
     private UserRegisterDto generateRegisterUserDto(String s) {
@@ -159,5 +160,9 @@ class AuthenticationControllerTest {
     private void mockGetUser() {
         mockGetUserByMail();
         mockGetUserById();
+    }
+
+    private void mockUserNotFound() {
+        given(userService.getUserByEmail(any())).willReturn(Optional.empty());
     }
 }

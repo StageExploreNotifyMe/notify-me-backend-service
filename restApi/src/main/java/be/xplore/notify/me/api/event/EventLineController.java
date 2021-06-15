@@ -15,6 +15,7 @@ import be.xplore.notify.me.services.OrganizationService;
 import be.xplore.notify.me.services.event.EventLineService;
 import be.xplore.notify.me.services.event.EventService;
 import be.xplore.notify.me.services.event.LineService;
+import be.xplore.notify.me.services.user.UserOrganizationService;
 import be.xplore.notify.me.services.user.UserService;
 import be.xplore.notify.me.util.ApiUtils;
 import org.springframework.data.domain.Page;
@@ -30,7 +31,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -45,6 +45,7 @@ public class EventLineController {
     private final EventService eventService;
     private final OrganizationService organizationService;
     private final UserService userService;
+    private final UserOrganizationService userOrganizationService;
     private final ApiUtils apiUtils;
 
     public EventLineController(
@@ -54,6 +55,7 @@ public class EventLineController {
             EventService eventService,
             OrganizationService organizationService,
             UserService userService,
+            UserOrganizationService userOrganizationService,
             ApiUtils apiUtils
     ) {
         this.lineService = lineService;
@@ -62,6 +64,7 @@ public class EventLineController {
         this.eventService = eventService;
         this.userService = userService;
         this.organizationService = organizationService;
+        this.userOrganizationService = userOrganizationService;
         this.apiUtils = apiUtils;
     }
 
@@ -147,22 +150,36 @@ public class EventLineController {
     }
 
     private User isAllowedOnThisEventLineAndHasRole(Authentication authentication, EventLine eventLine, List<Role> roles) {
-        if (ApiUtils.isAdmin(authentication)) {
-            return null;
-        }
         ApiUtils.requireRole(authentication, roles);
         User user = apiUtils.requireUserFromAuthentication(authentication);
-        if (getEventLineUsers(eventLine).stream().noneMatch(u -> u.getId().equals(user.getId()))) {
-            throw new Unauthorized("You are not allowed to do this.");
+
+        if (
+                ApiUtils.isAdmin(authentication)
+                || isMemberOfOrganization(eventLine, user)
+                || isAssignedToLine(eventLine, user)
+                || isVenueManager(eventLine, user)
+                || isLineManagerManager(eventLine, user)
+        ) {
+            return user;
         }
-        return user;
+
+        throw new Unauthorized("You are not allowed to do this.");
     }
 
-    private List<User> getEventLineUsers(EventLine eventLine) {
-        List<User> allowedUsers = new ArrayList<>();
-        allowedUsers.addAll(eventLine.getAssignedUsers());
-        allowedUsers.addAll(eventLine.getEvent().getVenue().getLineManagers());
-        allowedUsers.addAll(eventLine.getEvent().getVenue().getVenueManagers());
-        return allowedUsers;
+    private boolean isAssignedToLine(EventLine eventLine, User user) {
+        return eventLine.getAssignedUsers().stream().anyMatch(u -> u.getId().equals(user.getId()));
+    }
+
+    private boolean isVenueManager(EventLine eventLine, User user) {
+        return eventLine.getEvent().getVenue().getVenueManagers().stream().anyMatch(u -> u.getId().equals(user.getId()));
+    }
+
+    private boolean isLineManagerManager(EventLine eventLine, User user) {
+        return eventLine.getEvent().getVenue().getLineManagers().stream().anyMatch(u -> u.getId().equals(user.getId()));
+    }
+
+    private boolean isMemberOfOrganization(EventLine eventLine, User user) {
+        return userOrganizationService.getAllUserOrganizationsByUserId(user.getId()).stream()
+                .anyMatch(uo -> uo.getOrganization().getId().equals(eventLine.getOrganization().getId()));
     }
 }

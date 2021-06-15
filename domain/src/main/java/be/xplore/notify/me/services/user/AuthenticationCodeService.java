@@ -33,30 +33,33 @@ public class AuthenticationCodeService {
     }
 
     public List<AuthenticationCode> generateUserAuthCodes() {
-        Random random = new Random();
+
         List<AuthenticationCode> authenticationCodes = new ArrayList<>();
         for (NotificationChannel notificationChannel : Arrays.asList(NotificationChannel.EMAIL, NotificationChannel.SMS)) {
-            AuthenticationCode authenticationCode = AuthenticationCode.builder()
-                    .code(String.format("%04d", random.nextInt(10000)))
-                    .creationDate(LocalDateTime.now())
-                    .notificationChannel(notificationChannel)
-                    .build();
-            authenticationCodes.add(authenticationCode);
+            authenticationCodes.add(generateAuthCode(notificationChannel));
         }
         return saveAll(authenticationCodes);
     }
 
     public void sendUserAuthCodes(User user, List<AuthenticationCode> authenticationCodes) {
-        for (AuthenticationCode authenticationCode : authenticationCodes) {
-            Notification notification = Notification.builder()
-                    .userId(user.getId())
-                    .usedChannel(authenticationCode.getNotificationChannel())
-                    .creationDate(LocalDateTime.now()).title("Confirmation token")
-                    .body(String.format("Hi %s %s your confirmation token is: %s", user.getFirstname(), user.getLastname(), authenticationCode.getCode()))
-                    .build();
-            notificationService.sendNotificationWithoutInbox(notification, user);
+        authenticationCodes.forEach(code -> sendUserAuthCode(user, code));
+    }
 
-        }
+    public AuthenticationCode generateAuthCode(NotificationChannel channel) {
+        return AuthenticationCode.builder()
+            .code(String.format("%04d", new Random().nextInt(10000)))
+            .creationDate(LocalDateTime.now())
+            .notificationChannel(channel)
+            .build();
+    }
 
+    public void sendUserAuthCode(User user, AuthenticationCode authenticationCode) {
+        Notification notification = Notification.builder()
+                .userId(user.getId())
+                .usedChannel(authenticationCode.getNotificationChannel())
+                .creationDate(LocalDateTime.now()).title("Confirmation token")
+                .body(String.format("Hi %s %s your confirmation token is: %s", user.getFirstname(), user.getLastname(), authenticationCode.getCode()))
+                .build();
+        notificationService.sendNotificationWithoutInbox(notification, user);
     }
 }
