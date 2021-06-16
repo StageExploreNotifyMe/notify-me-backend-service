@@ -145,7 +145,7 @@ public class EventLineController {
             throw new Unauthorized("You are not allowed to cancel someone else's attendance");
         }
 
-        EventLine updatedLine = eventLineService.cancelUserEventLine(dto.getMemberId(), line);
+        EventLine updatedLine = eventLineService.cancelUserEventLine(caller, line);
         return new ResponseEntity<>(eventLineDtoMapper.toDto(updatedLine), HttpStatus.OK);
     }
 

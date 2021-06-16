@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -29,6 +30,11 @@ public class EventAdapter implements EventRepo {
 
     @Override
     public Page<Event> getAllEventsBetween(LocalDateTime dateTimeStart, LocalDateTime dateTimeEnd, PageRequest pageRequest) {
+        return null;
+    }
+
+    @Override
+    public List<Event> findAllByIds(List<String> ids) {
         return null;
     }
 }

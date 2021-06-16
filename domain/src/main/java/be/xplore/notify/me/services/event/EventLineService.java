@@ -124,15 +124,18 @@ public class EventLineService {
         return eventLineRepo.getAllLinesOfUser(user, PageRequest.of(pageNumber, 20));
     }
 
-    public EventLine cancelUserEventLine(String userId, EventLine line) {
+    public EventLine cancelUserEventLine(User user, EventLine line) {
         List<User> assignedUsers = line.getAssignedUsers();
-        Optional<User> userOptional = assignedUsers.stream().filter(u -> u.getId().equals(userId)).findAny();
+        Optional<User> userOptional = assignedUsers.stream().filter(u -> u.getId().equals(user.getId())).findAny();
         if (userOptional.isEmpty()) {
-            throw new IllegalArgumentException("User with id " + userId + " is not assigned to this line.");
+            throw new IllegalArgumentException("User with id " + user.getId() + " is not assigned to this line.");
         }
 
         assignedUsers.remove(userOptional.get());
-        eventLineNotificationService.sendMemberCanceledNotification(userId, line);
+        eventLineNotificationService.sendMemberCanceledNotification(
+                user.getFirstname() + " " + user.getLastname(),
+                line
+        );
         return save(updateAssignedUsers(line, assignedUsers));
     }
 

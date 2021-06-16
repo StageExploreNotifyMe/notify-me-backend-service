@@ -77,42 +77,52 @@ public class LineStaffingScheduledService {
             return;
         }
         User user = eventLine.getLineManager();
+        Event event = eventLine.getEvent();
         String body = String.format(
                 "Hi %s %s\n\nEvent %s has a line %s with incomplete staffing: %s/%s.  Assigned organization is %s.  Event is due to start at %s on %s",
                 user.getFirstname(),
                 user.getLastname(),
-                eventLine.getEvent().getName(),
+                event.getName(),
                 eventLine.getLine().getName(),
                 eventLine.getAssignedUsers().size(),
                 eventLine.getLine().getNumberOfRequiredPeople(),
                 eventLine.getOrganization().getName(),
-                eventLine.getEvent().getDate().toLocalTime(),
-                eventLine.getEvent().getDate().toLocalDate()
+                event.getDate().toLocalTime(),
+                event.getDate().toLocalDate()
         );
-        sendNotification(user, body, "Line with incomplete staffing");
+        Notification notification = Notification.builder()
+                .type(NotificationType.STAFFING_REMINDER)
+                .urgency(NotificationUrgency.URGENT)
+                .title("Line with incomplete staffing")
+                .creationDate(LocalDateTime.now())
+                .userId(user.getId())
+                .eventId(event.getId())
+                .usedChannel(user.getUserPreferences().getUrgentChannel())
+                .body(body)
+                .build();
+
+        notificationService.sendNotification(notification, user);
     }
 
     private void sendNoOrgAssignNotification(EventLine eventLine) {
         User user = eventLine.getLineManager();
+        Event event = eventLine.getEvent();
         String body = String.format(
                 "Hi %s %s\n\nEvent %s has a line %s without an organization assigned. Event is due to start at %s on %s",
                 user.getFirstname(),
                 user.getLastname(),
-                eventLine.getEvent().getName(),
+                event.getName(),
                 eventLine.getLine().getName(),
-                eventLine.getEvent().getDate().toLocalTime(),
-                eventLine.getEvent().getDate().toLocalDate()
+                event.getDate().toLocalTime(),
+                event.getDate().toLocalDate()
         );
-        sendNotification(user, body, "Line without an organization assigned");
-    }
-
-    private void sendNotification(User user, String body, String title) {
         Notification notification = Notification.builder()
                 .type(NotificationType.STAFFING_REMINDER)
                 .urgency(NotificationUrgency.URGENT)
-                .title(title)
+                .title("Line without an organization assigned")
                 .creationDate(LocalDateTime.now())
                 .userId(user.getId())
+                .eventId(event.getId())
                 .usedChannel(user.getUserPreferences().getUrgentChannel())
                 .body(body)
                 .build();

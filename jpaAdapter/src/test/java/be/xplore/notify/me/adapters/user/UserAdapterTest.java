@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 
 import javax.transaction.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -50,5 +51,13 @@ class UserAdapterTest {
     void getUserByEmail() {
         Optional<User> userByEmail = userAdapter.getUserByEmail("test@email.com");
         assertTrue(userByEmail.isPresent());
+    }
+
+    @Test
+    void findAllByIds() {
+        List<User> allByIds = userAdapter.findAllByIds(List.of("3", "4"));
+        assertTrue(allByIds.stream().anyMatch(u -> u.getFirstname().equals("John")));
+        assertTrue(allByIds.stream().anyMatch(u -> u.getFirstname().equals("Jane")));
+        assertEquals(2, allByIds.size());
     }
 }

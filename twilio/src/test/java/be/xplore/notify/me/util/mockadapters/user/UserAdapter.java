@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -29,5 +30,10 @@ public class UserAdapter implements UserRepo {
     @Override
     public Optional<User> getUserByEmail(String email) {
         return Optional.empty();
+    }
+
+    @Override
+    public List<User> findAllByIds(List<String> ids) {
+        return null;
     }
 }

@@ -1,7 +1,7 @@
 package be.xplore.notify.me.mappers;
 
 import be.xplore.notify.me.domain.notification.Notification;
-import be.xplore.notify.me.dto.NotificationDto;
+import be.xplore.notify.me.dto.notification.NotificationDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

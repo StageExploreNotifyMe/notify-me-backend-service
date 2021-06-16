@@ -1,4 +1,4 @@
-package be.xplore.notify.me.dto;
+package be.xplore.notify.me.dto.notification;
 
 import be.xplore.notify.me.domain.notification.NotificationChannel;
 import lombok.AllArgsConstructor;

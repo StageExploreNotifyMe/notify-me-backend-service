@@ -46,6 +46,7 @@ public class TwilioTextService {
             .sentDate(getSmsSentDate(message))
             .usedChannel(NotificationChannel.WHATSAPP)
             .price(getPrice(message))
+            .eventId(notification.getEventId())
             .priceCurrency(message.getPriceUnit())
             .build();
     }
@@ -63,6 +64,7 @@ public class TwilioTextService {
             .sentDate(getSmsSentDate(message))
             .usedChannel(NotificationChannel.SMS)
             .price(getPrice(message))
+            .eventId(notification.getEventId())
             .priceCurrency(message.getPriceUnit())
             .build();
     }

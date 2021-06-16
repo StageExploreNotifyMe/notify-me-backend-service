@@ -13,7 +13,9 @@ import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -47,6 +49,13 @@ public class UserAdapter implements UserRepo {
     @Override
     public Optional<User> getUserByEmail(String email) {
         return mapToObject(jpaUserRepo.findByEmail(email));
+    }
+
+    @Override
+    public List<User> findAllByIds(List<String> ids) {
+        List<Long> longIds = ids.stream().map(LongParser::parseLong).collect(Collectors.toList());
+        List<UserEntity> userEntities = jpaUserRepo.findAllByIds(longIds);
+        return userEntities.stream().map(userEntityMapper::fromEntity).collect(Collectors.toList());
     }
 
     private Optional<User> mapToObject(Optional<UserEntity> optional) {

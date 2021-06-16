@@ -30,7 +30,7 @@ public class NotificationAdapter implements NotificationRepo {
 
     @Override
     public Page<Notification> getAllByUserId(String userId, Pageable pageable) {
-        Page<NotificationEntity> notifications = jpaNotificationRepo.getAllByUserId(userId, pageable);
+        Page<NotificationEntity> notifications = jpaNotificationRepo.getAllByUserIdOrderByCreationDateDesc(userId, pageable);
         return notifications.map(notificationEntityMapper::fromEntity);
     }
 
@@ -52,25 +52,25 @@ public class NotificationAdapter implements NotificationRepo {
 
     @Override
     public Page<Notification> getAll(Pageable pageable) {
-        Page<NotificationEntity> notifications = jpaNotificationRepo.findAll(pageable);
+        Page<NotificationEntity> notifications = jpaNotificationRepo.getAllByOrderByCreationDateDesc(pageable);
         return notifications.map(notificationEntityMapper::fromEntity);
     }
 
     @Override
     public Page<Notification> getAllByNotificationType(NotificationType notificationType, Pageable pageable) {
-        Page<NotificationEntity> notifications = jpaNotificationRepo.getAllByType(notificationType, pageable);
+        Page<NotificationEntity> notifications = jpaNotificationRepo.getAllByTypeOrderByCreationDateDesc(notificationType, pageable);
         return notifications.map(notificationEntityMapper::fromEntity);
     }
 
     @Override
     public Page<Notification> getAllByEventId(String eventId, Pageable pageable) {
-        Page<NotificationEntity> notifications = jpaNotificationRepo.getAllByEventId(eventId, pageable);
+        Page<NotificationEntity> notifications = jpaNotificationRepo.getAllByEventIdOrderByCreationDateDesc(eventId, pageable);
         return notifications.map(notificationEntityMapper::fromEntity);
     }
 
     @Override
     public Page<Notification> getAllByTypeAndEvent(NotificationType notificationType, String eventId, Pageable pageable) {
-        Page<NotificationEntity> notifications = jpaNotificationRepo.getAllByEventIdAndType(eventId, notificationType, pageable);
+        Page<NotificationEntity> notifications = jpaNotificationRepo.getAllByEventIdAndTypeOrderByCreationDateDesc(eventId, notificationType, pageable);
         return notifications.map(notificationEntityMapper::fromEntity);
     }
 

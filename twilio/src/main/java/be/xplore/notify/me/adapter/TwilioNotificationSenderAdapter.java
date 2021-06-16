@@ -71,6 +71,7 @@ public class TwilioNotificationSenderAdapter implements NotificationSenderServic
             .sentDate(LocalDateTime.now())
             .usedChannel(NotificationChannel.APP)
             .price(0.0)
+            .eventId(notification.getEventId())
             .priceCurrency(Currency.getInstance("EUR"))
             .build();
     }

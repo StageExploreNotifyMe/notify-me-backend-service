@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import javax.transaction.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -54,5 +55,13 @@ class EventAdapterTest {
         assertTrue(between.hasContent());
         Page<Event> none = eventAdapter.getAllEventsBetween(LocalDateTime.MIN, LocalDateTime.MIN.plusSeconds(1), PageRequest.of(0, 20));
         assertTrue(none.isEmpty());
+    }
+
+    @Test
+    void findAllByIds() {
+        List<Event> allByIds = eventAdapter.findAllByIds(List.of("1", "2"));
+        assertTrue(allByIds.stream().anyMatch(event -> event.getName().equals("testEvent")));
+        assertTrue(allByIds.stream().anyMatch(event -> event.getName().equals("testEvent 2")));
+        assertEquals(2, allByIds.size());
     }
 }

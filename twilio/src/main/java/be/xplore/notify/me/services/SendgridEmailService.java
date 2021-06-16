@@ -45,6 +45,7 @@ public class SendgridEmailService {
             return Notification.builder()
                 .id(notification.getId())
                 .userId(user.getId())
+                .eventId(notification.getEventId())
                 .title(notification.getTitle())
                 .body(notification.getBody())
                 .urgency(notification.getUrgency())

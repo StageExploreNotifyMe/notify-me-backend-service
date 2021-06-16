@@ -11,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -87,5 +88,9 @@ public class EventService {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime endDate = now.plusDays(numberOfDays);
         return eventRepo.getAllEventsBetween(now, endDate, PageRequest.of(page, 20));
+    }
+
+    public List<Event> getAllById(List<String> eventIds) {
+        return eventRepo.findAllByIds(eventIds);
     }
 }

@@ -12,13 +12,16 @@ import java.util.List;
 
 @Repository
 public interface JpaNotificationRepo extends JpaRepository<NotificationEntity, Long> {
-    Page<NotificationEntity> getAllByUserId(String userId, Pageable pageable);
 
-    Page<NotificationEntity> getAllByType(NotificationType notificationType, Pageable pageable);
+    Page<NotificationEntity> getAllByOrderByCreationDateDesc(Pageable pageable);
 
-    Page<NotificationEntity> getAllByEventId(String eventId, Pageable pageable);
+    Page<NotificationEntity> getAllByUserIdOrderByCreationDateDesc(String userId, Pageable pageable);
 
-    Page<NotificationEntity> getAllByEventIdAndType(String eventId, NotificationType notificationType, Pageable pageable);
+    Page<NotificationEntity> getAllByTypeOrderByCreationDateDesc(NotificationType notificationType, Pageable pageable);
+
+    Page<NotificationEntity> getAllByEventIdOrderByCreationDateDesc(String eventId, Pageable pageable);
+
+    Page<NotificationEntity> getAllByEventIdAndTypeOrderByCreationDateDesc(String eventId, NotificationType notificationType, Pageable pageable);
 
     @Query("select count(n) as amount, n.usedChannel from NotificationEntity n group by n.usedChannel")
     List<Object[]> getChannelAmount();

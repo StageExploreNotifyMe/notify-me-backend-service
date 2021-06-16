@@ -28,18 +28,18 @@ public class EventLineNotificationService {
         this.userOrganizationService = userOrganizationService;
     }
 
-    public void sendMemberCanceledNotification(String userId, EventLine line) {
+    public void sendMemberCanceledNotification(String userName, EventLine line) {
         List<UserOrganization> userOrganizations = userOrganizationService.getAllOrganizationLeadersByOrganizationId(line.getOrganization().getId());
         for (UserOrganization userOrganization: userOrganizations) {
-            Notification notification = MemberCanceledDetails(userId, line, userOrganization.getUser());
+            Notification notification = MemberCanceledDetails(userName, line, userOrganization.getUser());
             notificationService.sendNotification(notification, userOrganization.getUser());
         }
     }
 
-    private Notification MemberCanceledDetails(String userId, EventLine line, User organizationLeader) {
+    private Notification MemberCanceledDetails(String userName, EventLine line, User organizationLeader) {
         return Notification.builder()
-            .title(String.format("user: %s canceled his attendance", userId))
-            .body(String.format("user: %s canceled his attendance for %s at %s", userId, line.getLine().getName(), line.getEvent().getName()))
+            .title(String.format("user: %s canceled their attendance", userName))
+            .body(String.format("user: %s canceled their attendance for %s at %s", userName, line.getLine().getName(), line.getEvent().getName()))
             .type(NotificationType.USER_CANCELED)
             .userId(organizationLeader.getId())
             .urgency(NotificationService.getNormalNotificationUrgency(line.getEvent()))
@@ -47,7 +47,6 @@ public class EventLineNotificationService {
             .usedChannel(NotificationChannel.EMAIL)
             .eventId(line.getEvent().getId())
             .build();
-
     }
 
     public void sendEventLineCanceledNotification(EventLine eventLine) {
@@ -116,6 +115,7 @@ public class EventLineNotificationService {
                 .urgency(NotificationUrgency.URGENT)
                 .usedChannel(leader.getUserPreferences().getNormalChannel())
                 .userId(leader.getId())
+                .eventId(eventLine.getEvent().getId())
                 .title(String.format("Staffing reminder %s", eventLine.getLine().getName()))
                 .body(customText == null ? body : customText)
                 .build();
